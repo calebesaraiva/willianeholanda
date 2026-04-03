@@ -1,0 +1,258 @@
+
+> dra-williane-holanda@1.0.0 start
+> react-scripts start
+
+Starting the development server...
+
+Compiled successfully!
+
+You can now view dra-williane-holanda in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://192.168.1.2:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Failed to compile.
+
+Module not found: Error: Can't resolve './components/AdminPanel' in 'C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\src'
+[1m[31mERROR[39m[22m in [1m./src/App.js[39m[22m [1m[32m16:0-49[39m[22m
+[1mModule [1m[31mnot found[39m[22m[1m: [1m[31mError[39m[22m[1m: Can't resolve './components/AdminPanel' in 'C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\src'[39m[22m
+
+webpack compiled with [1m[31m1 error[39m[22m
+Compiling...
+Failed to compile.
+
+Module not found: Error: Can't resolve './components/AdminPanel' in 'C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\src'
+[1m[31mERROR[39m[22m in [1m./src/App.js[39m[22m [1m[32m16:0-49[39m[22m
+[1mModule [1m[31mnot found[39m[22m[1m: [1m[31mError[39m[22m[1m: Can't resolve './components/AdminPanel' in 'C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\src'[39m[22m
+
+webpack compiled with [1m[31m1 error[39m[22m
+Compiling...
+Failed to compile.
+
+Module not found: Error: Can't resolve './components/AdminPanel' in 'C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\src'
+[1m[31mERROR[39m[22m in [1m./src/App.js[39m[22m [1m[32m16:0-49[39m[22m
+[1mModule [1m[31mnot found[39m[22m[1m: [1m[31mError[39m[22m[1m: Can't resolve './components/AdminPanel' in 'C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\src'[39m[22m
+
+webpack compiled with [1m[31m1 error[39m[22m
+Compiling...
+Failed to compile.
+
+Module not found: Error: Can't resolve './components/AdminPanel' in 'C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\src'
+[1m[31mERROR[39m[22m in [1m./src/App.js[39m[22m [1m[32m16:0-49[39m[22m
+[1mModule [1m[31mnot found[39m[22m[1m: [1m[31mError[39m[22m[1m: Can't resolve './components/AdminPanel' in 'C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\src'[39m[22m
+
+webpack compiled with [1m[31m1 error[39m[22m
+Compiling...
+Failed to compile.
+
+Module not found: Error: Can't resolve './components/AdminPanel' in 'C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\src'
+[1m[31mERROR[39m[22m in [1m./src/App.js[39m[22m [1m[32m16:0-49[39m[22m
+[1mModule [1m[31mnot found[39m[22m[1m: [1m[31mError[39m[22m[1m: Can't resolve './components/AdminPanel' in 'C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\src'[39m[22m
+
+webpack compiled with [1m[31m1 error[39m[22m
+Compiling...
+Failed to compile.
+
+Module not found: Error: Can't resolve './components/AdminPanel' in 'C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\src'
+[1m[31mERROR[39m[22m in [1m./src/App.js[39m[22m [1m[32m16:0-49[39m[22m
+[1mModule [1m[31mnot found[39m[22m[1m: [1m[31mError[39m[22m[1m: Can't resolve './components/AdminPanel' in 'C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\src'[39m[22m
+
+webpack compiled with [1m[31m1 error[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Compiled successfully!
+webpack compiled [1m[32msuccessfully[39m[22m
+Compiling...
+Failed to compile.
+
+[eslint] 
+src\components\AdminPanel.js
+Syntax error: Unexpected token (298:0) (298:undefined)
+[1m[31mERROR[39m[22m in [1m./src/components/AdminPanel.js[39m[22m
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\src\components\AdminPanel.js: Unexpected token (298:0)
+
+[0m [90m 296 |[39m     [36mreturn[39m setAtPath(previous[33m,[39m path[33m,[39m target[33m.[39mfilter((_[33m,[39m itemIndex) [33m=>[39m itemIndex [33m!==[39m index))[33m;[39m
+ [90m 297 |[39m   })[33m;[39m
+[31m[1m>[22m[39m[90m 298 |[39m
+ [90m     |[39m [31m[1m^[22m[39m[0m
+    at constructor (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:365:19)
+    at FlowParserMixin.raise (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:6599:19)
+    at FlowParserMixin.unexpected (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:6619:16)
+    at FlowParserMixin.parseExprAtom (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:11442:22)
+    at FlowParserMixin.parseExprAtom (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:4764:20)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:11081:23)
+    at FlowParserMixin.parseUpdate (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:11066:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:11046:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10899:61)
+    at FlowParserMixin.parseExprOps (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10904:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10881:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10831:21)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:3549:18)
+    at FlowParserMixin.parseExpressionBase (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10784:23)
+    at C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10780:39
+    at FlowParserMixin.allowInAnd (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:12421:16)
+    at FlowParserMixin.parseExpression (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10780:17)
+    at FlowParserMixin.parseStatementContent (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:12895:23)
+    at FlowParserMixin.parseStatementLike (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:12767:17)
+    at FlowParserMixin.parseStatementLike (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:2918:24)
+    at FlowParserMixin.parseStatementListItem (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:12747:17)
+    at FlowParserMixin.parseBlockOrModuleBlockBody (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:13316:61)
+    at FlowParserMixin.parseBlockBody (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:13309:10)
+    at FlowParserMixin.parseBlock (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:13297:10)
+    at FlowParserMixin.parseFunctionBody (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:12100:24)
+    at FlowParserMixin.parseFunctionBody (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:2895:11)
+    at FlowParserMixin.parseFunctionBodyAndFinish (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:12086:10)
+    at FlowParserMixin.parseFunctionBodyAndFinish (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:2903:18)
+    at C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:13445:12
+    at FlowParserMixin.withSmartMixTopicForbiddingContext (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:12403:14)
+    at FlowParserMixin.parseFunction (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:13444:10)
+    at FlowParserMixin.parseExportDefaultExpression (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:13907:19)
+    at FlowParserMixin.parseExportDefaultExpression (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:2966:18)
+    at FlowParserMixin.parseExport (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:13828:25)
+    at FlowParserMixin.parseStatementContent (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:12878:27)
+    at FlowParserMixin.parseStatementLike (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:12767:17)
+    at FlowParserMixin.parseStatementLike (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:2918:24)
+    at FlowParserMixin.parseModuleItem (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:12744:17)
+    at FlowParserMixin.parseBlockOrModuleBlockBody (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:13316:36)
+    at FlowParserMixin.parseBlockBody (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:13309:10)
+    at FlowParserMixin.parseProgram (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:12622:10)
+    at FlowParserMixin.parseTopLevel (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:12612:25)
+    at FlowParserMixin.parseTopLevel (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:3685:28)
+    at FlowParserMixin.parse (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:14488:25)
+    at parse (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:14522:38)
+    at parser (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\core\lib\parser\index.js:41:34)
+    at parser.next (<anonymous>)
+    at normalizeFile (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+    at normalizeFile.next (<anonymous>)
+    at run (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\core\lib\transformation\index.js:22:50)
+
+[1m[31mERROR[39m[22m in [1m[eslint] 
+src\components\AdminPanel.js
+  Line 298:  Parsing [1m[31merror[39m[22m[1m: [1m[31mUnexpected[39m[22m[1m token (298:0)
+
+[39m[22m
+
+webpack compiled with [1m[31m2 errors[39m[22m
+Compiling...
+Failed to compile.
+
+[eslint] 
+src\components\AdminPanel.js
+Syntax error: Unterminated JSX contents. (545:242) (545:242)
+[1m[31mERROR[39m[22m in [1m./src/components/AdminPanel.js[39m[22m
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\src\components\AdminPanel.js: Unterminated JSX contents. (545:242)
+
+[0m [90m 543 |[39m         {notice [33m?[39m [33m<[39m[33mdiv[39m style[33m=[39m{{ marginBottom[33m:[39m [32m'20px'[39m[33m,[39m background[33m:[39m notice[33m.[39mtype [33m===[39m [32m'error'[39m [33m?[39m [32m'rgba(231,177,177,0.1)'[39m [33m:[39m [32m'rgba(201,169,110,0.1)'[39m[33m,[39m border[33m:[39m notice[33m.[39mtype [33m===[39m [32m'error'[39m [33m?[39m [32m'1px solid rgba(231,177,177,0.24)'[39m [33m:[39m [32m'1px solid rgba(201,169,110,0.24)'[39m[33m,[39m borderRadius[33m:[39m [32m'16px'[39m[33m,[39m padding[33m:[39m [32m'14px 16px'[39m }}[33m>[39m{notice[33m.[39mmessage}[33m<[39m[33m/[39m[33mdiv[39m[33m>[39m [33m:[39m [36mnull[39m}
+ [90m 544 |[39m
+[31m[1m>[22m[39m[90m 545 |[39m         [33m<[39m[33mSectionCard[39m eyebrow[33m=[39m[32m"Fluxo real da clinica"[39m title[33m=[39m[32m"Agenda e agendamentos"[39m description[33m=[39m[32m"A Dra libera os dias de atendimento. A equipe cadastra o paciente com nome completo, endereco e CPF, e so consegue trabalhar em datas liberadas."[39m[33m>[39m
+ [90m     |[39m                                                                                                                                                                                                                                                   [31m[1m^[22m[39m
+ [90m 546 |[39m[0m
+    at constructor (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:365:19)
+    at FlowParserMixin.raise (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:6599:19)
+    at FlowParserMixin.jsxReadToken (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:4448:20)
+    at FlowParserMixin.getTokenFromCode (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:4774:12)
+    at FlowParserMixin.getTokenFromCode (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:3197:13)
+    at FlowParserMixin.nextToken (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:5782:10)
+    at FlowParserMixin.next (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:5692:10)
+    at FlowParserMixin.eat (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:5696:12)
+    at FlowParserMixin.expect (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:6898:15)
+    at FlowParserMixin.jsxParseOpeningElementAfterName (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:4671:10)
+    at FlowParserMixin.jsxParseOpeningElementAfterName (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:4068:18)
+    at FlowParserMixin.jsxParseOpeningElementAt (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:4662:17)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:4686:33)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:4698:32)
+    at FlowParserMixin.jsxParseElementAt (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:4698:32)
+    at FlowParserMixin.jsxParseElement (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:4749:17)
+    at FlowParserMixin.parseExprAtom (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:4759:19)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:11081:23)
+    at FlowParserMixin.parseUpdate (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:11066:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:11046:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10899:61)
+    at FlowParserMixin.parseExprOps (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10904:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10881:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10831:21)
+    at C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:3498:39
+    at FlowParserMixin.tryParse (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:6907:20)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:3498:18)
+    at C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10800:39
+    at FlowParserMixin.allowInAnd (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:12426:12)
+    at FlowParserMixin.parseMaybeAssignAllowIn (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10800:17)
+    at FlowParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:12493:17)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:11675:28)
+    at FlowParserMixin.parseParenAndDistinguishExpression (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:3591:18)
+    at FlowParserMixin.parseExprAtom (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:11331:23)
+    at FlowParserMixin.parseExprAtom (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:4764:20)
+    at FlowParserMixin.parseExprSubscripts (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:11081:23)
+    at FlowParserMixin.parseUpdate (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:11066:21)
+    at FlowParserMixin.parseMaybeUnary (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:11046:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10899:61)
+    at FlowParserMixin.parseExprOps (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10904:23)
+    at FlowParserMixin.parseMaybeConditional (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10881:23)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10831:21)
+    at FlowParserMixin.parseMaybeAssign (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:3549:18)
+    at FlowParserMixin.parseExpressionBase (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10784:23)
+    at C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10780:39
+    at FlowParserMixin.allowInAnd (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:12421:16)
+    at FlowParserMixin.parseExpression (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:10780:17)
+    at FlowParserMixin.parseReturnStatement (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:13142:28)
+    at FlowParserMixin.parseStatementContent (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:12798:21)
+    at FlowParserMixin.parseStatementLike (C:\Users\caleb\Downloads\dra-williane-holanda\dra-williane\node_modules\@babel\parser\lib\index.js:12767:17)
+
+[1m[31mERROR[39m[22m in [1m[eslint] 
+src\components\AdminPanel.js
+  Line 545:242:  Parsing [1m[31merror[39m[22m[1m: Unterminated JSX contents. (545:242)
+
+[39m[22m
+
+webpack compiled with [1m[31m2 errors[39m[22m

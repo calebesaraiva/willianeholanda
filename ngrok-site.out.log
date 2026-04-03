@@ -1,0 +1,55 @@
+{"lvl":"info","msg":"no configuration paths supplied","t":"2026-04-02T20:54:42.5259425-03:00"}
+{"lvl":"info","msg":"using configuration at default config path","path":"C:\\Users\\caleb\\AppData\\Local/ngrok/ngrok.yml","t":"2026-04-02T20:54:42.5445389-03:00"}
+{"err":"\u003cnil\u003e","lvl":"info","msg":"open config file","path":"C:\\Users\\caleb\\AppData\\Local\\ngrok\\ngrok.yml","t":"2026-04-02T20:54:42.5469657-03:00"}
+{"enabled":false,"lvl":"info","msg":"FIPS 140 mode","t":"2026-04-02T20:54:42.5496775-03:00"}
+{"addr":"127.0.0.1:4040","allow_hosts":null,"lvl":"info","msg":"starting web service","obj":"web","t":"2026-04-02T20:54:42.572686-03:00"}
+{"lvl":"info","msg":"client session established","obj":"tunnels.session","t":"2026-04-02T20:54:42.906493-03:00"}
+{"lvl":"info","msg":"tunnel session started","obj":"tunnels.session","t":"2026-04-02T20:54:42.9162069-03:00"}
+{"lvl":"info","msg":"update available","obj":"updater","t":"2026-04-02T20:54:42.9681069-03:00"}
+{"addr":"http://localhost:3000","lvl":"info","msg":"started tunnel","name":"command_line","obj":"tunnels","t":"2026-04-02T20:54:43.2815932-03:00","url":"https://archival-logily-calista.ngrok-free.dev"}
+{"id":"0a55c29ff742cc75","lvl":"info","msg":"start","pg":"/api/tunnels","t":"2026-04-02T20:54:52.5285507-03:00"}
+{"dur":"2.0147ms","id":"0a55c29ff742cc75","lvl":"info","msg":"end","pg":"/api/tunnels","status":200,"t":"2026-04-02T20:54:52.5305654-03:00"}
+{"id":"b3f67418a939fb76","lvl":"info","msg":"start","pg":"/api/tunnels","t":"2026-04-02T20:55:04.7493043-03:00"}
+{"dur":"1.2088ms","id":"b3f67418a939fb76","lvl":"info","msg":"end","pg":"/api/tunnels","status":200,"t":"2026-04-02T20:55:04.7505131-03:00"}
+{"id":"69b27e87f9ad","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:13140","t":"2026-04-02T20:55:26.1147984-03:00"}
+{"id":"9bbaa758f9f1","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:14329","t":"2026-04-02T20:57:20.6725556-03:00"}
+{"id":"1f347ef6b72e","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:14329","t":"2026-04-02T20:57:21.5150099-03:00"}
+{"id":"8fc020985ad1","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:14329","t":"2026-04-02T20:57:21.5150099-03:00"}
+{"id":"0fa0d1e2212b","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:14329","t":"2026-04-02T20:57:21.5150099-03:00"}
+{"id":"ea824d93bce4","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:14329","t":"2026-04-02T20:57:21.5587067-03:00"}
+{"id":"8199387b0c62","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:14329","t":"2026-04-02T20:57:21.5587067-03:00"}
+{"id":"46849e29776c","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:14329","t":"2026-04-02T20:57:21.5587067-03:00"}
+{"id":"c441f2bc7fea","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:14329","t":"2026-04-02T20:57:31.7209859-03:00"}
+{"id":"210348056576","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:11135","t":"2026-04-02T20:58:35.44178-03:00"}
+{"id":"247ee0719b6c","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:14329","t":"2026-04-02T20:59:10.998858-03:00"}
+{"id":"5d3d69163451","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:14329","t":"2026-04-02T20:59:11.6444156-03:00"}
+{"id":"6b39ba5e2e0f","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:14329","t":"2026-04-02T20:59:11.7177756-03:00"}
+{"id":"37ef480f973d","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:14329","t":"2026-04-02T20:59:11.7686297-03:00"}
+{"id":"7a0a46e30d8a","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:14329","t":"2026-04-02T20:59:11.7686297-03:00"}
+{"id":"5a9868c36386","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:14329","t":"2026-04-02T20:59:11.7695513-03:00"}
+{"id":"505882e7d825","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:14329","t":"2026-04-02T20:59:11.7695513-03:00"}
+{"id":"09fc057a52a1","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:14329","t":"2026-04-02T20:59:11.7728336-03:00"}
+{"id":"3128d81027d6","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:15791","t":"2026-04-02T21:08:46.6490353-03:00"}
+{"id":"08b6f05624a8","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:12863","t":"2026-04-02T21:08:50.4787404-03:00"}
+{"id":"557b4e2a61be","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9265","t":"2026-04-02T21:13:31.1868943-03:00"}
+{"id":"aa9ee6e4f4bc","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9265","t":"2026-04-02T21:15:26.0666242-03:00"}
+{"id":"229c73642d2c","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9265","t":"2026-04-02T21:16:21.0123904-03:00"}
+{"id":"0a2f842343d5","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9265","t":"2026-04-02T21:25:00.6184223-03:00"}
+{"id":"7a9e47d4e8ce","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9265","t":"2026-04-02T21:25:01.2629188-03:00"}
+{"id":"a43c9c9dbc7d","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9265","t":"2026-04-02T21:25:01.309042-03:00"}
+{"id":"55990640ba2c","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9265","t":"2026-04-02T21:25:01.309042-03:00"}
+{"id":"9e6b5f561f31","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9265","t":"2026-04-02T21:25:01.309042-03:00"}
+{"id":"d0d097ed6a6f","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9265","t":"2026-04-02T21:25:01.309042-03:00"}
+{"id":"0929a9166b95","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9265","t":"2026-04-02T21:25:01.309042-03:00"}
+{"id":"35cde95fffa4","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9265","t":"2026-04-02T21:26:42.5957278-03:00"}
+{"id":"4663e9d6ebe2","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9265","t":"2026-04-02T21:26:48.3864824-03:00"}
+{"id":"0d11405814c3","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9265","t":"2026-04-02T21:26:48.3864824-03:00"}
+{"id":"2b7a5849af00","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9265","t":"2026-04-02T21:26:48.428413-03:00"}
+{"id":"b170f08b7c4d","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9265","t":"2026-04-02T21:26:48.4291544-03:00"}
+{"id":"9b26f1c55afb","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9265","t":"2026-04-02T21:26:48.4298307-03:00"}
+{"id":"dfe24db6e657","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9265","t":"2026-04-02T21:26:48.4298307-03:00"}
+{"id":"63cd05415d51","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9265","t":"2026-04-02T21:26:48.4298307-03:00"}
+{"id":"af6717aeb84a","l":"127.0.0.1:3000","lvl":"info","msg":"join connections","obj":"join","r":"45.189.75.94:9572","t":"2026-04-02T21:37:44.8244034-03:00"}
+{"lvl":"info","msg":"received stop request","obj":"app","stopReq":{},"t":"2026-04-02T22:02:22.6895194-03:00"}
+{"err":"\u003cnil\u003e","lvl":"info","msg":"session closing","obj":"tunnels.session","t":"2026-04-02T22:02:22.6908016-03:00"}
+{"err":"reconnecting session closed","id":"5f4c88908c81","lvl":"info","msg":"accept failed","obj":"csess","t":"2026-04-02T22:02:22.6912287-03:00"}

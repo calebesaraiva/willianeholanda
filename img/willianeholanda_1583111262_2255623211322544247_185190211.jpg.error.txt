@@ -1,0 +1,5 @@
+Request did not succeed. If you are using Firefox go into you privacy settings ans select the
+                standard setting (https://support.mozilla.org/en-US/kb/content-blocking). If that is not the problem you tried to download to many images
+                and instagram has blocked you temporarily.
+
+If you are using chrome there is currently a bug in chrome which seems to block my requests. So stay strong and hope that this error gets fixed soon.InvalidStateError: An operation that depends on state cached in an interface object was made but the state had changed since it was read from disk.

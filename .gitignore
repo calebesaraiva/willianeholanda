@@ -1,0 +1,7 @@
+node_modules/
+build/
+.codex-logs/
+server/data/*.sqlite
+server/data/*.sqlite-*
+server/data/*.json
+.env
