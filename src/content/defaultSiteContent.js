@@ -51,9 +51,9 @@ export const defaultSiteContent = {
     ],
     credentials: [
       'Medicina ITPAC-PORTO',
-      'Lifting de supercilio',
+      'Cirurgiã Geral',
       'CRM - MA 8393 | RQE 4113',
-      'Atuacao acrescenta Novo Repartimento - PA',
+      'Imperatriz (MA) – Novo Repartimento (PA)',
     ],
     image: aboutPortraitImage,
     badgeTitle: 'Atuacao Especializada',
