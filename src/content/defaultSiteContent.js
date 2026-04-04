@@ -49,7 +49,7 @@ export const defaultSiteContent = {
       'Cada paciente e conduzido com avaliacao individualizada, planejamento cuidadoso e acompanhamento proximo. Mais do que executar uma tecnica, sua proposta e entregar confianca, leveza e um atendimento a altura da expectativa de quem busca refinamento e seriedade.',
     ],
     credentials: [
-      'Medicina ITPAC-PORTO',
+      'Formação ITPAC-PORTO',
       'Lifting de supercílio',
       'CRM - MA 8393 | RQE 4113',
       'Atuação acrescenta Novo Repartimento - PA',
@@ -112,12 +112,12 @@ export const defaultSiteContent = {
       },
       {
         year: '2021',
-        title: 'Residencia Medica',
+        title: 'Residência Médica',
         desc: 'Aprofundamento em residência médica com amadurecimento técnico e vivência hospitalar intensa.',
       },
       {
         year: '2023',
-        title: 'Aperfeiçoamento contínuo',
+        title: 'Aperfeiçoamento continuo',
         desc: 'Atualização constante para unir técnica, segurança e refinamento na prática diária.',
       },
       {
