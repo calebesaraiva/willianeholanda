@@ -50,7 +50,7 @@ export const defaultSiteContent = {
       'Cada paciente e conduzido com avaliacao individualizada, planejamento cuidadoso e acompanhamento proximo. Mais do que executar uma tecnica, sua proposta e entregar confianca, leveza e um atendimento a altura da expectativa de quem busca refinamento e seriedade.',
     ],
     credentials: [
-      'Formacao ITPAC-PORTO',
+      'Medicina ITPAC-PORTO',
       'Lifting de supercilio',
       'CRM - MA 8393 | RQE 4113',
       'Atuacao acrescenta Novo Repartimento - PA',
@@ -107,7 +107,7 @@ export const defaultSiteContent = {
     headingAccent: 'dedicacao',
     items: [
       {
-        year: '2008',
+        year: '2009',
         title: 'Inicio da Formacao',
         desc: 'Ingresso na Medicina com foco em estudo, disciplina e construcao de uma base clinica solida.',
       },
