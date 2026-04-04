@@ -30,14 +30,15 @@ export const defaultSiteContent = {
     titlePrimary: 'Dra. Williane',
     titleAccent: 'Holanda',
     tagline:
-      'Blefaroplastia, lipo de papada e platismoplastia com conducao segura, olhar refinado e cuidado atento em cada detalhe da experiencia cirurgica.',
+      'Blefaroplastia, lifting de supercilio, lipo de papada e platismoplastia com conducao segura, olhar refinado e cuidado atento em cada detalhe da experiencia cirurgica.',
     primaryCta: 'Falar no WhatsApp',
     secondaryCta: 'Conheca a Doutora',
     backgroundImage: heroOfficeImage,
     stats: [
       { number: '01', label: 'Blefaroplastia' },
-      { number: '02', label: 'Lipo de Papada' },
-      { number: '03', label: 'Platismoplastia' },
+      { number: '02', label: 'Lifting de Supercilio' },
+      { number: '03', label: 'Lipo de Papada' },
+      { number: '04', label: 'Platismoplastia' },
     ],
   },
   about: {
@@ -49,14 +50,14 @@ export const defaultSiteContent = {
       'Cada paciente e conduzido com avaliacao individualizada, planejamento cuidadoso e acompanhamento proximo. Mais do que executar uma tecnica, sua proposta e entregar confianca, leveza e um atendimento a altura da expectativa de quem busca refinamento e seriedade.',
     ],
     credentials: [
-      'Formação ITPAC-PORTO',
-      'Lifting de supercílio',
+      'Formacao ITPAC-PORTO',
+      'Lifting de supercilio',
       'CRM - MA 8393 | RQE 4113',
-      'Atuação acrescenta Novo Repartimento - PA',
+      'Atuacao acrescenta Novo Repartimento - PA',
     ],
     image: aboutPortraitImage,
     badgeTitle: 'Atuacao Especializada',
-    badgeSubtitle: 'Blefaroplastia | Lipo de Papada | Platismoplastia',
+    badgeSubtitle: 'Blefaroplastia | Lifting de supercilio | Lipo de Papada | Platismoplastia',
   },
   specialties: {
     sectionLabel: '02 - Especialidades',
@@ -70,26 +71,31 @@ export const defaultSiteContent = {
       },
       {
         number: '02',
+        title: 'Lifting de Supercilio',
+        desc: 'Elevacao sutil e elegante do olhar, com foco em harmonia facial, naturalidade e refinamento do contorno superior.',
+      },
+      {
+        number: '03',
         title: 'Lipo de Papada',
         desc: 'Definicao mais limpa do contorno facial com abordagem precisa, delicada e pensada para valorizar proporcao e sutileza.',
       },
       {
-        number: '03',
+        number: '04',
         title: 'Platismoplastia',
         desc: 'Refinamento cervical com foco em firmeza, continuidade do perfil e resultado visual sofisticado.',
       },
       {
-        number: '04',
+        number: '05',
         title: 'Avaliacao Individualizada',
         desc: 'Cada indicacao e analisada com criterio para alinhar anatomia, expectativa, tecnica e recuperacao.',
       },
       {
-        number: '05',
+        number: '06',
         title: 'Planejamento Cirurgico',
         desc: 'A experiencia comeca antes do procedimento, com orientacao clara, preparo cuidadoso e conducao responsavel.',
       },
       {
-        number: '06',
+        number: '07',
         title: 'Pos-operatorio Proximo',
         desc: 'Acompanhamento atento para que recuperacao, seguranca e tranquilidade caminhem juntas em todo o processo.',
       },
@@ -101,24 +107,24 @@ export const defaultSiteContent = {
     headingAccent: 'dedicacao',
     items: [
       {
-        year: '',
-        title: 'Nas cirurgias',
-        desc: 'Atuação em cirurgias com desenvolvimento técnico, prática constante e cuidado atento em cada etapa.',
+        year: '2008',
+        title: 'Inicio da Formacao',
+        desc: 'Ingresso na Medicina com foco em estudo, disciplina e construcao de uma base clinica solida.',
       },
       {
         year: '2015',
-        title: 'Formação médica',
-        desc: 'Conclusão da graduação em Medicina e consolidação do compromisso com uma prática técnica e humana.',
+        title: 'Formacao Medica',
+        desc: 'Conclusao da graduacao e consolidacao do compromisso com uma medicina tecnica e humana.',
       },
       {
         year: '2021',
-        title: 'Residência Médica',
-        desc: 'Aprofundamento em residência médica com amadurecimento técnico e vivência hospitalar intensa.',
+        title: 'Residencia Medica',
+        desc: 'Aprofundamento em Cirurgia Geral, com amadurecimento tecnico e vivencia hospitalar intensa.',
       },
       {
         year: '2023',
-        title: 'Aperfeiçoamento continuo',
-        desc: 'Atualização constante para unir técnica, segurança e refinamento na prática diária.',
+        title: 'Aperfeicoamento Continuo',
+        desc: 'Atualizacao constante para unir tecnica, seguranca e refinamento na pratica diaria.',
       },
       {
         year: 'Hoje',
