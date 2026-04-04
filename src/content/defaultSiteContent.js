@@ -16,7 +16,7 @@ export const defaultSiteContent = {
     instagramUrl: 'https://www.instagram.com/willianeholanda/',
     instagramHandle: '@willianeholanda',
     phone: '(99) 9 9220-6647',
-    location: 'Imperatriz - Maranhao',
+    location: 'Imperatriz (MA) – Novo Repartimento (PA)',
     attendance: 'Seg. a Sex. | 8h as 18h',
     crm: 'CRM - MA 8393 | RQE 4113',
   },
@@ -209,7 +209,7 @@ export const defaultSiteContent = {
     cards: [
       { label: 'WhatsApp', value: '(99) 9 9220-6647', type: 'whatsapp' },
       { label: 'Instagram', value: '@willianeholanda', type: 'instagram' },
-      { label: 'Localizacao', value: 'Imperatriz - Maranhao', type: 'static' },
+      { label: 'Localizacao', value: 'Imperatriz (MA) – Novo Repartimento (PA)', type: 'static' },
       { label: 'Atendimento', value: 'Seg. a Sex. | 8h as 18h', type: 'static' },
     ],
     panelTitle: 'Atendimento direto e organizado',
@@ -226,7 +226,7 @@ export const defaultSiteContent = {
     brandDescription:
       'Cirurgia Geral com seriedade, sensibilidade e um olhar atento para seguranca, refinamento e confianca.',
     contactItems: [
-      'Imperatriz - MA',
+      'Imperatriz (MA) – Novo Repartimento (PA)',
       '(99) 9 9220-6647',
       '@willianeholanda',
       'CRM - MA 8393 | RQE 4113',
