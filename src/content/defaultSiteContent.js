@@ -49,10 +49,10 @@ export const defaultSiteContent = {
       'Cada paciente e conduzido com avaliacao individualizada, planejamento cuidadoso e acompanhamento proximo. Mais do que executar uma tecnica, sua proposta e entregar confianca, leveza e um atendimento a altura da expectativa de quem busca refinamento e seriedade.',
     ],
     credentials: [
-      'Graduacao em Medicina - UFMA',
-      'Residencia em Cirurgia Geral',
+      'Medicina ITPAC-PORTO',
+      'Lifting de supercílio',
       'CRM - MA 8393 | RQE 4113',
-      'Atuacao em Imperatriz - MA',
+      'Atuação acrescenta Novo Repartimento - PA',
     ],
     image: aboutPortraitImage,
     badgeTitle: 'Atuacao Especializada',
@@ -101,29 +101,24 @@ export const defaultSiteContent = {
     headingAccent: 'dedicacao',
     items: [
       {
-        year: '2008',
-        title: 'Inicio da Formacao',
-        desc: 'Ingresso na Medicina com foco em estudo, disciplina e construcao de uma base clinica solida.',
-      },
-      {
-        year: '2014',
-        title: 'Formacao Medica',
-        desc: 'Conclusao da graduacao e consolidacao do compromisso com uma medicina tecnica e humana.',
+        year: '',
+        title: 'Nas cirurgias',
+        desc: 'Atuação em cirurgias com desenvolvimento técnico, prática constante e cuidado atento em cada etapa.',
       },
       {
         year: '2015',
+        title: 'Formação médica',
+        desc: 'Conclusão da graduação em Medicina e consolidação do compromisso com uma prática técnica e humana.',
+      },
+      {
+        year: '2021',
         title: 'Residencia Medica',
-        desc: 'Aprofundamento em Cirurgia Geral, com amadurecimento tecnico e vivencia hospitalar intensa.',
+        desc: 'Aprofundamento em residência médica com amadurecimento técnico e vivência hospitalar intensa.',
       },
       {
-        year: '2017',
-        title: 'Atuacao Especializada',
-        desc: 'Inicio de uma fase marcada por autoridade tecnica, criterio e relacao de confianca com os pacientes.',
-      },
-      {
-        year: '2019',
-        title: 'Aperfeicoamento Continuo',
-        desc: 'Atualizacao constante para unir tecnica, seguranca e refinamento na pratica diaria.',
+        year: '2023',
+        title: 'Aperfeiçoamento contínuo',
+        desc: 'Atualização constante para unir técnica, segurança e refinamento na prática diária.',
       },
       {
         year: 'Hoje',
