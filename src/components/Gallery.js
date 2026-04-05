@@ -112,7 +112,7 @@ export default function Gallery() {
               lineHeight: 1.8,
             }}
           >
-            Uma sele??o visual pensada para transmitir presen?a profissional, delicadeza e autoridade.
+            Uma seleção visual pensada para transmitir presença profissional, delicadeza e autoridade.
           </p>
         </div>
         <a
@@ -297,7 +297,7 @@ export default function Gallery() {
                   background: 'rgba(255,255,255,0.03)',
                 }}
               >
-                Ã—
+                ×
               </button>
             </div>
 
@@ -338,7 +338,7 @@ export default function Gallery() {
                   fontSize: '22px',
                 }}
               >
-                â€¹
+                ‹
               </button>
 
               <button
@@ -358,7 +358,7 @@ export default function Gallery() {
                   fontSize: '22px',
                 }}
               >
-                â€º
+                ›
               </button>
             </div>
 

@@ -599,12 +599,12 @@ export default function AdminPanel() {
 
         {notice ? <div style={{ marginBottom: '20px', background: notice.type === 'error' ? 'rgba(231,177,177,0.1)' : 'rgba(201,169,110,0.1)', border: notice.type === 'error' ? '1px solid rgba(231,177,177,0.24)' : '1px solid rgba(201,169,110,0.24)', borderRadius: '16px', padding: '14px 16px' }}>{notice.message}</div> : null}
 
-        <SectionCard eyebrow="Vis?o geral" title="Painel executivo" description="Resumo r?pido para a Dra acompanhar equipe, agenda e base de pacientes sem depender do c?digo.">
+        <SectionCard eyebrow="Visão geral" title="Painel executivo" description="Resumo rápido para a Dra acompanhar equipe, agenda e base de pacientes sem depender do código.">
           <Row>
-            <StatCard label="Usu?rios ativos" value={summary.activeUsers ?? 0} />
+            <StatCard label="Usuários ativos" value={summary.activeUsers ?? 0} />
             <StatCard label="Datas liberadas" value={summary.releasedDates ?? 0} />
             <StatCard label="Agendamentos ativos" value={summary.activeAppointments ?? 0} tone="green" />
-            <StatCard label="Pacientes ?nicos" value={summary.uniquePatients ?? 0} tone="white" />
+            <StatCard label="Pacientes únicos" value={summary.uniquePatients ?? 0} tone="white" />
           </Row>
 
           <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '20px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
@@ -633,13 +633,13 @@ export default function AdminPanel() {
           </div>
         </SectionCard>
 
-        <SectionCard eyebrow="Fluxo real da cl?nica" title="Agenda e agendamentos" description="A Dra libera os dias de atendimento. A equipe cadastra o paciente com nome completo, endere?o e CPF, e s? consegue trabalhar em datas liberadas.">
+        <SectionCard eyebrow="Fluxo real da clínica" title="Agenda e agendamentos" description="A Dra libera os dias de atendimento. A equipe cadastra o paciente com nome completo, endereço e CPF, e só consegue trabalhar em datas liberadas.">
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(340px, 1.25fr) minmax(320px, 0.95fr)', gap: '20px' }}>
             <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '12px', flexWrap: 'wrap' }}>
-                <ActionButton onClick={() => setCalendarMonth((previous) => new Date(previous.getFullYear(), previous.getMonth() - 1, 1))}>M?s anterior</ActionButton>
+                <ActionButton onClick={() => setCalendarMonth((previous) => new Date(previous.getFullYear(), previous.getMonth() - 1, 1))}>Mês anterior</ActionButton>
                 <strong style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '30px', fontWeight: 400, textTransform: 'capitalize' }}>{calendarMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</strong>
-                <ActionButton onClick={() => setCalendarMonth((previous) => new Date(previous.getFullYear(), previous.getMonth() + 1, 1))}>Pr?ximo m?s</ActionButton>
+                <ActionButton onClick={() => setCalendarMonth((previous) => new Date(previous.getFullYear(), previous.getMonth() + 1, 1))}>Próximo mês</ActionButton>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', marginBottom: '10px', textAlign: 'center', color: 'rgba(245,240,232,0.6)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
@@ -671,18 +671,18 @@ export default function AdminPanel() {
             <div style={{ display: 'grid', gap: '18px' }}>
               <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Datas liberadas</strong>
-                {upcomingHighlights.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Ainda n?o existem datas abertas para atendimento.</p> : <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>{upcomingHighlights.map((date) => <span key={date} style={{ padding: '10px 12px', borderRadius: '999px', background: 'rgba(201,169,110,0.12)', border: '1px solid rgba(201,169,110,0.24)', color: '#F1DEC0', fontSize: '13px' }}>{formatDateLabel(date)}</span>)}</div>}
+                {upcomingHighlights.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Ainda não existem datas abertas para atendimento.</p> : <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>{upcomingHighlights.map((date) => <span key={date} style={{ padding: '10px 12px', borderRadius: '999px', background: 'rgba(201,169,110,0.12)', border: '1px solid rgba(201,169,110,0.24)', color: '#F1DEC0', fontSize: '13px' }}>{formatDateLabel(date)}</span>)}</div>}
               </div>
 
               <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Novo agendamento</strong>
                 <div style={{ display: 'grid', gap: '14px' }}>
                   <Field label="Nome completo do paciente" value={appointmentForm.fullName} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, fullName: value }))} />
-                  <Field label="Endere?o" value={appointmentForm.address} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, address: value }))} />
+                  <Field label="Endereço" value={appointmentForm.address} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, address: value }))} />
                   <Field label="CPF" value={appointmentForm.cpf} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, cpf: formatCpf(value) }))} />
                   <Field label="Procedimento (opcional)" value={appointmentForm.procedureName} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, procedureName: value }))} />
                   <SelectField label="Data liberada" value={appointmentForm.date} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, date: value }))} options={[{ value: '', label: 'Selecione uma data' }, ...draft.admin.availableDates.map((date) => ({ value: date, label: formatDateLabel(date) }))]} />
-                  <Field label="Observa??es internas" value={appointmentForm.notes} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, notes: value }))} multiline />
+                  <Field label="Observações internas" value={appointmentForm.notes} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, notes: value }))} multiline />
                   <ActionButton onClick={handleAddAppointment} variant="primary">Adicionar agendamento</ActionButton>
                 </div>
               </div>
@@ -691,7 +691,7 @@ export default function AdminPanel() {
 
           <div>
             <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Pacientes cadastrados</strong>
-            {appointmentsByDate.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Nenhum agendamento cadastrado ainda.</p> : <div style={{ display: 'grid', gap: '14px' }}>{appointmentsByDate.map((appointment) => <div key={appointment.id} style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '20px', padding: '18px', border: '1px solid rgba(255,255,255,0.05)' }}><div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '14px' }}><div><strong style={{ display: 'block', fontSize: '18px' }}>{appointment.fullName}</strong><span style={{ color: '#C9A96E', fontSize: '13px' }}>{formatDateLabel(appointment.date)}</span></div><div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}><select value={appointment.status} onChange={(event) => updateAppointment(appointment.id, 'status', event.target.value)} style={{ ...baseInputStyle(), width: 'auto', padding: '10px 12px' }}><option value="agendado">Agendado</option><option value="confirmado">Confirmado</option><option value="concluido">Conclu?do</option><option value="cancelado">Cancelado</option></select><ActionButton variant="danger" onClick={() => removeAppointment(appointment.id)}>Excluir</ActionButton></div></div><div style={{ display: 'grid', gap: '8px', color: 'rgba(245,240,232,0.76)', lineHeight: 1.7 }}><div><strong>CPF:</strong> {appointment.cpf}</div><div><strong>Endere?o:</strong> {appointment.address}</div><div><strong>Procedimento:</strong> {appointment.procedureName || '-'}</div><div><strong>Observa??es:</strong> {appointment.notes || '-'}</div><div><strong>Criado em:</strong> {appointment.createdAt ? new Date(appointment.createdAt).toLocaleString('pt-BR') : '-'}</div></div></div>)}</div>}
+            {appointmentsByDate.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Nenhum agendamento cadastrado ainda.</p> : <div style={{ display: 'grid', gap: '14px' }}>{appointmentsByDate.map((appointment) => <div key={appointment.id} style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '20px', padding: '18px', border: '1px solid rgba(255,255,255,0.05)' }}><div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '14px' }}><div><strong style={{ display: 'block', fontSize: '18px' }}>{appointment.fullName}</strong><span style={{ color: '#C9A96E', fontSize: '13px' }}>{formatDateLabel(appointment.date)}</span></div><div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}><select value={appointment.status} onChange={(event) => updateAppointment(appointment.id, 'status', event.target.value)} style={{ ...baseInputStyle(), width: 'auto', padding: '10px 12px' }}><option value="agendado">Agendado</option><option value="confirmado">Confirmado</option><option value="concluido">Concluído</option><option value="cancelado">Cancelado</option></select><ActionButton variant="danger" onClick={() => removeAppointment(appointment.id)}>Excluir</ActionButton></div></div><div style={{ display: 'grid', gap: '8px', color: 'rgba(245,240,232,0.76)', lineHeight: 1.7 }}><div><strong>CPF:</strong> {appointment.cpf}</div><div><strong>Endereço:</strong> {appointment.address}</div><div><strong>Procedimento:</strong> {appointment.procedureName || '-'}</div><div><strong>Observações:</strong> {appointment.notes || '-'}</div><div><strong>Criado em:</strong> {appointment.createdAt ? new Date(appointment.createdAt).toLocaleString('pt-BR') : '-'}</div></div></div>)}</div>}
           </div>
         </SectionCard>
 
@@ -704,7 +704,7 @@ export default function AdminPanel() {
           <ActionButton onClick={handleChangePassword} variant="primary" disabled={busyKey === 'password'}>{busyKey === 'password' ? 'Atualizando...' : 'Atualizar senha'}</ActionButton>
         </SectionCard>
 
-        <SectionCard eyebrow="Controle e rastreio" title="Backup e auditoria" description="Aqui fica a camada mais segura para demo e operacao controlada: exportacao da base e historico das ultimas acoes do painel.">
+        <SectionCard eyebrow="Controle e rastreio" title="Backup e auditoria" description="Aqui fica a camada mais segura para demo e operacao controlada: exportação da base e histórico das últimas ações do painel.">
           {isAdmin ? (
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <ActionButton onClick={handleBackupDownload} variant="primary" disabled={busyKey === 'backup'}>
@@ -783,89 +783,89 @@ export default function AdminPanel() {
                 <Field label="Marca nome" value={draft.navbar.brandName} onChange={(value) => updateDraft(['navbar', 'brandName'], value)} />
                 <Field label="CTA do menu" value={draft.navbar.ctaLabel} onChange={(value) => updateDraft(['navbar', 'ctaLabel'], value)} />
                 <Field label="Hero label" value={draft.hero.label} onChange={(value) => updateDraft(['hero', 'label'], value)} />
-                <Field label="Hero titulo 1" value={draft.hero.titlePrimary} onChange={(value) => updateDraft(['hero', 'titlePrimary'], value)} />
-                <Field label="Hero titulo 2" value={draft.hero.titleAccent} onChange={(value) => updateDraft(['hero', 'titleAccent'], value)} />
-                <Field label="Botao principal" value={draft.hero.primaryCta} onChange={(value) => updateDraft(['hero', 'primaryCta'], value)} />
-                <Field label="Botao secundario" value={draft.hero.secondaryCta} onChange={(value) => updateDraft(['hero', 'secondaryCta'], value)} />
+                <Field label="Hero t?tulo 1" value={draft.hero.titlePrimary} onChange={(value) => updateDraft(['hero', 'titlePrimary'], value)} />
+                <Field label="Hero t?tulo 2" value={draft.hero.titleAccent} onChange={(value) => updateDraft(['hero', 'titleAccent'], value)} />
+                <Field label="Botão principal" value={draft.hero.primaryCta} onChange={(value) => updateDraft(['hero', 'primaryCta'], value)} />
+                <Field label="Botão secundário" value={draft.hero.secondaryCta} onChange={(value) => updateDraft(['hero', 'secondaryCta'], value)} />
               </Row>
-              <Field label="Descri??o do hero" value={draft.hero.tagline} onChange={(value) => updateDraft(['hero', 'tagline'], value)} multiline />
+              <Field label="Descrição do hero" value={draft.hero.tagline} onChange={(value) => updateDraft(['hero', 'tagline'], value)} multiline />
               <UploadField label="Imagem do hero" value={draft.hero.backgroundImage} onChange={(value) => updateDraft(['hero', 'backgroundImage'], value)} />
             </SectionCard>
 
             <SectionCard eyebrow="Autoridade" title="Sobre">
               <Row>
-                <Field label="Label da secao" value={draft.about.sectionLabel} onChange={(value) => updateDraft(['about', 'sectionLabel'], value)} />
-                <Field label="T?tulo antes" value={draft.about.titlePrefix} onChange={(value) => updateDraft(['about', 'titlePrefix'], value)} />
-                <Field label="T?tulo destaque" value={draft.about.titleAccent} onChange={(value) => updateDraft(['about', 'titleAccent'], value)} />
-                <Field label="Selo titulo" value={draft.about.badgeTitle} onChange={(value) => updateDraft(['about', 'badgeTitle'], value)} />
-                <Field label="Selo subtitulo" value={draft.about.badgeSubtitle} onChange={(value) => updateDraft(['about', 'badgeSubtitle'], value)} />
+                <Field label="Label da seção" value={draft.about.sectionLabel} onChange={(value) => updateDraft(['about', 'sectionLabel'], value)} />
+                <Field label="Título antes" value={draft.about.titlePrefix} onChange={(value) => updateDraft(['about', 'titlePrefix'], value)} />
+                <Field label="Título destaque" value={draft.about.titleAccent} onChange={(value) => updateDraft(['about', 'titleAccent'], value)} />
+                <Field label="Selo t?tulo" value={draft.about.badgeTitle} onChange={(value) => updateDraft(['about', 'badgeTitle'], value)} />
+                <Field label="Selo subt?tulo" value={draft.about.badgeSubtitle} onChange={(value) => updateDraft(['about', 'badgeSubtitle'], value)} />
               </Row>
               <UploadField label="Imagem do sobre" value={draft.about.image} onChange={(value) => updateDraft(['about', 'image'], value)} />
-              {draft.about.paragraphs.map((paragraph, index) => <Field key={index} label={`Paragrafo ${index + 1}`} value={paragraph} onChange={(value) => updateDraft(['about', 'paragraphs', index], value)} multiline />)}
+              {draft.about.paragraphs.map((paragraph, index) => <Field key={index} label={`Parágrafo ${index + 1}`} value={paragraph} onChange={(value) => updateDraft(['about', 'paragraphs', index], value)} multiline />)}
               {draft.about.credentials.map((item, index) => <Field key={index} label={`Credencial ${index + 1}`} value={item} onChange={(value) => updateDraft(['about', 'credentials', index], value)} />)}
             </SectionCard>
 
-            <SectionCard eyebrow="Servicos" title="Especialidades">
+            <SectionCard eyebrow="Serviços" title="Especialidades">
               <Row>
-                <Field label="Label da secao" value={draft.specialties.sectionLabel} onChange={(value) => updateDraft(['specialties', 'sectionLabel'], value)} />
-                <Field label="T?tulo antes" value={draft.specialties.headingPrefix} onChange={(value) => updateDraft(['specialties', 'headingPrefix'], value)} />
-                <Field label="T?tulo destaque" value={draft.specialties.headingAccent} onChange={(value) => updateDraft(['specialties', 'headingAccent'], value)} />
+                <Field label="Label da seção" value={draft.specialties.sectionLabel} onChange={(value) => updateDraft(['specialties', 'sectionLabel'], value)} />
+                <Field label="Título antes" value={draft.specialties.headingPrefix} onChange={(value) => updateDraft(['specialties', 'headingPrefix'], value)} />
+                <Field label="Título destaque" value={draft.specialties.headingAccent} onChange={(value) => updateDraft(['specialties', 'headingAccent'], value)} />
               </Row>
-              {draft.specialties.items.map((item, index) => <ItemCard key={index} title={`Especialidade ${index + 1}`} onRemove={draft.specialties.items.length > 1 ? () => removeArrayItem(['specialties', 'items'], index) : undefined}><Row><Field label="N?mero" value={item.number} onChange={(value) => updateDraft(['specialties', 'items', index, 'number'], value)} /><Field label="T?tulo" value={item.title} onChange={(value) => updateDraft(['specialties', 'items', index, 'title'], value)} /></Row><Field label="Descri??o" value={item.desc} onChange={(value) => updateDraft(['specialties', 'items', index, 'desc'], value)} multiline /></ItemCard>)}
-              <ActionButton onClick={() => addArrayItem(['specialties', 'items'], { number: '07', title: 'Nova especialidade', desc: 'Descri??o da especialidade.' })}>Adicionar especialidade</ActionButton>
+              {draft.specialties.items.map((item, index) => <ItemCard key={index} title={`Especialidade ${index + 1}`} onRemove={draft.specialties.items.length > 1 ? () => removeArrayItem(['specialties', 'items'], index) : undefined}><Row><Field label="Número" value={item.number} onChange={(value) => updateDraft(['specialties', 'items', index, 'number'], value)} /><Field label="Título" value={item.title} onChange={(value) => updateDraft(['specialties', 'items', index, 'title'], value)} /></Row><Field label="Descrição" value={item.desc} onChange={(value) => updateDraft(['specialties', 'items', index, 'desc'], value)} multiline /></ItemCard>)}
+              <ActionButton onClick={() => addArrayItem(['specialties', 'items'], { number: '07', title: 'Nova especialidade', desc: 'Descrição da especialidade.' })}>Adicionar especialidade</ActionButton>
             </SectionCard>
 
-            <SectionCard eyebrow="Hist?ria" title="Trajet?ria">
+            <SectionCard eyebrow="História" title="Trajetória">
               <Row>
-                <Field label="Label da secao" value={draft.journey.sectionLabel} onChange={(value) => updateDraft(['journey', 'sectionLabel'], value)} />
-                <Field label="T?tulo antes" value={draft.journey.headingPrefix} onChange={(value) => updateDraft(['journey', 'headingPrefix'], value)} />
-                <Field label="T?tulo destaque" value={draft.journey.headingAccent} onChange={(value) => updateDraft(['journey', 'headingAccent'], value)} />
+                <Field label="Label da seção" value={draft.journey.sectionLabel} onChange={(value) => updateDraft(['journey', 'sectionLabel'], value)} />
+                <Field label="Título antes" value={draft.journey.headingPrefix} onChange={(value) => updateDraft(['journey', 'headingPrefix'], value)} />
+                <Field label="Título destaque" value={draft.journey.headingAccent} onChange={(value) => updateDraft(['journey', 'headingAccent'], value)} />
               </Row>
-              {draft.journey.items.map((item, index) => <ItemCard key={index} title={`Etapa ${index + 1}`} onRemove={draft.journey.items.length > 1 ? () => removeArrayItem(['journey', 'items'], index) : undefined}><Row><Field label="Ano" value={item.year} onChange={(value) => updateDraft(['journey', 'items', index, 'year'], value)} /><Field label="T?tulo" value={item.title} onChange={(value) => updateDraft(['journey', 'items', index, 'title'], value)} /></Row><Field label="Descri??o" value={item.desc} onChange={(value) => updateDraft(['journey', 'items', index, 'desc'], value)} multiline /></ItemCard>)}
-              <ActionButton onClick={() => addArrayItem(['journey', 'items'], { year: 'Novo', title: 'Novo marco', desc: 'Descri??o do marco.' })}>Adicionar etapa</ActionButton>
+              {draft.journey.items.map((item, index) => <ItemCard key={index} title={`Etapa ${index + 1}`} onRemove={draft.journey.items.length > 1 ? () => removeArrayItem(['journey', 'items'], index) : undefined}><Row><Field label="Ano" value={item.year} onChange={(value) => updateDraft(['journey', 'items', index, 'year'], value)} /><Field label="Título" value={item.title} onChange={(value) => updateDraft(['journey', 'items', index, 'title'], value)} /></Row><Field label="Descrição" value={item.desc} onChange={(value) => updateDraft(['journey', 'items', index, 'desc'], value)} multiline /></ItemCard>)}
+              <ActionButton onClick={() => addArrayItem(['journey', 'items'], { year: 'Novo', title: 'Novo marco', desc: 'Descrição do marco.' })}>Adicionar etapa</ActionButton>
             </SectionCard>
 
             <SectionCard eyebrow="Imagens" title="Galeria">
               <Row>
-                <Field label="Label da secao" value={draft.gallery.sectionLabel} onChange={(value) => updateDraft(['gallery', 'sectionLabel'], value)} />
-                <Field label="T?tulo antes" value={draft.gallery.headingPrefix} onChange={(value) => updateDraft(['gallery', 'headingPrefix'], value)} />
-                <Field label="T?tulo destaque" value={draft.gallery.headingAccent} onChange={(value) => updateDraft(['gallery', 'headingAccent'], value)} />
-                <Field label="Texto do bot?o" value={draft.gallery.buttonLabel} onChange={(value) => updateDraft(['gallery', 'buttonLabel'], value)} />
+                <Field label="Label da seção" value={draft.gallery.sectionLabel} onChange={(value) => updateDraft(['gallery', 'sectionLabel'], value)} />
+                <Field label="Título antes" value={draft.gallery.headingPrefix} onChange={(value) => updateDraft(['gallery', 'headingPrefix'], value)} />
+                <Field label="Título destaque" value={draft.gallery.headingAccent} onChange={(value) => updateDraft(['gallery', 'headingAccent'], value)} />
+                <Field label="Texto do botão" value={draft.gallery.buttonLabel} onChange={(value) => updateDraft(['gallery', 'buttonLabel'], value)} />
               </Row>
               {draft.gallery.items.map((item, index) => <ItemCard key={index} title={`Imagem ${index + 1}`} onRemove={draft.gallery.items.length > 1 ? () => removeArrayItem(['gallery', 'items'], index) : undefined}><UploadField label="Foto" value={item.src} onChange={(value) => updateDraft(['gallery', 'items', index, 'src'], value)} /><Row><Field label="Legenda" value={item.caption} onChange={(value) => updateDraft(['gallery', 'items', index, 'caption'], value)} /><Field label="Alt" value={item.alt} onChange={(value) => updateDraft(['gallery', 'items', index, 'alt'], value)} /></Row></ItemCard>)}
               <ActionButton onClick={() => addArrayItem(['gallery', 'items'], { src: '', caption: 'Nova imagem', alt: 'Nova imagem' })}>Adicionar imagem</ActionButton>
             </SectionCard>
 
             <SectionCard eyebrow="Prova social" title="Depoimentos">
-              <Field label="Label da secao" value={draft.testimonials.sectionLabel} onChange={(value) => updateDraft(['testimonials', 'sectionLabel'], value)} />
+              <Field label="Label da seção" value={draft.testimonials.sectionLabel} onChange={(value) => updateDraft(['testimonials', 'sectionLabel'], value)} />
               {draft.testimonials.items.map((item, index) => <ItemCard key={index} title={`Depoimento ${index + 1}`} onRemove={draft.testimonials.items.length > 1 ? () => removeArrayItem(['testimonials', 'items'], index) : undefined}><Field label="Texto" value={item.text} onChange={(value) => updateDraft(['testimonials', 'items', index, 'text'], value)} multiline /><Row><Field label="Nome" value={item.name} onChange={(value) => updateDraft(['testimonials', 'items', index, 'name'], value)} /><Field label="Procedimento" value={item.procedure} onChange={(value) => updateDraft(['testimonials', 'items', index, 'procedure'], value)} /><Field label="Estrelas" type="number" value={String(item.stars)} onChange={(value) => updateDraft(['testimonials', 'items', index, 'stars'], Number(value) || 5)} /></Row></ItemCard>)}
               <ActionButton onClick={() => addArrayItem(['testimonials', 'items'], { text: 'Novo depoimento.', name: 'Paciente', procedure: 'Procedimento', stars: 5 })}>Adicionar depoimento</ActionButton>
             </SectionCard>
 
-            <SectionCard eyebrow="Convers?o" title="Contato e rodape">
+            <SectionCard eyebrow="Conversão" title="Contato e rodapé">
               <Row>
-                <Field label="Label da secao" value={draft.contact.sectionLabel} onChange={(value) => updateDraft(['contact', 'sectionLabel'], value)} />
-                <Field label="T?tulo antes" value={draft.contact.titlePrefix} onChange={(value) => updateDraft(['contact', 'titlePrefix'], value)} />
-                <Field label="T?tulo destaque" value={draft.contact.titleAccent} onChange={(value) => updateDraft(['contact', 'titleAccent'], value)} />
-                <Field label="T?tulo do card lateral" value={draft.contact.panelTitle} onChange={(value) => updateDraft(['contact', 'panelTitle'], value)} />
-                <Field label="Texto do bot?o" value={draft.contact.buttonLabel} onChange={(value) => updateDraft(['contact', 'buttonLabel'], value)} />
+                <Field label="Label da seção" value={draft.contact.sectionLabel} onChange={(value) => updateDraft(['contact', 'sectionLabel'], value)} />
+                <Field label="Título antes" value={draft.contact.titlePrefix} onChange={(value) => updateDraft(['contact', 'titlePrefix'], value)} />
+                <Field label="Título destaque" value={draft.contact.titleAccent} onChange={(value) => updateDraft(['contact', 'titleAccent'], value)} />
+                <Field label="Título do card lateral" value={draft.contact.panelTitle} onChange={(value) => updateDraft(['contact', 'panelTitle'], value)} />
+                <Field label="Texto do botão" value={draft.contact.buttonLabel} onChange={(value) => updateDraft(['contact', 'buttonLabel'], value)} />
               </Row>
-              <Field label="Descri??o de contato" value={draft.contact.description} onChange={(value) => updateDraft(['contact', 'description'], value)} multiline />
+              <Field label="Descrição de contato" value={draft.contact.description} onChange={(value) => updateDraft(['contact', 'description'], value)} multiline />
               <Field label="Texto do card lateral" value={draft.contact.panelBody} onChange={(value) => updateDraft(['contact', 'panelBody'], value)} multiline />
               {draft.contact.cards.map((item, index) => <ItemCard key={index} title={`Contato ${index + 1}`} onRemove={draft.contact.cards.length > 1 ? () => removeArrayItem(['contact', 'cards'], index) : undefined}><Row><Field label="Label" value={item.label} onChange={(value) => updateDraft(['contact', 'cards', index, 'label'], value)} /><Field label="Valor" value={item.value} onChange={(value) => updateDraft(['contact', 'cards', index, 'value'], value)} /><Field label="Tipo" value={item.type} onChange={(value) => updateDraft(['contact', 'cards', index, 'type'], value)} /></Row></ItemCard>)}
               <ActionButton onClick={() => addArrayItem(['contact', 'cards'], { label: 'Novo contato', value: 'Valor', type: 'static' })}>Adicionar item de contato</ActionButton>
               {draft.contact.panelBullets.map((item, index) => <Field key={index} label={`Bullet ${index + 1}`} value={item} onChange={(value) => updateDraft(['contact', 'panelBullets', index], value)} />)}
-              <Field label="Descri??o do rodape" value={draft.footer.brandDescription} onChange={(value) => updateDraft(['footer', 'brandDescription'], value)} multiline />
-              {draft.footer.contactItems.map((item, index) => <Field key={index} label={`Rodape contato ${index + 1}`} value={item} onChange={(value) => updateDraft(['footer', 'contactItems', index], value)} />)}
+              <Field label="Descrição do rodapé" value={draft.footer.brandDescription} onChange={(value) => updateDraft(['footer', 'brandDescription'], value)} multiline />
+              {draft.footer.contactItems.map((item, index) => <Field key={index} label={`Rodap? contato ${index + 1}`} value={item} onChange={(value) => updateDraft(['footer', 'contactItems', index], value)} />)}
               <Row>
                 <Field label="Copyright prefixo" value={draft.footer.copyrightPrefix} onChange={(value) => updateDraft(['footer', 'copyrightPrefix'], value)} />
                 <Field label="Copyright texto" value={draft.footer.copyrightSuffix} onChange={(value) => updateDraft(['footer', 'copyrightSuffix'], value)} />
-                <Field label="Tagline rodape" value={draft.footer.tagline} onChange={(value) => updateDraft(['footer', 'tagline'], value)} />
+                <Field label="Tagline rodapé" value={draft.footer.tagline} onChange={(value) => updateDraft(['footer', 'tagline'], value)} />
               </Row>
             </SectionCard>
           </>
         ) : (
-          <SectionCard eyebrow="Modo equipe" title="Permiss?es da secretaria" description="Neste perfil, o painel fica focado no operacional: ver datas liberadas, cadastrar pacientes, atualizar status e manter os dados organizados.">
+          <SectionCard eyebrow="Modo equipe" title="Permissões da secretaria" description="Neste perfil, o painel fica focado no operacional: ver datas liberadas, cadastrar pacientes, atualizar status e manter os dados organizados.">
             <p style={{ margin: 0, color: 'rgba(245,240,232,0.7)', lineHeight: 1.8 }}>A parte visual do site, os textos e as imagens ficam reservados para o acesso de administração da Dra.</p>
           </SectionCard>
         )}
