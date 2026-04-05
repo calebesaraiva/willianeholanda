@@ -1,4 +1,4 @@
-import heroOfficeImage from '../assets/hero-office.jpg';
+﻿import heroOfficeImage from '../assets/hero-office.jpg';
 import aboutPortraitImage from '../assets/about-portrait.jpg';
 import galleryOfficeImage from '../assets/gallery-office.jpg';
 import gallerySurgeryImage from '../assets/gallery-surgery.jpg';
@@ -12,12 +12,12 @@ const whatsappUrl = 'https://wa.me/559992206647';
 export const defaultSiteContent = {
   global: {
     whatsappUrl,
-    whatsappMessage: 'Ola, Dra. Williane! Gostaria de falar com a equipe pelo WhatsApp.',
+    whatsappMessage: 'Olá, Dra. Williane! Gostaria de falar com a equipe pelo WhatsApp.',
     instagramUrl: 'https://www.instagram.com/willianeholanda/',
     instagramHandle: '@willianeholanda',
     phone: '(99) 9 9220-6647',
-    location: 'Imperatriz (MA) – Novo Repartimento (PA)',
-    attendance: 'Seg. a Sex. | 8h as 18h',
+    location: 'Imperatriz (MA) - Novo Repartimento (PA)',
+    attendance: 'Seg. a Sex. | 8h às 18h',
     crm: 'CRM - MA 8393 | RQE 4113',
   },
   navbar: {
@@ -26,17 +26,17 @@ export const defaultSiteContent = {
     ctaLabel: 'Contato',
   },
   hero: {
-    label: 'Medica Cirurgia Geral • CRM - MA 8393 | RQE 4113',
+    label: 'Médica Cirurgia Geral • CRM - MA 8393 | RQE 4113',
     titlePrimary: 'Dra. Williane',
     titleAccent: 'Holanda',
     tagline:
-      'Blefaroplastia, lifting de supercilio, lipo de papada e platismoplastia com conducao segura, olhar refinado e cuidado atento em cada detalhe da experiencia cirurgica.',
+      'Blefaroplastia, lifting de supercílio, lipo de papada e platismoplastia com condução segura, olhar refinado e cuidado atento em cada detalhe da experiência cirúrgica.',
     primaryCta: 'Falar no WhatsApp',
-    secondaryCta: 'Conheca a Doutora',
+    secondaryCta: 'Conheça a Doutora',
     backgroundImage: heroOfficeImage,
     stats: [
       { number: '01', label: 'Blefaroplastia' },
-      { number: '02', label: 'Lifting de Supercilio' },
+      { number: '02', label: 'Lifting de Supercílio' },
       { number: '03', label: 'Lipo de Papada' },
       { number: '04', label: 'Platismoplastia' },
     ],
@@ -44,25 +44,25 @@ export const defaultSiteContent = {
   about: {
     sectionLabel: '01 - Sobre',
     titlePrefix: 'Cirurgia com',
-    titleAccent: 'elegancia e precisao',
+    titleAccent: 'elegância e precisão',
     paragraphs: [
-      'A Dra. Williane Holanda construiu sua trajetoria com base em criterio tecnico, sensibilidade humana e responsabilidade em cada decisao cirurgica. Sua presenca transmite seguranca, clareza e cuidado desde o primeiro contato.',
-      'Cada paciente e conduzido com avaliacao individualizada, planejamento cuidadoso e acompanhamento proximo. Mais do que executar uma tecnica, sua proposta e entregar confianca, leveza e um atendimento a altura da expectativa de quem busca refinamento e seriedade.',
+      'A Dra. Williane Holanda construiu sua trajetória com base em critério técnico, sensibilidade humana e responsabilidade em cada decisão cirúrgica. Sua presença transmite segurança, clareza e cuidado desde o primeiro contato.',
+      'Cada paciente é conduzido com avaliação individualizada, planejamento cuidadoso e acompanhamento próximo. Mais do que executar uma técnica, sua proposta é entregar confiança, leveza e um atendimento à altura da expectativa de quem busca refinamento e seriedade.',
     ],
     credentials: [
       'Medicina ITPAC-PORTO',
       'Cirurgiã Geral',
       'CRM - MA 8393 | RQE 4113',
-      'Imperatriz (MA) – Novo Repartimento (PA)',
+      'Imperatriz (MA) - Novo Repartimento (PA)',
     ],
     image: aboutPortraitImage,
-    badgeTitle: 'Atuacao Especializada',
-    badgeSubtitle: 'Blefaroplastia | Lifting de supercilio | Lipo de Papada | Platismoplastia',
+    badgeTitle: 'Atuação Especializada',
+    badgeSubtitle: 'Blefaroplastia | Lifting de supercílio | Lipo de Papada | Platismoplastia',
   },
   specialties: {
     sectionLabel: '02 - Especialidades',
     headingPrefix: 'Procedimentos com',
-    headingAccent: 'assinatura propria',
+    headingAccent: 'assinatura própria',
     items: [
       {
         number: '01',
@@ -71,13 +71,13 @@ export const defaultSiteContent = {
       },
       {
         number: '02',
-        title: 'Lifting de Supercilio',
-        desc: 'Elevacao sutil e elegante do olhar, com foco em harmonia facial, naturalidade e refinamento do contorno superior.',
+        title: 'Lifting de Supercílio',
+        desc: 'Elevação sutil e elegante do olhar, com foco em harmonia facial, naturalidade e refinamento do contorno superior.',
       },
       {
         number: '03',
         title: 'Lipo de Papada',
-        desc: 'Definicao mais limpa do contorno facial com abordagem precisa, delicada e pensada para valorizar proporcao e sutileza.',
+        desc: 'Definição mais limpa do contorno facial com abordagem precisa, delicada e pensada para valorizar proporção e sutileza.',
       },
       {
         number: '04',
@@ -86,87 +86,87 @@ export const defaultSiteContent = {
       },
       {
         number: '05',
-        title: 'Avaliacao Individualizada',
-        desc: 'Cada indicacao e analisada com criterio para alinhar anatomia, expectativa, tecnica e recuperacao.',
+        title: 'Avaliação Individualizada',
+        desc: 'Cada indicação é analisada com critério para alinhar anatomia, expectativa, técnica e recuperação.',
       },
       {
         number: '06',
-        title: 'Planejamento Cirurgico',
-        desc: 'A experiencia comeca antes do procedimento, com orientacao clara, preparo cuidadoso e conducao responsavel.',
+        title: 'Planejamento Cirúrgico',
+        desc: 'A experiência começa antes do procedimento, com orientação clara, preparo cuidadoso e condução responsável.',
       },
       {
         number: '07',
-        title: 'Pos-operatorio Proximo',
-        desc: 'Acompanhamento atento para que recuperacao, seguranca e tranquilidade caminhem juntas em todo o processo.',
+        title: 'Pós-operatório Próximo',
+        desc: 'Acompanhamento atento para que recuperação, segurança e tranquilidade caminhem juntas em todo o processo.',
       },
     ],
   },
   journey: {
-    sectionLabel: '03 - Trajetoria',
-    headingPrefix: 'Uma historia de',
-    headingAccent: 'dedicacao',
+    sectionLabel: '03 - Trajetória',
+    headingPrefix: 'Uma história de',
+    headingAccent: 'dedicação',
     items: [
       {
         year: '2009',
-        title: 'Inicio da Formacao',
-        desc: 'Ingresso na Medicina com foco em estudo, disciplina e construcao de uma base clinica solida.',
+        title: 'Início da Formação',
+        desc: 'Ingresso na Medicina com foco em estudo, disciplina e construção de uma base clínica sólida.',
       },
       {
         year: '2015',
-        title: 'Formacao Medica',
-        desc: 'Conclusao da graduacao e consolidacao do compromisso com uma medicina tecnica e humana.',
+        title: 'Formação Médica',
+        desc: 'Conclusão da graduação e consolidação do compromisso com uma medicina técnica e humana.',
       },
       {
         year: '2021',
-        title: 'Residencia Medica',
-        desc: 'Aprofundamento em Cirurgia Geral, com amadurecimento tecnico e vivencia hospitalar intensa.',
+        title: 'Residência Médica',
+        desc: 'Aprofundamento em Cirurgia Geral, com amadurecimento técnico e vivência hospitalar intensa.',
       },
       {
         year: '2023',
-        title: 'Aperfeicoamento Continuo',
-        desc: 'Atualizacao constante para unir tecnica, seguranca e refinamento na pratica diaria.',
+        title: 'Aperfeiçoamento Contínuo',
+        desc: 'Atualização constante para unir técnica, segurança e refinamento na prática diária.',
       },
       {
         year: 'Hoje',
-        title: 'Referencia em Imperatriz',
-        desc: 'Atuacao com identidade propria, cuidado individualizado e uma imagem profissional solida na regiao.',
+        title: 'Referência em Imperatriz',
+        desc: 'Atuação com identidade própria, cuidado individualizado e uma imagem profissional sólida na região.',
       },
     ],
   },
   gallery: {
     sectionLabel: 'Galeria',
-    headingPrefix: 'Presenca profissional em',
+    headingPrefix: 'Presença profissional em',
     headingAccent: 'imagens reais',
     buttonLabel: 'Ver Instagram',
     items: [
       {
         src: galleryOfficeImage,
-        caption: 'Consultorio com presenca, criterio e acolhimento',
+        caption: 'Consultório com presença, critério e acolhimento',
         alt: 'Dra. Williane em atendimento',
       },
       {
         src: galleryStaircaseImage,
-        caption: 'Imagem institucional com elegancia e autoridade',
+        caption: 'Imagem institucional com elegância e autoridade',
         alt: 'Retrato da Dra. Williane',
       },
       {
         src: gallerySurgeryImage,
-        caption: 'Rotina cirurgica conduzida com foco e precisao',
-        alt: 'Dra. Williane em procedimento cirurgico',
+        caption: 'Rotina cirúrgica conduzida com foco e precisão',
+        alt: 'Dra. Williane em procedimento cirúrgico',
       },
       {
         src: galleryCertificateImage,
-        caption: 'Atualizacao constante e compromisso com excelencia',
+        caption: 'Atualização constante e compromisso com excelência',
         alt: 'Dra. Williane com certificado',
       },
       {
         src: galleryOutdoorImage,
-        caption: 'Leveza e proximidade como extensao do cuidado',
+        caption: 'Leveza e proximidade como extensão do cuidado',
         alt: 'Dra. Williane em ambiente externo',
       },
       {
         src: galleryLifestyleImage,
-        caption: 'Humanidade e presenca para alem do consultorio',
+        caption: 'Humanidade e presença para além do consultório',
         alt: 'Dra. Williane em momento casual',
       },
     ],
@@ -175,7 +175,7 @@ export const defaultSiteContent = {
     sectionLabel: '04 - Depoimentos',
     items: [
       {
-        text: 'A Dra. Williane me transmitiu muita seguranca. Tudo foi explicado com clareza, e o atendimento foi extremamente cuidadoso do inicio ao fim.',
+        text: 'A Dra. Williane me transmitiu muita segurança. Tudo foi explicado com clareza, e o atendimento foi extremamente cuidadoso do início ao fim.',
         name: 'Carlos Eduardo M.',
         procedure: 'Blefaroplastia',
         stars: 5,
@@ -187,15 +187,15 @@ export const defaultSiteContent = {
         stars: 5,
       },
       {
-        text: 'O que mais me marcou foi a postura serena e o cuidado com cada detalhe. Passa muita confianca e credibilidade.',
+        text: 'O que mais me marcou foi a postura serena e o cuidado com cada detalhe. Passa muita confiança e credibilidade.',
         name: 'Roberto Lima',
         procedure: 'Platismoplastia',
         stars: 5,
       },
       {
-        text: 'Foi uma experiencia muito tranquila. Atendimento humano, explicacoes objetivas e uma conducao extremamente profissional.',
+        text: 'Foi uma experiência muito tranquila. Atendimento humano, explicações objetivas e uma condução extremamente profissional.',
         name: 'Fernanda Costa',
-        procedure: 'Avaliacao Cirurgica',
+        procedure: 'Avaliação Cirúrgica',
         stars: 5,
       },
     ],
@@ -209,31 +209,31 @@ export const defaultSiteContent = {
     cards: [
       { label: 'WhatsApp', value: '(99) 9 9220-6647', type: 'whatsapp' },
       { label: 'Instagram', value: '@willianeholanda', type: 'instagram' },
-      { label: 'Localizacao', value: 'Imperatriz (MA) – Novo Repartimento (PA)', type: 'static' },
-      { label: 'Atendimento', value: 'Seg. a Sex. | 8h as 18h', type: 'static' },
+      { label: 'Localização', value: 'Imperatriz (MA) - Novo Repartimento (PA)', type: 'static' },
+      { label: 'Atendimento', value: 'Seg. a Sex. | 8h às 18h', type: 'static' },
     ],
     panelTitle: 'Atendimento direto e organizado',
     panelBody:
-      'Para tirar duvidas, receber orientacao inicial e alinhar o atendimento, a equipe responde diretamente pelo WhatsApp com um fluxo mais agil e bem acompanhado.',
+      'Para tirar dúvidas, receber orientação inicial e alinhar o atendimento, a equipe responde diretamente pelo WhatsApp com um fluxo mais ágil e bem acompanhado.',
     panelBullets: [
       'Contato inicial e acolhimento pelo WhatsApp',
-      'Triagem e organizacao com a equipe',
+      'Triagem e organização com a equipe',
       'Agendamentos respeitando as datas liberadas pela Dra.',
     ],
     buttonLabel: 'Falar no WhatsApp',
   },
   footer: {
     brandDescription:
-      'Cirurgia Geral com seriedade, sensibilidade e um olhar atento para seguranca, refinamento e confianca.',
+      'Cirurgia Geral com seriedade, sensibilidade e um olhar atento para segurança, refinamento e confiança.',
     contactItems: [
-      'Imperatriz (MA) – Novo Repartimento (PA)',
+      'Imperatriz (MA) - Novo Repartimento (PA)',
       '(99) 9 9220-6647',
       '@willianeholanda',
       'CRM - MA 8393 | RQE 4113',
     ],
     copyrightPrefix: '(c)',
     copyrightSuffix: 'Dra. Williane Holanda - Todos os direitos reservados',
-    tagline: 'Cirurgia com elegancia e precisao',
+    tagline: 'Cirurgia com elegância e precisão',
   },
   admin: {
     availableDates: [],

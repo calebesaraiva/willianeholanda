@@ -246,7 +246,7 @@ function UploadField({ label, value, onChange }) {
 }
 
 function CalendarLegend() {
-  return <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', color: 'rgba(245,240,232,0.68)', fontSize: '13px' }}><span>Liberada: dourado suave</span><span>Com paciente: contorno verde</span><span>Fora do mes: opaco</span></div>;
+  return <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', color: 'rgba(245,240,232,0.68)', fontSize: '13px' }}><span>Liberada: dourado suave</span><span>Com paciente: contorno verde</span><span>Fora do mês: opaco</span></div>;
 }
 
 function UserStatusPill({ active, role }) {
@@ -297,7 +297,7 @@ export default function AdminPanel() {
   } = useSiteContent();
 
   const [draft, setDraft] = useState(() => cloneContent(siteContent));
-  const [loginForm, setLoginForm] = useState({ username: 'dra', password: '' });
+  const [loginForm, setLoginForm] = useState({ username: 'williane', password: '' });
   const [appointmentForm, setAppointmentForm] = useState({ fullName: '', address: '', cpf: '', date: '', procedureName: '', notes: '' });
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [userForm, setUserForm] = useState({ displayName: '', username: '', password: '', role: 'staff' });
@@ -366,21 +366,21 @@ export default function AdminPanel() {
     const normalizedCpf = normalizeCpf(appointmentForm.cpf);
 
     if (!appointmentForm.fullName.trim() || !appointmentForm.address.trim() || !normalizedCpf || !appointmentForm.date) {
-      flashNotice('error', 'Preencha nome completo, endereco, CPF e data.');
+      flashNotice('error', 'Preencha nome completo, endereço, CPF e data.');
       return;
     }
     if (normalizedCpf.length !== 11) {
-      flashNotice('error', 'O CPF precisa ter 11 digitos.');
+      flashNotice('error', 'O CPF precisa ter 11 dígitos.');
       return;
     }
     if (!draft.admin.availableDates.includes(appointmentForm.date)) {
-      flashNotice('error', 'A data escolhida nao foi liberada pela Dra.');
+      flashNotice('error', 'A data escolhida não foi liberada pela Dra.');
       return;
     }
 
     const duplicate = draft.admin.appointments.some((item) => item.date === appointmentForm.date && normalizeCpf(item.cpf) === normalizedCpf && item.status !== 'cancelado');
     if (duplicate) {
-      flashNotice('error', 'Ja existe um agendamento ativo para esse CPF nessa data.');
+      flashNotice('error', 'Já existe um agendamento ativo para esse CPF nessa data.');
       return;
     }
 
@@ -398,7 +398,7 @@ export default function AdminPanel() {
     });
 
     setAppointmentForm({ fullName: '', address: '', cpf: '', date: '', procedureName: '', notes: '' });
-    flashNotice('success', 'Agendamento adicionado ao painel. Agora e so salvar a agenda.');
+    flashNotice('success', 'Agendamento adicionado ao painel. Agora é só salvar a agenda.');
   };
 
   const appointmentsByDate = useMemo(() => [...draft.admin.appointments].sort((a, b) => {
@@ -447,7 +447,7 @@ export default function AdminPanel() {
     setBusyKey('content');
     try {
       await saveContent(draft);
-      flashNotice('success', 'Conteudo do site salvo com sucesso.');
+      flashNotice('success', 'Conteúdo do site salvo com sucesso.');
     } catch (error) {
       flashNotice('error', error.message);
     } finally {
@@ -460,7 +460,7 @@ export default function AdminPanel() {
     try {
       await resetContent();
       setDraft(cloneContent(defaultSiteContent));
-      flashNotice('success', 'Conteudo visual restaurado para o padrao do projeto.');
+      flashNotice('success', 'Conteúdo visual restaurado para o padrão do projeto.');
     } catch (error) {
       flashNotice('error', error.message);
     } finally {
@@ -478,7 +478,7 @@ export default function AdminPanel() {
       return;
     }
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      flashNotice('error', 'A confirmacao da nova senha nao confere.');
+      flashNotice('error', 'A confirmação da nova senha não confere.');
       return;
     }
 
@@ -497,7 +497,7 @@ export default function AdminPanel() {
   const handleCreateUser = async () => {
     if (!isAdmin) return;
     if (!userForm.displayName.trim() || !userForm.username.trim() || userForm.password.length < 6) {
-      flashNotice('error', 'Preencha nome, usuario e uma senha com pelo menos 6 caracteres.');
+      flashNotice('error', 'Preencha nome, usuário e uma senha com pelo menos 6 caracteres.');
       return;
     }
 
@@ -562,13 +562,13 @@ export default function AdminPanel() {
         <form onSubmit={handleLogin} style={{ width: '100%', maxWidth: '480px', background: 'linear-gradient(180deg, rgba(17,17,17,0.98) 0%, rgba(10,10,10,0.98) 100%)', border: '1px solid rgba(201,169,110,0.16)', borderRadius: '28px', padding: '34px', boxShadow: '0 32px 70px rgba(0,0,0,0.34)' }}>
           <div style={{ color: '#C9A96E', textTransform: 'uppercase', letterSpacing: '0.24em', fontSize: '11px', marginBottom: '12px' }}>Painel Admin</div>
           <h1 style={{ margin: '0 0 12px', fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontSize: '42px' }}>Entrar no painel</h1>
-          <p style={{ margin: '0 0 22px', color: 'rgba(245,240,232,0.66)', lineHeight: 1.8 }}>A Dra controla o conteudo e libera as datas. A equipe usa o mesmo painel para cadastrar pacientes somente nas datas abertas.</p>
+          <p style={{ margin: '0 0 22px', color: 'rgba(245,240,232,0.66)', lineHeight: 1.8 }}>A Dra controla o conteúdo e libera as datas. A equipe usa o mesmo painel para cadastrar pacientes somente nas datas abertas.</p>
           <Row>
-            <Field label="Usuario" value={loginForm.username} onChange={(value) => setLoginForm((previous) => ({ ...previous, username: value }))} />
+            <Field label="Usuário" value={loginForm.username} onChange={(value) => setLoginForm((previous) => ({ ...previous, username: value }))} />
             <Field label="Senha" type="password" value={loginForm.password} onChange={(value) => setLoginForm((previous) => ({ ...previous, password: value }))} />
           </Row>
           <div style={{ display: 'grid', gap: '10px', marginTop: '18px', color: 'rgba(245,240,232,0.6)', fontSize: '14px', lineHeight: 1.7 }}>
-            <div>Dra: <code>dra</code> / <code>DraWilliane#2026!</code></div>
+            <div>Dra: <code>williane</code> / <code>Acesso@2025</code></div>
             <div>Equipe: <code>secretaria</code> / <code>EquipeWH#2026!</code></div>
           </div>
           <div style={{ marginTop: '18px' }}><ActionButton type="submit" variant="primary" disabled={busyKey === 'login'}>{busyKey === 'login' ? 'Entrando...' : 'Entrar'}</ActionButton></div>
@@ -599,12 +599,12 @@ export default function AdminPanel() {
 
         {notice ? <div style={{ marginBottom: '20px', background: notice.type === 'error' ? 'rgba(231,177,177,0.1)' : 'rgba(201,169,110,0.1)', border: notice.type === 'error' ? '1px solid rgba(231,177,177,0.24)' : '1px solid rgba(201,169,110,0.24)', borderRadius: '16px', padding: '14px 16px' }}>{notice.message}</div> : null}
 
-        <SectionCard eyebrow="Visao geral" title="Painel executivo" description="Resumo rapido para a Dra acompanhar equipe, agenda e base de pacientes sem depender do codigo.">
+        <SectionCard eyebrow="Vis?o geral" title="Painel executivo" description="Resumo r?pido para a Dra acompanhar equipe, agenda e base de pacientes sem depender do c?digo.">
           <Row>
-            <StatCard label="Usuarios ativos" value={summary.activeUsers ?? 0} />
+            <StatCard label="Usu?rios ativos" value={summary.activeUsers ?? 0} />
             <StatCard label="Datas liberadas" value={summary.releasedDates ?? 0} />
             <StatCard label="Agendamentos ativos" value={summary.activeAppointments ?? 0} tone="green" />
-            <StatCard label="Pacientes unicos" value={summary.uniquePatients ?? 0} tone="white" />
+            <StatCard label="Pacientes ?nicos" value={summary.uniquePatients ?? 0} tone="white" />
           </Row>
 
           <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '20px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
@@ -633,13 +633,13 @@ export default function AdminPanel() {
           </div>
         </SectionCard>
 
-        <SectionCard eyebrow="Fluxo real da clinica" title="Agenda e agendamentos" description="A Dra libera os dias de atendimento. A equipe cadastra o paciente com nome completo, endereco e CPF, e so consegue trabalhar em datas liberadas.">
+        <SectionCard eyebrow="Fluxo real da cl?nica" title="Agenda e agendamentos" description="A Dra libera os dias de atendimento. A equipe cadastra o paciente com nome completo, endere?o e CPF, e s? consegue trabalhar em datas liberadas.">
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(340px, 1.25fr) minmax(320px, 0.95fr)', gap: '20px' }}>
             <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '12px', flexWrap: 'wrap' }}>
-                <ActionButton onClick={() => setCalendarMonth((previous) => new Date(previous.getFullYear(), previous.getMonth() - 1, 1))}>Mes anterior</ActionButton>
+                <ActionButton onClick={() => setCalendarMonth((previous) => new Date(previous.getFullYear(), previous.getMonth() - 1, 1))}>M?s anterior</ActionButton>
                 <strong style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '30px', fontWeight: 400, textTransform: 'capitalize' }}>{calendarMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</strong>
-                <ActionButton onClick={() => setCalendarMonth((previous) => new Date(previous.getFullYear(), previous.getMonth() + 1, 1))}>Proximo mes</ActionButton>
+                <ActionButton onClick={() => setCalendarMonth((previous) => new Date(previous.getFullYear(), previous.getMonth() + 1, 1))}>Pr?ximo m?s</ActionButton>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', marginBottom: '10px', textAlign: 'center', color: 'rgba(245,240,232,0.6)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
@@ -671,18 +671,18 @@ export default function AdminPanel() {
             <div style={{ display: 'grid', gap: '18px' }}>
               <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Datas liberadas</strong>
-                {upcomingHighlights.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Ainda nao existem datas abertas para atendimento.</p> : <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>{upcomingHighlights.map((date) => <span key={date} style={{ padding: '10px 12px', borderRadius: '999px', background: 'rgba(201,169,110,0.12)', border: '1px solid rgba(201,169,110,0.24)', color: '#F1DEC0', fontSize: '13px' }}>{formatDateLabel(date)}</span>)}</div>}
+                {upcomingHighlights.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Ainda n?o existem datas abertas para atendimento.</p> : <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>{upcomingHighlights.map((date) => <span key={date} style={{ padding: '10px 12px', borderRadius: '999px', background: 'rgba(201,169,110,0.12)', border: '1px solid rgba(201,169,110,0.24)', color: '#F1DEC0', fontSize: '13px' }}>{formatDateLabel(date)}</span>)}</div>}
               </div>
 
               <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Novo agendamento</strong>
                 <div style={{ display: 'grid', gap: '14px' }}>
                   <Field label="Nome completo do paciente" value={appointmentForm.fullName} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, fullName: value }))} />
-                  <Field label="Endereco" value={appointmentForm.address} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, address: value }))} />
+                  <Field label="Endere?o" value={appointmentForm.address} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, address: value }))} />
                   <Field label="CPF" value={appointmentForm.cpf} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, cpf: formatCpf(value) }))} />
                   <Field label="Procedimento (opcional)" value={appointmentForm.procedureName} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, procedureName: value }))} />
                   <SelectField label="Data liberada" value={appointmentForm.date} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, date: value }))} options={[{ value: '', label: 'Selecione uma data' }, ...draft.admin.availableDates.map((date) => ({ value: date, label: formatDateLabel(date) }))]} />
-                  <Field label="Observacoes internas" value={appointmentForm.notes} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, notes: value }))} multiline />
+                  <Field label="Observa??es internas" value={appointmentForm.notes} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, notes: value }))} multiline />
                   <ActionButton onClick={handleAddAppointment} variant="primary">Adicionar agendamento</ActionButton>
                 </div>
               </div>
@@ -691,11 +691,11 @@ export default function AdminPanel() {
 
           <div>
             <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Pacientes cadastrados</strong>
-            {appointmentsByDate.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Nenhum agendamento cadastrado ainda.</p> : <div style={{ display: 'grid', gap: '14px' }}>{appointmentsByDate.map((appointment) => <div key={appointment.id} style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '20px', padding: '18px', border: '1px solid rgba(255,255,255,0.05)' }}><div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '14px' }}><div><strong style={{ display: 'block', fontSize: '18px' }}>{appointment.fullName}</strong><span style={{ color: '#C9A96E', fontSize: '13px' }}>{formatDateLabel(appointment.date)}</span></div><div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}><select value={appointment.status} onChange={(event) => updateAppointment(appointment.id, 'status', event.target.value)} style={{ ...baseInputStyle(), width: 'auto', padding: '10px 12px' }}><option value="agendado">Agendado</option><option value="confirmado">Confirmado</option><option value="concluido">Concluido</option><option value="cancelado">Cancelado</option></select><ActionButton variant="danger" onClick={() => removeAppointment(appointment.id)}>Excluir</ActionButton></div></div><div style={{ display: 'grid', gap: '8px', color: 'rgba(245,240,232,0.76)', lineHeight: 1.7 }}><div><strong>CPF:</strong> {appointment.cpf}</div><div><strong>Endereco:</strong> {appointment.address}</div><div><strong>Procedimento:</strong> {appointment.procedureName || '-'}</div><div><strong>Observacoes:</strong> {appointment.notes || '-'}</div><div><strong>Criado em:</strong> {appointment.createdAt ? new Date(appointment.createdAt).toLocaleString('pt-BR') : '-'}</div></div></div>)}</div>}
+            {appointmentsByDate.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Nenhum agendamento cadastrado ainda.</p> : <div style={{ display: 'grid', gap: '14px' }}>{appointmentsByDate.map((appointment) => <div key={appointment.id} style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '20px', padding: '18px', border: '1px solid rgba(255,255,255,0.05)' }}><div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '14px' }}><div><strong style={{ display: 'block', fontSize: '18px' }}>{appointment.fullName}</strong><span style={{ color: '#C9A96E', fontSize: '13px' }}>{formatDateLabel(appointment.date)}</span></div><div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}><select value={appointment.status} onChange={(event) => updateAppointment(appointment.id, 'status', event.target.value)} style={{ ...baseInputStyle(), width: 'auto', padding: '10px 12px' }}><option value="agendado">Agendado</option><option value="confirmado">Confirmado</option><option value="concluido">Conclu?do</option><option value="cancelado">Cancelado</option></select><ActionButton variant="danger" onClick={() => removeAppointment(appointment.id)}>Excluir</ActionButton></div></div><div style={{ display: 'grid', gap: '8px', color: 'rgba(245,240,232,0.76)', lineHeight: 1.7 }}><div><strong>CPF:</strong> {appointment.cpf}</div><div><strong>Endere?o:</strong> {appointment.address}</div><div><strong>Procedimento:</strong> {appointment.procedureName || '-'}</div><div><strong>Observa??es:</strong> {appointment.notes || '-'}</div><div><strong>Criado em:</strong> {appointment.createdAt ? new Date(appointment.createdAt).toLocaleString('pt-BR') : '-'}</div></div></div>)}</div>}
           </div>
         </SectionCard>
 
-        <SectionCard eyebrow="Seguranca" title="Meu acesso" description="Cada pessoa entra com seu proprio usuario. A senha pode ser alterada sem mexer no restante do sistema.">
+        <SectionCard eyebrow="Segurança" title="Meu acesso" description="Cada pessoa entra com seu próprio usuário. A senha pode ser alterada sem mexer no restante do sistema.">
           <Row>
             <Field label="Senha atual" type="password" value={passwordForm.currentPassword} onChange={(value) => setPasswordForm((previous) => ({ ...previous, currentPassword: value }))} />
             <Field label="Nova senha" type="password" value={passwordForm.newPassword} onChange={(value) => setPasswordForm((previous) => ({ ...previous, newPassword: value }))} />
@@ -713,14 +713,14 @@ export default function AdminPanel() {
             </div>
           ) : (
             <p style={{ margin: 0, color: 'rgba(245,240,232,0.64)', lineHeight: 1.8 }}>
-              Somente a administracao pode exportar backup da base.
+              Somente a administração pode exportar backup da base.
             </p>
           )}
 
           <div style={{ display: 'grid', gap: '12px' }}>
             {auditLogs.length === 0 ? (
               <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
-                Ainda nao existem registros de auditoria.
+                Ainda não existem registros de auditoria.
               </p>
             ) : (
               auditLogs.map((item) => (
@@ -730,9 +730,9 @@ export default function AdminPanel() {
                     <span style={{ color: '#C9A96E', fontSize: '13px' }}>{item.createdAt ? new Date(item.createdAt).toLocaleString('pt-BR') : '-'}</span>
                   </div>
                   <div style={{ color: 'rgba(245,240,232,0.76)', lineHeight: 1.7 }}>
-                    <div><strong>Acao:</strong> {item.action}</div>
-                    <div><strong>Area:</strong> {item.entityType}</div>
-                    {item.entityId ? <div><strong>Referencia:</strong> {item.entityId}</div> : null}
+                    <div><strong>Ação:</strong> {item.action}</div>
+                    <div><strong>Área:</strong> {item.entityType}</div>
+                    {item.entityId ? <div><strong>Referência:</strong> {item.entityId}</div> : null}
                   </div>
                 </div>
               ))
@@ -741,12 +741,12 @@ export default function AdminPanel() {
         </SectionCard>
 
         {isAdmin ? (
-          <SectionCard eyebrow="Equipe" title="Acessos do painel" description="A Dra pode criar perfis para as funcionarias, redefinir senhas e desativar acessos sem abrir o codigo.">
+          <SectionCard eyebrow="Equipe" title="Acessos do painel" description="A Dra pode criar perfis para as funcionárias, redefinir senhas e desativar acessos sem abrir o código.">
             <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
               <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Criar novo acesso</strong>
               <Row>
-                <Field label="Nome de exibicao" value={userForm.displayName} onChange={(value) => setUserForm((previous) => ({ ...previous, displayName: value }))} />
-                <Field label="Usuario" value={userForm.username} onChange={(value) => setUserForm((previous) => ({ ...previous, username: value }))} />
+                <Field label="Nome de exibição" value={userForm.displayName} onChange={(value) => setUserForm((previous) => ({ ...previous, displayName: value }))} />
+                <Field label="Usuário" value={userForm.username} onChange={(value) => setUserForm((previous) => ({ ...previous, username: value }))} />
                 <Field label="Senha inicial" type="password" value={userForm.password} onChange={(value) => setUserForm((previous) => ({ ...previous, password: value }))} />
                 <SelectField label="Perfil" value={userForm.role} onChange={(value) => setUserForm((previous) => ({ ...previous, role: value }))} options={[{ value: 'staff', label: 'Equipe' }, { value: 'admin', label: 'Admin' }]} />
               </Row>
@@ -756,7 +756,7 @@ export default function AdminPanel() {
             <div style={{ display: 'grid', gap: '14px' }}>
               {users.map((user) => {
                 const edit = userEdits[user.id] || { displayName: user.displayName, role: user.role, active: user.active, password: '' };
-                return <div key={user.id} style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '14px' }}><div><strong style={{ display: 'block', fontSize: '18px' }}>{user.username}</strong><span style={{ color: 'rgba(245,240,232,0.6)' }}>ID: {user.id}</span></div><UserStatusPill active={edit.active} role={edit.role} /></div><Row><Field label="Nome de exibicao" value={edit.displayName} onChange={(value) => setUserEdits((previous) => ({ ...previous, [user.id]: { ...previous[user.id], displayName: value } }))} /><SelectField label="Perfil" value={edit.role} onChange={(value) => setUserEdits((previous) => ({ ...previous, [user.id]: { ...previous[user.id], role: value } }))} options={[{ value: 'staff', label: 'Equipe' }, { value: 'admin', label: 'Admin' }]} /><Field label="Nova senha (opcional)" type="password" value={edit.password} onChange={(value) => setUserEdits((previous) => ({ ...previous, [user.id]: { ...previous[user.id], password: value } }))} /></Row><div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', flexWrap: 'wrap', marginTop: '14px' }}><label style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'rgba(245,240,232,0.72)' }}><input type="checkbox" checked={Boolean(edit.active)} onChange={(event) => setUserEdits((previous) => ({ ...previous, [user.id]: { ...previous[user.id], active: event.target.checked } }))} />Acesso ativo</label><ActionButton onClick={() => handleUpdateUser(user.id)} variant="primary" disabled={busyKey === `user-${user.id}`}>{busyKey === `user-${user.id}` ? 'Salvando...' : 'Salvar usuario'}</ActionButton></div></div>;
+                return <div key={user.id} style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '14px' }}><div><strong style={{ display: 'block', fontSize: '18px' }}>{user.username}</strong><span style={{ color: 'rgba(245,240,232,0.6)' }}>ID: {user.id}</span></div><UserStatusPill active={edit.active} role={edit.role} /></div><Row><Field label="Nome de exibição" value={edit.displayName} onChange={(value) => setUserEdits((previous) => ({ ...previous, [user.id]: { ...previous[user.id], displayName: value } }))} /><SelectField label="Perfil" value={edit.role} onChange={(value) => setUserEdits((previous) => ({ ...previous, [user.id]: { ...previous[user.id], role: value } }))} options={[{ value: 'staff', label: 'Equipe' }, { value: 'admin', label: 'Admin' }]} /><Field label="Nova senha (opcional)" type="password" value={edit.password} onChange={(value) => setUserEdits((previous) => ({ ...previous, [user.id]: { ...previous[user.id], password: value } }))} /></Row><div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', flexWrap: 'wrap', marginTop: '14px' }}><label style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'rgba(245,240,232,0.72)' }}><input type="checkbox" checked={Boolean(edit.active)} onChange={(event) => setUserEdits((previous) => ({ ...previous, [user.id]: { ...previous[user.id], active: event.target.checked } }))} />Acesso ativo</label><ActionButton onClick={() => handleUpdateUser(user.id)} variant="primary" disabled={busyKey === `user-${user.id}`}>{busyKey === `user-${user.id}` ? 'Salvando...' : 'Salvar usuário'}</ActionButton></div></div>;
               })}
             </div>
           </SectionCard>
@@ -764,17 +764,17 @@ export default function AdminPanel() {
 
         {isAdmin ? (
           <>
-            <SectionCard eyebrow="Site publico" title="Acesso e links globais">
+            <SectionCard eyebrow="Site público" title="Acesso e links globais">
               <Row>
                 <Field label="WhatsApp URL" value={draft.global.whatsappUrl} onChange={(value) => updateDraft(['global', 'whatsappUrl'], value)} />
                 <Field label="Instagram URL" value={draft.global.instagramUrl} onChange={(value) => updateDraft(['global', 'instagramUrl'], value)} />
                 <Field label="Instagram @" value={draft.global.instagramHandle} onChange={(value) => updateDraft(['global', 'instagramHandle'], value)} />
                 <Field label="Telefone" value={draft.global.phone} onChange={(value) => updateDraft(['global', 'phone'], value)} />
-                <Field label="Localizacao" value={draft.global.location} onChange={(value) => updateDraft(['global', 'location'], value)} />
+                <Field label="Localização" value={draft.global.location} onChange={(value) => updateDraft(['global', 'location'], value)} />
                 <Field label="Atendimento" value={draft.global.attendance} onChange={(value) => updateDraft(['global', 'attendance'], value)} />
                 <Field label="CRM" value={draft.global.crm} onChange={(value) => updateDraft(['global', 'crm'], value)} />
               </Row>
-              <Field label="Mensagem padrao do WhatsApp" value={draft.global.whatsappMessage} onChange={(value) => updateDraft(['global', 'whatsappMessage'], value)} multiline />
+              <Field label="Mensagem padrão do WhatsApp" value={draft.global.whatsappMessage} onChange={(value) => updateDraft(['global', 'whatsappMessage'], value)} multiline />
             </SectionCard>
 
             <SectionCard eyebrow="Primeira dobra" title="Navbar e hero">
@@ -788,15 +788,15 @@ export default function AdminPanel() {
                 <Field label="Botao principal" value={draft.hero.primaryCta} onChange={(value) => updateDraft(['hero', 'primaryCta'], value)} />
                 <Field label="Botao secundario" value={draft.hero.secondaryCta} onChange={(value) => updateDraft(['hero', 'secondaryCta'], value)} />
               </Row>
-              <Field label="Descricao do hero" value={draft.hero.tagline} onChange={(value) => updateDraft(['hero', 'tagline'], value)} multiline />
+              <Field label="Descri??o do hero" value={draft.hero.tagline} onChange={(value) => updateDraft(['hero', 'tagline'], value)} multiline />
               <UploadField label="Imagem do hero" value={draft.hero.backgroundImage} onChange={(value) => updateDraft(['hero', 'backgroundImage'], value)} />
             </SectionCard>
 
             <SectionCard eyebrow="Autoridade" title="Sobre">
               <Row>
                 <Field label="Label da secao" value={draft.about.sectionLabel} onChange={(value) => updateDraft(['about', 'sectionLabel'], value)} />
-                <Field label="Titulo antes" value={draft.about.titlePrefix} onChange={(value) => updateDraft(['about', 'titlePrefix'], value)} />
-                <Field label="Titulo destaque" value={draft.about.titleAccent} onChange={(value) => updateDraft(['about', 'titleAccent'], value)} />
+                <Field label="T?tulo antes" value={draft.about.titlePrefix} onChange={(value) => updateDraft(['about', 'titlePrefix'], value)} />
+                <Field label="T?tulo destaque" value={draft.about.titleAccent} onChange={(value) => updateDraft(['about', 'titleAccent'], value)} />
                 <Field label="Selo titulo" value={draft.about.badgeTitle} onChange={(value) => updateDraft(['about', 'badgeTitle'], value)} />
                 <Field label="Selo subtitulo" value={draft.about.badgeSubtitle} onChange={(value) => updateDraft(['about', 'badgeSubtitle'], value)} />
               </Row>
@@ -808,29 +808,29 @@ export default function AdminPanel() {
             <SectionCard eyebrow="Servicos" title="Especialidades">
               <Row>
                 <Field label="Label da secao" value={draft.specialties.sectionLabel} onChange={(value) => updateDraft(['specialties', 'sectionLabel'], value)} />
-                <Field label="Titulo antes" value={draft.specialties.headingPrefix} onChange={(value) => updateDraft(['specialties', 'headingPrefix'], value)} />
-                <Field label="Titulo destaque" value={draft.specialties.headingAccent} onChange={(value) => updateDraft(['specialties', 'headingAccent'], value)} />
+                <Field label="T?tulo antes" value={draft.specialties.headingPrefix} onChange={(value) => updateDraft(['specialties', 'headingPrefix'], value)} />
+                <Field label="T?tulo destaque" value={draft.specialties.headingAccent} onChange={(value) => updateDraft(['specialties', 'headingAccent'], value)} />
               </Row>
-              {draft.specialties.items.map((item, index) => <ItemCard key={index} title={`Especialidade ${index + 1}`} onRemove={draft.specialties.items.length > 1 ? () => removeArrayItem(['specialties', 'items'], index) : undefined}><Row><Field label="Numero" value={item.number} onChange={(value) => updateDraft(['specialties', 'items', index, 'number'], value)} /><Field label="Titulo" value={item.title} onChange={(value) => updateDraft(['specialties', 'items', index, 'title'], value)} /></Row><Field label="Descricao" value={item.desc} onChange={(value) => updateDraft(['specialties', 'items', index, 'desc'], value)} multiline /></ItemCard>)}
-              <ActionButton onClick={() => addArrayItem(['specialties', 'items'], { number: '07', title: 'Nova especialidade', desc: 'Descricao da especialidade.' })}>Adicionar especialidade</ActionButton>
+              {draft.specialties.items.map((item, index) => <ItemCard key={index} title={`Especialidade ${index + 1}`} onRemove={draft.specialties.items.length > 1 ? () => removeArrayItem(['specialties', 'items'], index) : undefined}><Row><Field label="N?mero" value={item.number} onChange={(value) => updateDraft(['specialties', 'items', index, 'number'], value)} /><Field label="T?tulo" value={item.title} onChange={(value) => updateDraft(['specialties', 'items', index, 'title'], value)} /></Row><Field label="Descri??o" value={item.desc} onChange={(value) => updateDraft(['specialties', 'items', index, 'desc'], value)} multiline /></ItemCard>)}
+              <ActionButton onClick={() => addArrayItem(['specialties', 'items'], { number: '07', title: 'Nova especialidade', desc: 'Descri??o da especialidade.' })}>Adicionar especialidade</ActionButton>
             </SectionCard>
 
-            <SectionCard eyebrow="Historia" title="Trajetoria">
+            <SectionCard eyebrow="Hist?ria" title="Trajet?ria">
               <Row>
                 <Field label="Label da secao" value={draft.journey.sectionLabel} onChange={(value) => updateDraft(['journey', 'sectionLabel'], value)} />
-                <Field label="Titulo antes" value={draft.journey.headingPrefix} onChange={(value) => updateDraft(['journey', 'headingPrefix'], value)} />
-                <Field label="Titulo destaque" value={draft.journey.headingAccent} onChange={(value) => updateDraft(['journey', 'headingAccent'], value)} />
+                <Field label="T?tulo antes" value={draft.journey.headingPrefix} onChange={(value) => updateDraft(['journey', 'headingPrefix'], value)} />
+                <Field label="T?tulo destaque" value={draft.journey.headingAccent} onChange={(value) => updateDraft(['journey', 'headingAccent'], value)} />
               </Row>
-              {draft.journey.items.map((item, index) => <ItemCard key={index} title={`Etapa ${index + 1}`} onRemove={draft.journey.items.length > 1 ? () => removeArrayItem(['journey', 'items'], index) : undefined}><Row><Field label="Ano" value={item.year} onChange={(value) => updateDraft(['journey', 'items', index, 'year'], value)} /><Field label="Titulo" value={item.title} onChange={(value) => updateDraft(['journey', 'items', index, 'title'], value)} /></Row><Field label="Descricao" value={item.desc} onChange={(value) => updateDraft(['journey', 'items', index, 'desc'], value)} multiline /></ItemCard>)}
-              <ActionButton onClick={() => addArrayItem(['journey', 'items'], { year: 'Novo', title: 'Novo marco', desc: 'Descricao do marco.' })}>Adicionar etapa</ActionButton>
+              {draft.journey.items.map((item, index) => <ItemCard key={index} title={`Etapa ${index + 1}`} onRemove={draft.journey.items.length > 1 ? () => removeArrayItem(['journey', 'items'], index) : undefined}><Row><Field label="Ano" value={item.year} onChange={(value) => updateDraft(['journey', 'items', index, 'year'], value)} /><Field label="T?tulo" value={item.title} onChange={(value) => updateDraft(['journey', 'items', index, 'title'], value)} /></Row><Field label="Descri??o" value={item.desc} onChange={(value) => updateDraft(['journey', 'items', index, 'desc'], value)} multiline /></ItemCard>)}
+              <ActionButton onClick={() => addArrayItem(['journey', 'items'], { year: 'Novo', title: 'Novo marco', desc: 'Descri??o do marco.' })}>Adicionar etapa</ActionButton>
             </SectionCard>
 
             <SectionCard eyebrow="Imagens" title="Galeria">
               <Row>
                 <Field label="Label da secao" value={draft.gallery.sectionLabel} onChange={(value) => updateDraft(['gallery', 'sectionLabel'], value)} />
-                <Field label="Titulo antes" value={draft.gallery.headingPrefix} onChange={(value) => updateDraft(['gallery', 'headingPrefix'], value)} />
-                <Field label="Titulo destaque" value={draft.gallery.headingAccent} onChange={(value) => updateDraft(['gallery', 'headingAccent'], value)} />
-                <Field label="Texto do botao" value={draft.gallery.buttonLabel} onChange={(value) => updateDraft(['gallery', 'buttonLabel'], value)} />
+                <Field label="T?tulo antes" value={draft.gallery.headingPrefix} onChange={(value) => updateDraft(['gallery', 'headingPrefix'], value)} />
+                <Field label="T?tulo destaque" value={draft.gallery.headingAccent} onChange={(value) => updateDraft(['gallery', 'headingAccent'], value)} />
+                <Field label="Texto do bot?o" value={draft.gallery.buttonLabel} onChange={(value) => updateDraft(['gallery', 'buttonLabel'], value)} />
               </Row>
               {draft.gallery.items.map((item, index) => <ItemCard key={index} title={`Imagem ${index + 1}`} onRemove={draft.gallery.items.length > 1 ? () => removeArrayItem(['gallery', 'items'], index) : undefined}><UploadField label="Foto" value={item.src} onChange={(value) => updateDraft(['gallery', 'items', index, 'src'], value)} /><Row><Field label="Legenda" value={item.caption} onChange={(value) => updateDraft(['gallery', 'items', index, 'caption'], value)} /><Field label="Alt" value={item.alt} onChange={(value) => updateDraft(['gallery', 'items', index, 'alt'], value)} /></Row></ItemCard>)}
               <ActionButton onClick={() => addArrayItem(['gallery', 'items'], { src: '', caption: 'Nova imagem', alt: 'Nova imagem' })}>Adicionar imagem</ActionButton>
@@ -842,20 +842,20 @@ export default function AdminPanel() {
               <ActionButton onClick={() => addArrayItem(['testimonials', 'items'], { text: 'Novo depoimento.', name: 'Paciente', procedure: 'Procedimento', stars: 5 })}>Adicionar depoimento</ActionButton>
             </SectionCard>
 
-            <SectionCard eyebrow="Conversao" title="Contato e rodape">
+            <SectionCard eyebrow="Convers?o" title="Contato e rodape">
               <Row>
                 <Field label="Label da secao" value={draft.contact.sectionLabel} onChange={(value) => updateDraft(['contact', 'sectionLabel'], value)} />
-                <Field label="Titulo antes" value={draft.contact.titlePrefix} onChange={(value) => updateDraft(['contact', 'titlePrefix'], value)} />
-                <Field label="Titulo destaque" value={draft.contact.titleAccent} onChange={(value) => updateDraft(['contact', 'titleAccent'], value)} />
-                <Field label="Titulo do card lateral" value={draft.contact.panelTitle} onChange={(value) => updateDraft(['contact', 'panelTitle'], value)} />
-                <Field label="Texto do botao" value={draft.contact.buttonLabel} onChange={(value) => updateDraft(['contact', 'buttonLabel'], value)} />
+                <Field label="T?tulo antes" value={draft.contact.titlePrefix} onChange={(value) => updateDraft(['contact', 'titlePrefix'], value)} />
+                <Field label="T?tulo destaque" value={draft.contact.titleAccent} onChange={(value) => updateDraft(['contact', 'titleAccent'], value)} />
+                <Field label="T?tulo do card lateral" value={draft.contact.panelTitle} onChange={(value) => updateDraft(['contact', 'panelTitle'], value)} />
+                <Field label="Texto do bot?o" value={draft.contact.buttonLabel} onChange={(value) => updateDraft(['contact', 'buttonLabel'], value)} />
               </Row>
-              <Field label="Descricao de contato" value={draft.contact.description} onChange={(value) => updateDraft(['contact', 'description'], value)} multiline />
+              <Field label="Descri??o de contato" value={draft.contact.description} onChange={(value) => updateDraft(['contact', 'description'], value)} multiline />
               <Field label="Texto do card lateral" value={draft.contact.panelBody} onChange={(value) => updateDraft(['contact', 'panelBody'], value)} multiline />
               {draft.contact.cards.map((item, index) => <ItemCard key={index} title={`Contato ${index + 1}`} onRemove={draft.contact.cards.length > 1 ? () => removeArrayItem(['contact', 'cards'], index) : undefined}><Row><Field label="Label" value={item.label} onChange={(value) => updateDraft(['contact', 'cards', index, 'label'], value)} /><Field label="Valor" value={item.value} onChange={(value) => updateDraft(['contact', 'cards', index, 'value'], value)} /><Field label="Tipo" value={item.type} onChange={(value) => updateDraft(['contact', 'cards', index, 'type'], value)} /></Row></ItemCard>)}
               <ActionButton onClick={() => addArrayItem(['contact', 'cards'], { label: 'Novo contato', value: 'Valor', type: 'static' })}>Adicionar item de contato</ActionButton>
               {draft.contact.panelBullets.map((item, index) => <Field key={index} label={`Bullet ${index + 1}`} value={item} onChange={(value) => updateDraft(['contact', 'panelBullets', index], value)} />)}
-              <Field label="Descricao do rodape" value={draft.footer.brandDescription} onChange={(value) => updateDraft(['footer', 'brandDescription'], value)} multiline />
+              <Field label="Descri??o do rodape" value={draft.footer.brandDescription} onChange={(value) => updateDraft(['footer', 'brandDescription'], value)} multiline />
               {draft.footer.contactItems.map((item, index) => <Field key={index} label={`Rodape contato ${index + 1}`} value={item} onChange={(value) => updateDraft(['footer', 'contactItems', index], value)} />)}
               <Row>
                 <Field label="Copyright prefixo" value={draft.footer.copyrightPrefix} onChange={(value) => updateDraft(['footer', 'copyrightPrefix'], value)} />
@@ -865,8 +865,8 @@ export default function AdminPanel() {
             </SectionCard>
           </>
         ) : (
-          <SectionCard eyebrow="Modo equipe" title="Permissoes da secretaria" description="Neste perfil, o painel fica focado no operacional: ver datas liberadas, cadastrar pacientes, atualizar status e manter os dados organizados.">
-            <p style={{ margin: 0, color: 'rgba(245,240,232,0.7)', lineHeight: 1.8 }}>A parte visual do site, os textos e as imagens ficam reservados para o acesso de administracao da Dra.</p>
+          <SectionCard eyebrow="Modo equipe" title="Permiss?es da secretaria" description="Neste perfil, o painel fica focado no operacional: ver datas liberadas, cadastrar pacientes, atualizar status e manter os dados organizados.">
+            <p style={{ margin: 0, color: 'rgba(245,240,232,0.7)', lineHeight: 1.8 }}>A parte visual do site, os textos e as imagens ficam reservados para o acesso de administração da Dra.</p>
           </SectionCard>
         )}
       </div>

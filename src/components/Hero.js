@@ -222,36 +222,26 @@ export default function Hero() {
 
         <h1
           style={{
+            display: 'flex',
+            alignItems: 'baseline',
+            gap: '0.2em',
+            flexWrap: 'nowrap',
+            whiteSpace: 'nowrap',
             fontFamily: "'Cormorant Garamond', serif",
-            fontSize: 'clamp(60px, 9vw, 110px)',
+            fontSize: 'clamp(48px, 7.1vw, 110px)',
             fontWeight: 300,
-            lineHeight: 1.0,
-            letterSpacing: '-0.02em',
-            color: '#F5F0E8',
-            marginBottom: '8px',
+            lineHeight: 0.95,
+            letterSpacing: '-0.03em',
+            margin: 0,
+            marginBottom: '48px',
             opacity: loaded ? 1 : 0,
             transform: loaded ? 'translateY(0)' : 'translateY(40px)',
             transition: 'all 1.2s ease 0.4s',
           }}
+          className="hero-brand-title"
         >
-          {hero.titlePrimary}
-        </h1>
-        <h1
-          style={{
-            fontFamily: "'Cormorant Garamond', serif",
-            fontSize: 'clamp(60px, 9vw, 110px)',
-            fontWeight: 300,
-            lineHeight: 1.0,
-            letterSpacing: '-0.02em',
-            fontStyle: 'italic',
-            color: '#C9A96E',
-            marginBottom: '48px',
-            opacity: loaded ? 1 : 0,
-            transform: loaded ? 'translateY(0)' : 'translateY(40px)',
-            transition: 'all 1.2s ease 0.55s',
-          }}
-        >
-          {hero.titleAccent}
+          <span style={{ color: '#F5F0E8' }}>{hero.titlePrimary}</span>
+          <span style={{ color: '#C9A96E', fontStyle: 'italic' }}>{hero.titleAccent}</span>
         </h1>
 
         <p
@@ -430,6 +420,11 @@ export default function Hero() {
         }
         @media (max-width: 768px) {
           .hero-content { padding: 0 24px !important; max-width: 100% !important; }
+          .hero-brand-title {
+            font-size: clamp(34px, 11vw, 64px) !important;
+            letter-spacing: -0.025em !important;
+            gap: 0.16em !important;
+          }
           .hero-scroll { display: none !important; }
           .hero-badge { margin-bottom: 22px !important; }
           section { min-height: 620px !important; }

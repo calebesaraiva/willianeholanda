@@ -9,6 +9,10 @@ const { DatabaseSync } = require('node:sqlite');
 const app = express();
 const PORT = Number(process.env.PORT || 4000);
 const JWT_SECRET = process.env.JWT_SECRET || 'dra-williane-secret-local';
+const CURRENT_ADMIN_USERNAME = 'williane';
+const CURRENT_ADMIN_PASSWORD = 'Acesso@2025';
+const LEGACY_ADMIN_USERNAME = 'dra';
+const LEGACY_ADMIN_PASSWORD = 'admin123';
 const DATA_DIR = path.join(__dirname, 'data');
 const SQLITE_PATH = path.join(DATA_DIR, 'database.sqlite');
 const LEGACY_JSON_PATH = path.join(DATA_DIR, 'database.json');
@@ -320,7 +324,16 @@ function ensureSeedData() {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
-  insertUser.run('user-dra', 'dra', bcrypt.hashSync('admin123', 10), 'admin', 'Dra. Williane', 1, now, now);
+  insertUser.run(
+    'user-dra',
+    CURRENT_ADMIN_USERNAME,
+    bcrypt.hashSync(CURRENT_ADMIN_PASSWORD, 10),
+    'admin',
+    'Dra. Williane',
+    1,
+    now,
+    now
+  );
   insertUser.run('user-secretaria', 'secretaria', bcrypt.hashSync('secretaria123', 10), 'staff', 'Secretaria', 1, now, now);
   setSiteContent({});
 }
@@ -378,6 +391,29 @@ function migrateLegacyJsonIfNeeded() {
 ensureSeedData();
 migrateLegacyJsonIfNeeded();
 
+function migrateDefaultAdminCredentialsIfNeeded() {
+  const adminUser = db.prepare('SELECT * FROM users WHERE id = ?').get('user-dra');
+  if (!adminUser || adminUser.role !== 'admin') return;
+
+  const hasLegacyUsername = adminUser.username === LEGACY_ADMIN_USERNAME;
+  const hasLegacyPassword = bcrypt.compareSync(LEGACY_ADMIN_PASSWORD, adminUser.password_hash);
+  const hasCurrentUsername = adminUser.username === CURRENT_ADMIN_USERNAME;
+  const hasCurrentPassword = bcrypt.compareSync(CURRENT_ADMIN_PASSWORD, adminUser.password_hash);
+
+  if (hasCurrentUsername && hasCurrentPassword) return;
+
+  if ((hasLegacyUsername && hasLegacyPassword) || (hasCurrentUsername && hasLegacyPassword)) {
+    db.prepare('UPDATE users SET username = ?, password_hash = ?, updated_at = ? WHERE id = ?').run(
+      CURRENT_ADMIN_USERNAME,
+      bcrypt.hashSync(CURRENT_ADMIN_PASSWORD, 10),
+      nowIso(),
+      adminUser.id
+    );
+  }
+}
+
+migrateDefaultAdminCredentialsIfNeeded();
+
 function authRequired(req, res, next) {
   const header = req.headers.authorization || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : '';
@@ -389,7 +425,7 @@ function authRequired(req, res, next) {
     req.auth = jwt.verify(token, JWT_SECRET);
     return next();
   } catch {
-    return res.status(401).json({ error: 'Token invalido.' });
+    return res.status(401).json({ error: 'Token inválido.' });
   }
 }
 
@@ -432,7 +468,7 @@ app.post('/api/auth/login', (req, res) => {
   const user = db.prepare('SELECT * FROM users WHERE username = ?').get(normalizedUsername);
 
   if (!user || !user.active || !bcrypt.compareSync(password || '', user.password_hash)) {
-    return res.status(401).json({ error: 'Usuario ou senha invalidos.' });
+    return res.status(401).json({ error: 'Usuário ou senha inválidos.' });
   }
 
   const token = jwt.sign(
@@ -457,7 +493,7 @@ app.post('/api/auth/login', (req, res) => {
 app.get('/api/auth/me', authRequired, (req, res) => {
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.auth.id);
   if (!user || !user.active) {
-    return res.status(401).json({ error: 'Usuario nao encontrado.' });
+    return res.status(401).json({ error: 'Usuário não encontrado.' });
   }
   return res.json({ user: sanitizeUser(user) });
 });
@@ -470,10 +506,10 @@ app.post('/api/auth/change-password', authRequired, (req, res) => {
 
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.auth.id);
   if (!user) {
-    return res.status(404).json({ error: 'Usuario nao encontrado.' });
+    return res.status(404).json({ error: 'Usuário não encontrado.' });
   }
   if (!bcrypt.compareSync(currentPassword || '', user.password_hash)) {
-    return res.status(401).json({ error: 'Senha atual invalida.' });
+    return res.status(401).json({ error: 'Senha atual inválida.' });
   }
 
   db.prepare('UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?').run(
@@ -494,7 +530,7 @@ app.get('/api/admin/users', authRequired, (_req, res) => {
 app.post('/api/admin/users', authRequired, adminRequired, (req, res) => {
   const { username, password, role, displayName } = req.body || {};
   if (!username || !password || !displayName) {
-    return res.status(400).json({ error: 'Preencha usuario, senha e nome de exibicao.' });
+    return res.status(400).json({ error: 'Preencha usuário, senha e nome de exibição.' });
   }
   if (String(password).length < 6) {
     return res.status(400).json({ error: 'A senha precisa ter pelo menos 6 caracteres.' });
@@ -503,7 +539,7 @@ app.post('/api/admin/users', authRequired, adminRequired, (req, res) => {
   const normalizedUsername = String(username).trim().toLowerCase();
   const existing = db.prepare('SELECT id FROM users WHERE username = ?').get(normalizedUsername);
   if (existing) {
-    return res.status(409).json({ error: 'Esse usuario ja existe.' });
+    return res.status(409).json({ error: 'Esse usuário já existe.' });
   }
 
   const user = {
@@ -529,7 +565,7 @@ app.post('/api/admin/users', authRequired, adminRequired, (req, res) => {
 app.patch('/api/admin/users/:id', authRequired, adminRequired, (req, res) => {
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
   if (!user) {
-    return res.status(404).json({ error: 'Usuario nao encontrado.' });
+    return res.status(404).json({ error: 'Usuário não encontrado.' });
   }
 
   const nextDisplayName = req.body.displayName ? String(req.body.displayName).trim() : user.display_name;
