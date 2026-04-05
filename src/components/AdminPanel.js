@@ -783,8 +783,8 @@ export default function AdminPanel() {
                 <Field label="Marca nome" value={draft.navbar.brandName} onChange={(value) => updateDraft(['navbar', 'brandName'], value)} />
                 <Field label="CTA do menu" value={draft.navbar.ctaLabel} onChange={(value) => updateDraft(['navbar', 'ctaLabel'], value)} />
                 <Field label="Hero label" value={draft.hero.label} onChange={(value) => updateDraft(['hero', 'label'], value)} />
-                <Field label="Hero t?tulo 1" value={draft.hero.titlePrimary} onChange={(value) => updateDraft(['hero', 'titlePrimary'], value)} />
-                <Field label="Hero t?tulo 2" value={draft.hero.titleAccent} onChange={(value) => updateDraft(['hero', 'titleAccent'], value)} />
+                <Field label="Hero título 1" value={draft.hero.titlePrimary} onChange={(value) => updateDraft(['hero', 'titlePrimary'], value)} />
+                <Field label="Hero título 2" value={draft.hero.titleAccent} onChange={(value) => updateDraft(['hero', 'titleAccent'], value)} />
                 <Field label="Botão principal" value={draft.hero.primaryCta} onChange={(value) => updateDraft(['hero', 'primaryCta'], value)} />
                 <Field label="Botão secundário" value={draft.hero.secondaryCta} onChange={(value) => updateDraft(['hero', 'secondaryCta'], value)} />
               </Row>
@@ -797,8 +797,8 @@ export default function AdminPanel() {
                 <Field label="Label da seção" value={draft.about.sectionLabel} onChange={(value) => updateDraft(['about', 'sectionLabel'], value)} />
                 <Field label="Título antes" value={draft.about.titlePrefix} onChange={(value) => updateDraft(['about', 'titlePrefix'], value)} />
                 <Field label="Título destaque" value={draft.about.titleAccent} onChange={(value) => updateDraft(['about', 'titleAccent'], value)} />
-                <Field label="Selo t?tulo" value={draft.about.badgeTitle} onChange={(value) => updateDraft(['about', 'badgeTitle'], value)} />
-                <Field label="Selo subt?tulo" value={draft.about.badgeSubtitle} onChange={(value) => updateDraft(['about', 'badgeSubtitle'], value)} />
+                <Field label="Selo título" value={draft.about.badgeTitle} onChange={(value) => updateDraft(['about', 'badgeTitle'], value)} />
+                <Field label="Selo subtítulo" value={draft.about.badgeSubtitle} onChange={(value) => updateDraft(['about', 'badgeSubtitle'], value)} />
               </Row>
               <UploadField label="Imagem do sobre" value={draft.about.image} onChange={(value) => updateDraft(['about', 'image'], value)} />
               {draft.about.paragraphs.map((paragraph, index) => <Field key={index} label={`Parágrafo ${index + 1}`} value={paragraph} onChange={(value) => updateDraft(['about', 'paragraphs', index], value)} multiline />)}
@@ -856,7 +856,7 @@ export default function AdminPanel() {
               <ActionButton onClick={() => addArrayItem(['contact', 'cards'], { label: 'Novo contato', value: 'Valor', type: 'static' })}>Adicionar item de contato</ActionButton>
               {draft.contact.panelBullets.map((item, index) => <Field key={index} label={`Bullet ${index + 1}`} value={item} onChange={(value) => updateDraft(['contact', 'panelBullets', index], value)} />)}
               <Field label="Descrição do rodapé" value={draft.footer.brandDescription} onChange={(value) => updateDraft(['footer', 'brandDescription'], value)} multiline />
-              {draft.footer.contactItems.map((item, index) => <Field key={index} label={`Rodap? contato ${index + 1}`} value={item} onChange={(value) => updateDraft(['footer', 'contactItems', index], value)} />)}
+              {draft.footer.contactItems.map((item, index) => <Field key={index} label={`Rodapé contato ${index + 1}`} value={item} onChange={(value) => updateDraft(['footer', 'contactItems', index], value)} />)}
               <Row>
                 <Field label="Copyright prefixo" value={draft.footer.copyrightPrefix} onChange={(value) => updateDraft(['footer', 'copyrightPrefix'], value)} />
                 <Field label="Copyright texto" value={draft.footer.copyrightSuffix} onChange={(value) => updateDraft(['footer', 'copyrightSuffix'], value)} />
