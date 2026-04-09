@@ -899,7 +899,18 @@ function migrateDefaultStaffCredentialsIfNeeded() {
 migrateDefaultStaffCredentialsIfNeeded();
 
 function buildExternalBaseUrl(req) {
-  return PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+  if (PUBLIC_BASE_URL) return PUBLIC_BASE_URL;
+
+  const protocol = req?.protocol || 'https';
+  const hostFromGetter = typeof req?.get === 'function' ? req.get('host') : '';
+  const hostFromHeaders = req?.headers?.host || '';
+  const host = hostFromGetter || hostFromHeaders;
+
+  if (host) {
+    return `${protocol}://${host}`;
+  }
+
+  return 'https://willianeholanda.com.br';
 }
 
 function getWhatsAppStatus(req) {

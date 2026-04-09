@@ -379,6 +379,7 @@ export default function AdminPanel() {
   const calendarCellMinHeight = isMobile ? '64px' : '78px';
   const calendarGap = isMobile ? '6px' : '8px';
   const compactButtonStyle = isMobile ? { width: '100%' } : null;
+  const adminScheduleOnly = isAdmin;
 
   useEffect(() => {
     setDraft(cloneContent(siteContent));
@@ -622,6 +623,7 @@ export default function AdminPanel() {
     () => (isAdmin ? monthGrid : monthGrid.filter((date) => (freeTimeSlotsByDate[date.toISOString().slice(0, 10)] || []).length > 0)),
     [isAdmin, monthGrid, freeTimeSlotsByDate]
   );
+  const quickActionDate = selectedCalendarDate || nextAvailableDate || todayDate;
 
   const jumpToDate = (dateString) => {
     if (!dateString) return;
@@ -882,38 +884,34 @@ export default function AdminPanel() {
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(150px, max-content))', gap: '12px', width: isMobile ? '100%' : 'auto' }}>
             <a href={dashboardUrl} target="_blank" rel="noreferrer" style={{ color: '#F5F0E8' }}><ActionButton>Ver site</ActionButton></a>
             <ActionButton onClick={handleSaveSchedule} variant="primary" disabled={busyKey === 'schedule'} stretch={isMobile}>{busyKey === 'schedule' ? 'Salvando agenda...' : 'Salvar agenda'}</ActionButton>
-            {isAdmin ? <ActionButton onClick={handleSaveContent} variant="primary" disabled={busyKey === 'content'} stretch={isMobile}>{busyKey === 'content' ? 'Salvando site...' : 'Salvar site'}</ActionButton> : null}
-            {isAdmin ? <ActionButton onClick={handleReset} variant="danger" disabled={busyKey === 'reset'} stretch={isMobile}>Restaurar visual</ActionButton> : null}
             <ActionButton onClick={logout} stretch={isMobile}>Sair</ActionButton>
           </div>
         </div>
 
         {notice ? <div style={{ marginBottom: '20px', background: notice.type === 'error' ? 'rgba(231,177,177,0.1)' : 'rgba(201,169,110,0.1)', border: notice.type === 'error' ? '1px solid rgba(231,177,177,0.24)' : '1px solid rgba(201,169,110,0.24)', borderRadius: '16px', padding: '14px 16px' }}>{notice.message}</div> : null}
 
-        <SectionCard eyebrow="Ações rápidas" title="Atalhos do dia" description="Os botões abaixo deixam o uso mais direto no celular e no atendimento do dia a dia." style={{ padding: sectionPadding }}>
+        <SectionCard eyebrow="Ações rápidas" title={adminScheduleOnly ? 'Agenda da Dra' : 'Atalhos do dia'} description={adminScheduleOnly ? 'Aqui a Dra libera os dias e os horários que ficarão disponíveis para a recepção e para o WhatsApp.' : 'Os botões abaixo deixam o uso mais direto no celular e no atendimento do dia a dia.'} style={{ padding: sectionPadding }}>
           <Row minWidth={isMobile ? 180 : 240}>
             <QuickActionCard title="Agenda" description="Abra o dia certo e já deixe a agenda pronta para uso.">
               <ActionButton onClick={() => jumpToDate(todayDate)} stretch={isMobile} style={compactButtonStyle}>Ir para hoje</ActionButton>
               <ActionButton onClick={() => jumpToDate(nextAvailableDate)} disabled={!nextAvailableDate} stretch={isMobile} style={compactButtonStyle}>Próxima vaga</ActionButton>
-              {isAdmin ? <ActionButton onClick={() => applyPresetSlotsToDate(selectedCalendarDate || todayDate)} variant="primary" stretch={isMobile} style={compactButtonStyle}>Aplicar horários padrão</ActionButton> : null}
+              {isAdmin ? <ActionButton onClick={() => applyPresetSlotsToDate(quickActionDate)} variant="primary" stretch={isMobile} style={compactButtonStyle}>Aplicar horários padrão</ActionButton> : null}
+              {isAdmin ? <ActionButton onClick={() => toggleAvailableDate(todayDate)} variant={draft.admin.availableDates.includes(todayDate) ? 'danger' : 'primary'} stretch={isMobile} style={compactButtonStyle}>{draft.admin.availableDates.includes(todayDate) ? 'Fechar hoje' : 'Liberar hoje'}</ActionButton> : null}
+              {isAdmin ? <ActionButton onClick={handleSaveSchedule} disabled={busyKey === 'schedule'} stretch={isMobile} style={compactButtonStyle}>{busyKey === 'schedule' ? 'Salvando agenda...' : 'Salvar agenda'}</ActionButton> : null}
             </QuickActionCard>
-            <QuickActionCard title="Atendimento" description="Comece um agendamento sem ficar procurando data disponível.">
+            {!adminScheduleOnly ? <QuickActionCard title="Atendimento" description="Comece um agendamento sem ficar procurando data disponível.">
               <ActionButton onClick={() => prepareQuickAppointment(nextAvailableDate || todayDate)} variant="primary" disabled={!nextAvailableDate && !todayDate} stretch={isMobile} style={compactButtonStyle}>Novo agendamento</ActionButton>
-              {isAdmin ? <ActionButton onClick={() => toggleAvailableDate(todayDate)} stretch={isMobile} style={compactButtonStyle}>{draft.admin.availableDates.includes(todayDate) ? 'Fechar hoje' : 'Liberar hoje'}</ActionButton> : null}
               <ActionButton onClick={handleSaveSchedule} disabled={busyKey === 'schedule'} stretch={isMobile} style={compactButtonStyle}>Salvar agenda</ActionButton>
-            </QuickActionCard>
-            <QuickActionCard title="Comunicação" description="Tenha os comandos mais usados à mão para testes e operação.">
-              {isAdmin ? <ActionButton onClick={handleSimulateWhatsApp} disabled={busyKey === 'whatsapp-simulate'} stretch={isMobile} style={compactButtonStyle}>Simular WhatsApp</ActionButton> : null}
-              {isAdmin ? <ActionButton onClick={handleSendWhatsAppTest} disabled={busyKey === 'whatsapp-send' || !whatsAppStatus?.configured} stretch={isMobile} style={compactButtonStyle}>Enviar teste</ActionButton> : null}
-              {isAdmin ? <ActionButton onClick={handleBackupDownload} disabled={busyKey === 'backup'} stretch={isMobile} style={compactButtonStyle}>Baixar backup</ActionButton> : null}
+            </QuickActionCard> : null}
+            {!adminScheduleOnly ? <QuickActionCard title="Comunicação" description="Tenha os comandos mais usados à mão para testes e operação.">
               <ActionButton onClick={handleRunSystemCheck} disabled={busyKey === 'system-check'} stretch={isMobile} style={compactButtonStyle}>{busyKey === 'system-check' ? 'Testando sistema...' : 'Testar todo o sistema'}</ActionButton>
               {!isAdmin ? <ActionButton onClick={() => jumpToDate(nextAvailableDate)} disabled={!nextAvailableDate} stretch={isMobile} style={compactButtonStyle}>Ver próxima data livre</ActionButton> : null}
               {!isAdmin ? <ActionButton onClick={logout} stretch={isMobile} style={compactButtonStyle}>Sair do painel</ActionButton> : null}
-            </QuickActionCard>
+            </QuickActionCard> : null}
           </Row>
         </SectionCard>
 
-        {systemCheckReport ? (
+        {!adminScheduleOnly && systemCheckReport ? (
           <SectionCard eyebrow="Diagnóstico" title="Último teste do sistema" description="Esse relatório ajuda o suporte a entender rapidamente se o problema está no login, agenda, painel ou WhatsApp." style={{ padding: sectionPadding }}>
             <div style={{ display: 'grid', gap: '12px' }}>
               <div style={{ padding: '16px 18px', borderRadius: '18px', background: systemCheckReport.ok ? 'rgba(91,196,142,0.12)' : 'rgba(231,177,177,0.12)', border: systemCheckReport.ok ? '1px solid rgba(91,196,142,0.24)' : '1px solid rgba(231,177,177,0.24)' }}>
@@ -952,42 +950,44 @@ export default function AdminPanel() {
           </SectionCard>
         ) : null}
 
-        <SectionCard eyebrow="Visão geral" title="Painel executivo" description="Resumo rápido para a Dra acompanhar equipe, agenda e base de pacientes sem depender do código." style={{ padding: sectionPadding }}>
-          <Row>
-            <StatCard label="Usuários ativos" value={summary.activeUsers ?? 0} />
-            <StatCard label="Datas liberadas" value={summary.releasedDates ?? 0} />
-            <StatCard label="Agendamentos ativos" value={summary.activeAppointments ?? 0} tone="green" />
-            <StatCard label="Pacientes únicos" value={summary.uniquePatients ?? 0} tone="white" />
-            <StatCard label="Conversas Whats" value={whatsAppStatus?.activeConversations ?? 0} tone="white" />
-          </Row>
+        {!adminScheduleOnly ? (
+          <SectionCard eyebrow="Visão geral" title="Painel executivo" description="Resumo rápido para a Dra acompanhar equipe, agenda e base de pacientes sem depender do código." style={{ padding: sectionPadding }}>
+            <Row>
+              <StatCard label="Usuários ativos" value={summary.activeUsers ?? 0} />
+              <StatCard label="Datas liberadas" value={summary.releasedDates ?? 0} />
+              <StatCard label="Agendamentos ativos" value={summary.activeAppointments ?? 0} tone="green" />
+              <StatCard label="Pacientes únicos" value={summary.uniquePatients ?? 0} tone="white" />
+              <StatCard label="Conversas Whats" value={whatsAppStatus?.activeConversations ?? 0} tone="white" />
+            </Row>
 
-          <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '20px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <strong style={{ display: 'block', marginBottom: '12px', fontSize: '18px' }}>
-              Atendimentos de hoje
-            </strong>
-            {todayAppointments.length === 0 ? (
-              <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
-                Nenhum atendimento ativo para hoje.
-              </p>
-            ) : (
-              <div style={{ display: 'grid', gap: '10px' }}>
-                {todayAppointments.map((item) => (
-                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div>
-                      <strong style={{ display: 'block' }}>{item.fullName}</strong>
-                      <span style={{ color: 'rgba(245,240,232,0.62)', fontSize: '14px' }}>{item.procedureName || 'Procedimento a definir'}</span>
+            <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '20px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <strong style={{ display: 'block', marginBottom: '12px', fontSize: '18px' }}>
+                Atendimentos de hoje
+              </strong>
+              {todayAppointments.length === 0 ? (
+                <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
+                  Nenhum atendimento ativo para hoje.
+                </p>
+              ) : (
+                <div style={{ display: 'grid', gap: '10px' }}>
+                  {todayAppointments.map((item) => (
+                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <div>
+                        <strong style={{ display: 'block' }}>{item.fullName}</strong>
+                        <span style={{ color: 'rgba(245,240,232,0.62)', fontSize: '14px' }}>{item.procedureName || 'Procedimento a definir'}</span>
+                      </div>
+                      <span style={{ color: '#C9A96E', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                        {item.status}
+                      </span>
                     </div>
-                    <span style={{ color: '#C9A96E', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                      {item.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </SectionCard>
+                  ))}
+                </div>
+              )}
+            </div>
+          </SectionCard>
+        ) : null}
 
-        <SectionCard eyebrow="Fluxo real da clínica" title="Agenda e agendamentos" description="A Dra libera os dias de atendimento. A equipe cadastra o paciente com nome completo, endereço e CPF, e só consegue trabalhar em datas liberadas." style={{ padding: sectionPadding }}>
+        <SectionCard eyebrow="Fluxo real da clínica" title={adminScheduleOnly ? 'Agenda da Dra' : 'Agenda e agendamentos'} description={adminScheduleOnly ? 'Nesta área a Dra só precisa liberar os dias de atendimento e os horários que devem aparecer para a recepção e para o WhatsApp.' : 'A Dra libera os dias de atendimento. A equipe cadastra o paciente com nome completo, endereço e CPF, e só consegue trabalhar em datas liberadas.'} style={{ padding: sectionPadding }}>
           <div style={{ display: 'grid', gridTemplateColumns: isTablet ? '1fr' : 'minmax(340px, 1.25fr) minmax(320px, 0.95fr)', gap: '20px' }}>
             <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '12px', flexWrap: 'wrap' }}>
@@ -1073,62 +1073,66 @@ export default function AdminPanel() {
             </div>
 
             <div style={{ display: 'grid', gap: '18px' }}>
-              <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Novo agendamento</strong>
-                <p style={{ margin: '0 0 14px', color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
-                  A recepção só enxerga dias e horários realmente livres.
-                </p>
-                {appointmentForm.date ? (
-                  <div style={{ display: 'grid', gap: '10px', marginBottom: '14px', padding: '14px', borderRadius: '18px', background: 'rgba(201,169,110,0.08)', border: '1px solid rgba(201,169,110,0.18)' }}>
-                    <strong style={{ fontSize: '14px', color: '#F1DEC0' }}>Resumo da data escolhida</strong>
-                    <div style={{ color: 'rgba(245,240,232,0.78)', fontSize: '13px' }}>{formatDateLabel(appointmentForm.date)}</div>
-                    <div style={{ color: (appointmentTimeOptions.length === 1) ? '#F1DEC0' : 'rgba(245,240,232,0.72)', fontSize: '13px' }}>
-                      {appointmentTimeOptions.length === 1 ? `Última vaga disponível: ${appointmentTimeOptions[0]}` : `${appointmentTimeOptions.length} horários livres nesta data`}
-                    </div>
-                  </div>
-                ) : null}
-                <div style={{ display: 'grid', gap: '14px' }}>
-                  <Field label="Nome completo do paciente" value={appointmentForm.fullName} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, fullName: value }))} />
-                  <Field label="Endereço" value={appointmentForm.address} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, address: value }))} />
-                  <Field label="CPF" value={appointmentForm.cpf} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, cpf: formatCpf(value) }))} />
-                  <Field label="Procedimento (opcional)" value={appointmentForm.procedureName} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, procedureName: value }))} />
-                  <SelectField label="Data liberada" value={appointmentForm.date} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, date: value, time: '' }))} options={[{ value: '', label: 'Selecione uma data' }, ...receptionistAvailableDates.map((date) => ({ value: date, label: formatDateLabel(date) }))]} />
-                  <Field label="Observações internas" value={appointmentForm.notes} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, notes: value }))} multiline />
-                  <SelectField label="Horário livre" value={appointmentForm.time} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, time: value }))} options={[{ value: '', label: appointmentForm.date ? (appointmentTimeOptions.length === 1 ? 'Horário preenchido automaticamente' : 'Selecione um horário') : 'Escolha a data primeiro' }, ...appointmentTimeOptions.map((time) => ({ value: time, label: time }))]} />
-                  <ActionButton onClick={handleAddAppointment} variant="primary" stretch={isMobile}>Adicionar agendamento</ActionButton>
-                </div>
-                {receptionistAvailableDates.length === 0 ? (
-                  <p style={{ margin: '14px 0 0', color: '#E7B1B1', lineHeight: 1.7 }}>
-                    Nenhum dia está liberado com horário disponível no momento.
+              {!adminScheduleOnly ? (
+                <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Novo agendamento</strong>
+                  <p style={{ margin: '0 0 14px', color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
+                    A recepção só enxerga dias e horários realmente livres.
                   </p>
-                ) : null}
-              </div>
-
-              <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Próximas vagas</strong>
-                <p style={{ margin: '0 0 14px', color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
-                  Uma leitura rápida para a recepção bater o olho e responder o paciente.
-                </p>
-                {nextSlotsPreview.length === 0 ? (
-                  <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Ainda não existem datas abertas para atendimento.</p>
-                ) : (
-                  <div style={{ display: 'grid', gap: '10px' }}>
-                    {nextSlotsPreview.map((item) => (
-                      <button key={item.date} type="button" onClick={() => prepareQuickAppointment(item.date)} style={{ textAlign: 'left', padding: '14px', borderRadius: '18px', background: 'rgba(201,169,110,0.12)', border: '1px solid rgba(201,169,110,0.24)', color: '#F1DEC0', cursor: 'pointer' }}>
-                        <strong style={{ display: 'block', marginBottom: '6px', fontSize: '14px' }}>{formatDateLabel(item.date)}</strong>
-                        <span style={{ display: 'block', color: item.count === 1 ? '#F1DEC0' : 'rgba(245,240,232,0.72)', fontSize: '12px', marginBottom: '8px' }}>
-                          {item.count === 1 ? 'Última vaga do dia' : `${item.count} horários livres`}
-                        </span>
-                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                          {item.times.map((time) => (
-                            <span key={time} style={{ padding: '6px 10px', borderRadius: '999px', background: 'rgba(255,255,255,0.08)', color: '#F5F0E8', fontSize: '12px' }}>{time}</span>
-                          ))}
-                        </div>
-                      </button>
-                    ))}
+                  {appointmentForm.date ? (
+                    <div style={{ display: 'grid', gap: '10px', marginBottom: '14px', padding: '14px', borderRadius: '18px', background: 'rgba(201,169,110,0.08)', border: '1px solid rgba(201,169,110,0.18)' }}>
+                      <strong style={{ fontSize: '14px', color: '#F1DEC0' }}>Resumo da data escolhida</strong>
+                      <div style={{ color: 'rgba(245,240,232,0.78)', fontSize: '13px' }}>{formatDateLabel(appointmentForm.date)}</div>
+                      <div style={{ color: (appointmentTimeOptions.length === 1) ? '#F1DEC0' : 'rgba(245,240,232,0.72)', fontSize: '13px' }}>
+                        {appointmentTimeOptions.length === 1 ? `Última vaga disponível: ${appointmentTimeOptions[0]}` : `${appointmentTimeOptions.length} horários livres nesta data`}
+                      </div>
+                    </div>
+                  ) : null}
+                  <div style={{ display: 'grid', gap: '14px' }}>
+                    <Field label="Nome completo do paciente" value={appointmentForm.fullName} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, fullName: value }))} />
+                    <Field label="Endereço" value={appointmentForm.address} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, address: value }))} />
+                    <Field label="CPF" value={appointmentForm.cpf} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, cpf: formatCpf(value) }))} />
+                    <Field label="Procedimento (opcional)" value={appointmentForm.procedureName} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, procedureName: value }))} />
+                    <SelectField label="Data liberada" value={appointmentForm.date} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, date: value, time: '' }))} options={[{ value: '', label: 'Selecione uma data' }, ...receptionistAvailableDates.map((date) => ({ value: date, label: formatDateLabel(date) }))]} />
+                    <Field label="Observações internas" value={appointmentForm.notes} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, notes: value }))} multiline />
+                    <SelectField label="Horário livre" value={appointmentForm.time} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, time: value }))} options={[{ value: '', label: appointmentForm.date ? (appointmentTimeOptions.length === 1 ? 'Horário preenchido automaticamente' : 'Selecione um horário') : 'Escolha a data primeiro' }, ...appointmentTimeOptions.map((time) => ({ value: time, label: time }))]} />
+                    <ActionButton onClick={handleAddAppointment} variant="primary" stretch={isMobile}>Adicionar agendamento</ActionButton>
                   </div>
-                )}
-              </div>
+                  {receptionistAvailableDates.length === 0 ? (
+                    <p style={{ margin: '14px 0 0', color: '#E7B1B1', lineHeight: 1.7 }}>
+                      Nenhum dia está liberado com horário disponível no momento.
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {!adminScheduleOnly ? (
+                <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Próximas vagas</strong>
+                  <p style={{ margin: '0 0 14px', color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
+                    Uma leitura rápida para a recepção bater o olho e responder o paciente.
+                  </p>
+                  {nextSlotsPreview.length === 0 ? (
+                    <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Ainda não existem datas abertas para atendimento.</p>
+                  ) : (
+                    <div style={{ display: 'grid', gap: '10px' }}>
+                      {nextSlotsPreview.map((item) => (
+                        <button key={item.date} type="button" onClick={() => prepareQuickAppointment(item.date)} style={{ textAlign: 'left', padding: '14px', borderRadius: '18px', background: 'rgba(201,169,110,0.12)', border: '1px solid rgba(201,169,110,0.24)', color: '#F1DEC0', cursor: 'pointer' }}>
+                          <strong style={{ display: 'block', marginBottom: '6px', fontSize: '14px' }}>{formatDateLabel(item.date)}</strong>
+                          <span style={{ display: 'block', color: item.count === 1 ? '#F1DEC0' : 'rgba(245,240,232,0.72)', fontSize: '12px', marginBottom: '8px' }}>
+                            {item.count === 1 ? 'Última vaga do dia' : `${item.count} horários livres`}
+                          </span>
+                          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            {item.times.map((time) => (
+                              <span key={time} style={{ padding: '6px 10px', borderRadius: '999px', background: 'rgba(255,255,255,0.08)', color: '#F5F0E8', fontSize: '12px' }}>{time}</span>
+                            ))}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : null}
 
               <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Datas liberadas</strong>
@@ -1191,258 +1195,30 @@ export default function AdminPanel() {
             </div>
           </div>
 
-          <div>
-            <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Pacientes cadastrados</strong>
-            {appointmentsByDate.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Nenhum agendamento cadastrado ainda.</p> : <div style={{ display: 'grid', gap: '14px' }}>{appointmentsByDate.map((appointment) => <div key={appointment.id} style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '20px', padding: '18px', border: '1px solid rgba(255,255,255,0.05)' }}><div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '14px' }}><div><strong style={{ display: 'block', fontSize: '18px' }}>{appointment.fullName}</strong><span style={{ color: '#C9A96E', fontSize: '13px' }}>{formatDateLabel(appointment.date)}{appointment.time ? ` as ${appointment.time}` : ''}</span></div><div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}><SourcePill source={appointment.source} /><select value={appointment.status} onChange={(event) => updateAppointment(appointment.id, 'status', event.target.value)} style={{ ...baseInputStyle(), width: 'auto', padding: '10px 12px' }}><option value="agendado">Agendado</option><option value="confirmado">Confirmado</option><option value="concluido">Concluído</option><option value="cancelado">Cancelado</option></select><ActionButton variant="danger" onClick={() => removeAppointment(appointment.id)}>Excluir</ActionButton></div></div><div style={{ display: 'grid', gap: '8px', color: 'rgba(245,240,232,0.76)', lineHeight: 1.7 }}><div><strong>Horário:</strong> {appointment.time || '-'}</div><div><strong>CPF:</strong> {appointment.cpf}</div><div><strong>Endereço:</strong> {appointment.address}</div><div><strong>Procedimento:</strong> {appointment.procedureName || '-'}</div><div><strong>Observações:</strong> {appointment.notes || '-'}</div><div><strong>Criado em:</strong> {appointment.createdAt ? new Date(appointment.createdAt).toLocaleString('pt-BR') : '-'}</div></div></div>)}</div>}
-          </div>
+          {!adminScheduleOnly ? (
+            <div>
+              <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Pacientes cadastrados</strong>
+              {appointmentsByDate.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Nenhum agendamento cadastrado ainda.</p> : <div style={{ display: 'grid', gap: '14px' }}>{appointmentsByDate.map((appointment) => <div key={appointment.id} style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '20px', padding: '18px', border: '1px solid rgba(255,255,255,0.05)' }}><div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '14px' }}><div><strong style={{ display: 'block', fontSize: '18px' }}>{appointment.fullName}</strong><span style={{ color: '#C9A96E', fontSize: '13px' }}>{formatDateLabel(appointment.date)}{appointment.time ? ` as ${appointment.time}` : ''}</span></div><div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}><SourcePill source={appointment.source} /><select value={appointment.status} onChange={(event) => updateAppointment(appointment.id, 'status', event.target.value)} style={{ ...baseInputStyle(), width: 'auto', padding: '10px 12px' }}><option value="agendado">Agendado</option><option value="confirmado">Confirmado</option><option value="concluido">Concluído</option><option value="cancelado">Cancelado</option></select><ActionButton variant="danger" onClick={() => removeAppointment(appointment.id)}>Excluir</ActionButton></div></div><div style={{ display: 'grid', gap: '8px', color: 'rgba(245,240,232,0.76)', lineHeight: 1.7 }}><div><strong>Horário:</strong> {appointment.time || '-'}</div><div><strong>CPF:</strong> {appointment.cpf}</div><div><strong>Endereço:</strong> {appointment.address}</div><div><strong>Procedimento:</strong> {appointment.procedureName || '-'}</div><div><strong>Observações:</strong> {appointment.notes || '-'}</div><div><strong>Criado em:</strong> {appointment.createdAt ? new Date(appointment.createdAt).toLocaleString('pt-BR') : '-'}</div></div></div>)}</div>}
+            </div>
+          ) : null}
         </SectionCard>
 
-        <SectionCard eyebrow="Segurança" title="Meu acesso" description="Cada pessoa entra com seu próprio usuário. A senha pode ser alterada sem mexer no restante do sistema." style={{ padding: sectionPadding }}>
-          <Row minWidth={isMobile ? 180 : 220}>
-            <Field label="Senha atual" type="password" value={passwordForm.currentPassword} onChange={(value) => setPasswordForm((previous) => ({ ...previous, currentPassword: value }))} />
-            <Field label="Nova senha" type="password" value={passwordForm.newPassword} onChange={(value) => setPasswordForm((previous) => ({ ...previous, newPassword: value }))} />
-            <Field label="Confirmar nova senha" type="password" value={passwordForm.confirmPassword} onChange={(value) => setPasswordForm((previous) => ({ ...previous, confirmPassword: value }))} />
-          </Row>
-          <ActionButton onClick={handleChangePassword} variant="primary" disabled={busyKey === 'password'} stretch={isMobile}>{busyKey === 'password' ? 'Atualizando...' : 'Atualizar senha'}</ActionButton>
-        </SectionCard>
-
-        <SectionCard eyebrow="Controle e rastreio" title="Backup e auditoria" description="Aqui fica a camada mais segura para demo e operação controlada: exportação da base e histórico das últimas ações do painel.">
-          {isAdmin ? (
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <ActionButton onClick={handleBackupDownload} variant="primary" disabled={busyKey === 'backup'}>
-                {busyKey === 'backup' ? 'Gerando backup...' : 'Baixar backup completo'}
-              </ActionButton>
-            </div>
-          ) : (
-            <p style={{ margin: 0, color: 'rgba(245,240,232,0.64)', lineHeight: 1.8 }}>
-              Somente a administração pode exportar backup da base.
-            </p>
-          )}
-
-          <div style={{ display: 'grid', gap: '12px' }}>
-            {auditLogs.length === 0 ? (
-              <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
-                Ainda não existem registros de auditoria.
-              </p>
-            ) : (
-              auditLogs.map((item) => (
-                <div key={item.id} style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '18px', padding: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '8px' }}>
-                    <strong>{item.actorDisplayName || 'Sistema'}</strong>
-                    <span style={{ color: '#C9A96E', fontSize: '13px' }}>{item.createdAt ? new Date(item.createdAt).toLocaleString('pt-BR') : '-'}</span>
-                  </div>
-                  <div style={{ color: 'rgba(245,240,232,0.76)', lineHeight: 1.7 }}>
-                    <div><strong>Ação:</strong> {item.action}</div>
-                    <div><strong>Área:</strong> {item.entityType}</div>
-                    {item.entityId ? <div><strong>Referência:</strong> {item.entityId}</div> : null}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </SectionCard>
-
-        {isAdmin ? (
-          <SectionCard eyebrow="WhatsApp" title="Webhook e automação" description="Esta área mostra o status da integração, permite simular mensagens e enviar um teste real quando as credenciais estiverem configuradas.">
-            <Row>
-              <StatCard label="Webhook" value={whatsAppStatus?.verifyTokenConfigured ? 'OK' : 'Pendente'} tone={whatsAppStatus?.verifyTokenConfigured ? 'green' : 'white'} />
-              <StatCard label="Token API" value={whatsAppStatus?.accessTokenConfigured ? 'OK' : 'Pendente'} tone={whatsAppStatus?.accessTokenConfigured ? 'green' : 'white'} />
-              <StatCard label="Phone ID" value={whatsAppStatus?.phoneNumberIdConfigured ? 'OK' : 'Pendente'} tone={whatsAppStatus?.phoneNumberIdConfigured ? 'green' : 'white'} />
-              <StatCard label="Ativo" value={whatsAppStatus?.configured ? 'Sim' : 'Não'} tone={whatsAppStatus?.configured ? 'green' : 'white'} />
-              <StatCard label="Conversas abertas" value={whatsAppStatus?.activeConversations ?? 0} tone="white" />
-            </Row>
-
-            <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <strong style={{ display: 'block', marginBottom: '12px', fontSize: '18px' }}>Webhook para Meta</strong>
-              <Field label="Callback URL" value={whatsAppStatus?.callbackUrl || ''} onChange={() => {}} disabled />
-              <Field label="Versão Graph" value={whatsAppStatus?.graphVersion || ''} onChange={() => {}} disabled />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '18px' }}>
-              <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Simular mensagem recebida</strong>
-                <div style={{ display: 'grid', gap: '14px' }}>
-                  <Field label="Telefone" value={whatsAppSimulationForm.from} onChange={(value) => setWhatsAppSimulationForm((previous) => ({ ...previous, from: value }))} />
-                  <Field label="Nome do contato" value={whatsAppSimulationForm.profileName} onChange={(value) => setWhatsAppSimulationForm((previous) => ({ ...previous, profileName: value }))} />
-                  <Field label="Mensagem" value={whatsAppSimulationForm.text} onChange={(value) => setWhatsAppSimulationForm((previous) => ({ ...previous, text: value }))} multiline />
-                  <ActionButton onClick={handleSimulateWhatsApp} variant="primary" disabled={busyKey === 'whatsapp-simulate'}>
-                    {busyKey === 'whatsapp-simulate' ? 'Processando...' : 'Simular WhatsApp'}
-                  </ActionButton>
-                </div>
-              </div>
-
-              <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Enviar teste real</strong>
-                <div style={{ display: 'grid', gap: '14px' }}>
-                  <Field label="Telefone destino" value={whatsAppOutboundForm.to} onChange={(value) => setWhatsAppOutboundForm((previous) => ({ ...previous, to: value }))} />
-                  <Field label="Mensagem de teste" value={whatsAppOutboundForm.text} onChange={(value) => setWhatsAppOutboundForm((previous) => ({ ...previous, text: value }))} multiline />
-                  <ActionButton onClick={handleSendWhatsAppTest} variant="primary" disabled={busyKey === 'whatsapp-send' || !whatsAppStatus?.configured}>
-                    {busyKey === 'whatsapp-send' ? 'Enviando...' : 'Enviar teste pelo WhatsApp'}
-                  </ActionButton>
-                  {!whatsAppStatus?.configured ? (
-                    <p style={{ margin: 0, color: 'rgba(245,240,232,0.58)', lineHeight: 1.7 }}>
-                      Faltam credenciais no ambiente para envio real. A simulação local já está disponível.
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gap: '12px' }}>
-              <strong style={{ display: 'block', fontSize: '18px' }}>Eventos recentes</strong>
-              {whatsAppEvents.length === 0 ? (
-                <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
-                  Ainda não existem eventos do WhatsApp registrados.
-                </p>
-              ) : (
-                whatsAppEvents.map((item) => (
-                  <div key={item.id} style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '18px', padding: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '8px' }}>
-                      <strong>{item.direction === 'inbound' ? 'Entrada' : 'Saída'} - {item.phoneNumber}</strong>
-                      <span style={{ color: '#C9A96E', fontSize: '13px' }}>{item.createdAt ? new Date(item.createdAt).toLocaleString('pt-BR') : '-'}</span>
-                    </div>
-                    <div style={{ color: 'rgba(245,240,232,0.76)', lineHeight: 1.7 }}>
-                      <div><strong>Status:</strong> {item.status}</div>
-                      <div><strong>Tipo:</strong> {item.messageType}</div>
-                      <div><strong>Mensagem:</strong> {item.messageText || '-'}</div>
-                      {item.appointmentId ? <div><strong>Agendamento:</strong> {item.appointmentId}</div> : null}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </SectionCard>
-        ) : null}
-
-        {isAdmin ? (
-          <SectionCard eyebrow="Equipe" title="Acessos do painel" description="A Dra pode criar perfis para as funcionárias, redefinir senhas e desativar acessos sem abrir o código.">
-            <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Criar novo acesso</strong>
-              <Row>
-                <Field label="Nome de exibição" value={userForm.displayName} onChange={(value) => setUserForm((previous) => ({ ...previous, displayName: value }))} />
-                <Field label="Usuário" value={userForm.username} onChange={(value) => setUserForm((previous) => ({ ...previous, username: value }))} />
-                <Field label="Senha inicial" type="password" value={userForm.password} onChange={(value) => setUserForm((previous) => ({ ...previous, password: value }))} />
-                <SelectField label="Perfil" value={userForm.role} onChange={(value) => setUserForm((previous) => ({ ...previous, role: value }))} options={[{ value: 'staff', label: 'Equipe' }, { value: 'admin', label: 'Admin' }]} />
-              </Row>
-              <div style={{ marginTop: '16px' }}><ActionButton onClick={handleCreateUser} variant="primary" disabled={busyKey === 'create-user'}>{busyKey === 'create-user' ? 'Criando...' : 'Criar acesso'}</ActionButton></div>
-            </div>
-
-            <div style={{ display: 'grid', gap: '14px' }}>
-              {users.map((user) => {
-                const edit = userEdits[user.id] || { displayName: user.displayName, role: user.role, active: user.active, password: '' };
-                return <div key={user.id} style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '14px' }}><div><strong style={{ display: 'block', fontSize: '18px' }}>{user.username}</strong><span style={{ color: 'rgba(245,240,232,0.6)' }}>ID: {user.id}</span></div><UserStatusPill active={edit.active} role={edit.role} /></div><Row><Field label="Nome de exibição" value={edit.displayName} onChange={(value) => setUserEdits((previous) => ({ ...previous, [user.id]: { ...previous[user.id], displayName: value } }))} /><SelectField label="Perfil" value={edit.role} onChange={(value) => setUserEdits((previous) => ({ ...previous, [user.id]: { ...previous[user.id], role: value } }))} options={[{ value: 'staff', label: 'Equipe' }, { value: 'admin', label: 'Admin' }]} /><Field label="Nova senha (opcional)" type="password" value={edit.password} onChange={(value) => setUserEdits((previous) => ({ ...previous, [user.id]: { ...previous[user.id], password: value } }))} /></Row><div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', flexWrap: 'wrap', marginTop: '14px' }}><label style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'rgba(245,240,232,0.72)' }}><input type="checkbox" checked={Boolean(edit.active)} onChange={(event) => setUserEdits((previous) => ({ ...previous, [user.id]: { ...previous[user.id], active: event.target.checked } }))} />Acesso ativo</label><ActionButton onClick={() => handleUpdateUser(user.id)} variant="primary" disabled={busyKey === `user-${user.id}`}>{busyKey === `user-${user.id}` ? 'Salvando...' : 'Salvar usuário'}</ActionButton></div></div>;
-              })}
-            </div>
-          </SectionCard>
-        ) : null}
-
-        {isAdmin ? (
+        {!adminScheduleOnly ? (
           <>
-            <SectionCard eyebrow="Site público" title="Acesso e links globais">
-              <Row>
-                <Field label="WhatsApp URL" value={draft.global.whatsappUrl} onChange={(value) => updateDraft(['global', 'whatsappUrl'], value)} />
-                <Field label="Instagram URL" value={draft.global.instagramUrl} onChange={(value) => updateDraft(['global', 'instagramUrl'], value)} />
-                <Field label="Instagram @" value={draft.global.instagramHandle} onChange={(value) => updateDraft(['global', 'instagramHandle'], value)} />
-                <Field label="Telefone" value={draft.global.phone} onChange={(value) => updateDraft(['global', 'phone'], value)} />
-                <Field label="Localização" value={draft.global.location} onChange={(value) => updateDraft(['global', 'location'], value)} />
-                <Field label="Atendimento" value={draft.global.attendance} onChange={(value) => updateDraft(['global', 'attendance'], value)} />
-                <Field label="CRM" value={draft.global.crm} onChange={(value) => updateDraft(['global', 'crm'], value)} />
+            <SectionCard eyebrow="Segurança" title="Meu acesso" description="Cada pessoa entra com seu próprio usuário. A senha pode ser alterada sem mexer no restante do sistema." style={{ padding: sectionPadding }}>
+              <Row minWidth={isMobile ? 180 : 220}>
+                <Field label="Senha atual" type="password" value={passwordForm.currentPassword} onChange={(value) => setPasswordForm((previous) => ({ ...previous, currentPassword: value }))} />
+                <Field label="Nova senha" type="password" value={passwordForm.newPassword} onChange={(value) => setPasswordForm((previous) => ({ ...previous, newPassword: value }))} />
+                <Field label="Confirmar nova senha" type="password" value={passwordForm.confirmPassword} onChange={(value) => setPasswordForm((previous) => ({ ...previous, confirmPassword: value }))} />
               </Row>
-              <Field label="Mensagem padrão do WhatsApp" value={draft.global.whatsappMessage} onChange={(value) => updateDraft(['global', 'whatsappMessage'], value)} multiline />
+              <ActionButton onClick={handleChangePassword} variant="primary" disabled={busyKey === 'password'} stretch={isMobile}>{busyKey === 'password' ? 'Atualizando...' : 'Atualizar senha'}</ActionButton>
             </SectionCard>
 
-            <SectionCard eyebrow="Primeira dobra" title="Navbar e hero">
-              <Row>
-                <Field label="Marca destaque" value={draft.navbar.brandAccent} onChange={(value) => updateDraft(['navbar', 'brandAccent'], value)} />
-                <Field label="Marca nome" value={draft.navbar.brandName} onChange={(value) => updateDraft(['navbar', 'brandName'], value)} />
-                <Field label="CTA do menu" value={draft.navbar.ctaLabel} onChange={(value) => updateDraft(['navbar', 'ctaLabel'], value)} />
-                <Field label="Hero label" value={draft.hero.label} onChange={(value) => updateDraft(['hero', 'label'], value)} />
-                <Field label="Hero título 1" value={draft.hero.titlePrimary} onChange={(value) => updateDraft(['hero', 'titlePrimary'], value)} />
-                <Field label="Hero título 2" value={draft.hero.titleAccent} onChange={(value) => updateDraft(['hero', 'titleAccent'], value)} />
-                <Field label="Botão principal" value={draft.hero.primaryCta} onChange={(value) => updateDraft(['hero', 'primaryCta'], value)} />
-                <Field label="Botão secundário" value={draft.hero.secondaryCta} onChange={(value) => updateDraft(['hero', 'secondaryCta'], value)} />
-              </Row>
-              <Field label="Descrição do hero" value={draft.hero.tagline} onChange={(value) => updateDraft(['hero', 'tagline'], value)} multiline />
-              <UploadField label="Imagem do hero" value={draft.hero.backgroundImage} onChange={(value) => updateDraft(['hero', 'backgroundImage'], value)} />
-            </SectionCard>
-
-            <SectionCard eyebrow="Autoridade" title="Sobre">
-              <Row>
-                <Field label="Label da seção" value={draft.about.sectionLabel} onChange={(value) => updateDraft(['about', 'sectionLabel'], value)} />
-                <Field label="Título antes" value={draft.about.titlePrefix} onChange={(value) => updateDraft(['about', 'titlePrefix'], value)} />
-                <Field label="Título destaque" value={draft.about.titleAccent} onChange={(value) => updateDraft(['about', 'titleAccent'], value)} />
-                <Field label="Selo título" value={draft.about.badgeTitle} onChange={(value) => updateDraft(['about', 'badgeTitle'], value)} />
-                <Field label="Selo subtítulo" value={draft.about.badgeSubtitle} onChange={(value) => updateDraft(['about', 'badgeSubtitle'], value)} />
-              </Row>
-              <UploadField label="Imagem do sobre" value={draft.about.image} onChange={(value) => updateDraft(['about', 'image'], value)} />
-              {draft.about.paragraphs.map((paragraph, index) => <Field key={index} label={`Parágrafo ${index + 1}`} value={paragraph} onChange={(value) => updateDraft(['about', 'paragraphs', index], value)} multiline />)}
-              {draft.about.credentials.map((item, index) => <Field key={index} label={`Credencial ${index + 1}`} value={item} onChange={(value) => updateDraft(['about', 'credentials', index], value)} />)}
-            </SectionCard>
-
-            <SectionCard eyebrow="Serviços" title="Especialidades">
-              <Row>
-                <Field label="Label da seção" value={draft.specialties.sectionLabel} onChange={(value) => updateDraft(['specialties', 'sectionLabel'], value)} />
-                <Field label="Título antes" value={draft.specialties.headingPrefix} onChange={(value) => updateDraft(['specialties', 'headingPrefix'], value)} />
-                <Field label="Título destaque" value={draft.specialties.headingAccent} onChange={(value) => updateDraft(['specialties', 'headingAccent'], value)} />
-              </Row>
-              {draft.specialties.items.map((item, index) => <ItemCard key={index} title={`Especialidade ${index + 1}`} onRemove={draft.specialties.items.length > 1 ? () => removeArrayItem(['specialties', 'items'], index) : undefined}><Row><Field label="Número" value={item.number} onChange={(value) => updateDraft(['specialties', 'items', index, 'number'], value)} /><Field label="Título" value={item.title} onChange={(value) => updateDraft(['specialties', 'items', index, 'title'], value)} /></Row><Field label="Descrição" value={item.desc} onChange={(value) => updateDraft(['specialties', 'items', index, 'desc'], value)} multiline /></ItemCard>)}
-              <ActionButton onClick={() => addArrayItem(['specialties', 'items'], { number: '07', title: 'Nova especialidade', desc: 'Descrição da especialidade.' })}>Adicionar especialidade</ActionButton>
-            </SectionCard>
-
-            <SectionCard eyebrow="História" title="Trajetória">
-              <Row>
-                <Field label="Label da seção" value={draft.journey.sectionLabel} onChange={(value) => updateDraft(['journey', 'sectionLabel'], value)} />
-                <Field label="Título antes" value={draft.journey.headingPrefix} onChange={(value) => updateDraft(['journey', 'headingPrefix'], value)} />
-                <Field label="Título destaque" value={draft.journey.headingAccent} onChange={(value) => updateDraft(['journey', 'headingAccent'], value)} />
-              </Row>
-              {draft.journey.items.map((item, index) => <ItemCard key={index} title={`Etapa ${index + 1}`} onRemove={draft.journey.items.length > 1 ? () => removeArrayItem(['journey', 'items'], index) : undefined}><Row><Field label="Ano" value={item.year} onChange={(value) => updateDraft(['journey', 'items', index, 'year'], value)} /><Field label="Título" value={item.title} onChange={(value) => updateDraft(['journey', 'items', index, 'title'], value)} /></Row><Field label="Descrição" value={item.desc} onChange={(value) => updateDraft(['journey', 'items', index, 'desc'], value)} multiline /></ItemCard>)}
-              <ActionButton onClick={() => addArrayItem(['journey', 'items'], { year: 'Novo', title: 'Novo marco', desc: 'Descrição do marco.' })}>Adicionar etapa</ActionButton>
-            </SectionCard>
-
-            <SectionCard eyebrow="Imagens" title="Galeria">
-              <Row>
-                <Field label="Label da seção" value={draft.gallery.sectionLabel} onChange={(value) => updateDraft(['gallery', 'sectionLabel'], value)} />
-                <Field label="Título antes" value={draft.gallery.headingPrefix} onChange={(value) => updateDraft(['gallery', 'headingPrefix'], value)} />
-                <Field label="Título destaque" value={draft.gallery.headingAccent} onChange={(value) => updateDraft(['gallery', 'headingAccent'], value)} />
-                <Field label="Texto do botão" value={draft.gallery.buttonLabel} onChange={(value) => updateDraft(['gallery', 'buttonLabel'], value)} />
-              </Row>
-              {draft.gallery.items.map((item, index) => <ItemCard key={index} title={`Imagem ${index + 1}`} onRemove={draft.gallery.items.length > 1 ? () => removeArrayItem(['gallery', 'items'], index) : undefined}><UploadField label="Foto" value={item.src} onChange={(value) => updateDraft(['gallery', 'items', index, 'src'], value)} /><Row><Field label="Legenda" value={item.caption} onChange={(value) => updateDraft(['gallery', 'items', index, 'caption'], value)} /><Field label="Alt" value={item.alt} onChange={(value) => updateDraft(['gallery', 'items', index, 'alt'], value)} /></Row></ItemCard>)}
-              <ActionButton onClick={() => addArrayItem(['gallery', 'items'], { src: '', caption: 'Nova imagem', alt: 'Nova imagem' })}>Adicionar imagem</ActionButton>
-            </SectionCard>
-
-            <SectionCard eyebrow="Prova social" title="Depoimentos">
-              <Field label="Label da seção" value={draft.testimonials.sectionLabel} onChange={(value) => updateDraft(['testimonials', 'sectionLabel'], value)} />
-              {draft.testimonials.items.map((item, index) => <ItemCard key={index} title={`Depoimento ${index + 1}`} onRemove={draft.testimonials.items.length > 1 ? () => removeArrayItem(['testimonials', 'items'], index) : undefined}><Field label="Texto" value={item.text} onChange={(value) => updateDraft(['testimonials', 'items', index, 'text'], value)} multiline /><Row><Field label="Nome" value={item.name} onChange={(value) => updateDraft(['testimonials', 'items', index, 'name'], value)} /><Field label="Procedimento" value={item.procedure} onChange={(value) => updateDraft(['testimonials', 'items', index, 'procedure'], value)} /><Field label="Estrelas" type="number" value={String(item.stars)} onChange={(value) => updateDraft(['testimonials', 'items', index, 'stars'], Number(value) || 5)} /></Row></ItemCard>)}
-              <ActionButton onClick={() => addArrayItem(['testimonials', 'items'], { text: 'Novo depoimento.', name: 'Paciente', procedure: 'Procedimento', stars: 5 })}>Adicionar depoimento</ActionButton>
-            </SectionCard>
-
-            <SectionCard eyebrow="Conversão" title="Contato e rodapé">
-              <Row>
-                <Field label="Label da seção" value={draft.contact.sectionLabel} onChange={(value) => updateDraft(['contact', 'sectionLabel'], value)} />
-                <Field label="Título antes" value={draft.contact.titlePrefix} onChange={(value) => updateDraft(['contact', 'titlePrefix'], value)} />
-                <Field label="Título destaque" value={draft.contact.titleAccent} onChange={(value) => updateDraft(['contact', 'titleAccent'], value)} />
-                <Field label="Título do card lateral" value={draft.contact.panelTitle} onChange={(value) => updateDraft(['contact', 'panelTitle'], value)} />
-                <Field label="Texto do botão" value={draft.contact.buttonLabel} onChange={(value) => updateDraft(['contact', 'buttonLabel'], value)} />
-              </Row>
-              <Field label="Descrição de contato" value={draft.contact.description} onChange={(value) => updateDraft(['contact', 'description'], value)} multiline />
-              <Field label="Texto do card lateral" value={draft.contact.panelBody} onChange={(value) => updateDraft(['contact', 'panelBody'], value)} multiline />
-              {draft.contact.cards.map((item, index) => <ItemCard key={index} title={`Contato ${index + 1}`} onRemove={draft.contact.cards.length > 1 ? () => removeArrayItem(['contact', 'cards'], index) : undefined}><Row><Field label="Label" value={item.label} onChange={(value) => updateDraft(['contact', 'cards', index, 'label'], value)} /><Field label="Valor" value={item.value} onChange={(value) => updateDraft(['contact', 'cards', index, 'value'], value)} /><Field label="Tipo" value={item.type} onChange={(value) => updateDraft(['contact', 'cards', index, 'type'], value)} /></Row></ItemCard>)}
-              <ActionButton onClick={() => addArrayItem(['contact', 'cards'], { label: 'Novo contato', value: 'Valor', type: 'static' })}>Adicionar item de contato</ActionButton>
-              {draft.contact.panelBullets.map((item, index) => <Field key={index} label={`Bullet ${index + 1}`} value={item} onChange={(value) => updateDraft(['contact', 'panelBullets', index], value)} />)}
-              <Field label="Descrição do rodapé" value={draft.footer.brandDescription} onChange={(value) => updateDraft(['footer', 'brandDescription'], value)} multiline />
-              {draft.footer.contactItems.map((item, index) => <Field key={index} label={`Rodapé contato ${index + 1}`} value={item} onChange={(value) => updateDraft(['footer', 'contactItems', index], value)} />)}
-              <Row>
-                <Field label="Copyright prefixo" value={draft.footer.copyrightPrefix} onChange={(value) => updateDraft(['footer', 'copyrightPrefix'], value)} />
-                <Field label="Copyright texto" value={draft.footer.copyrightSuffix} onChange={(value) => updateDraft(['footer', 'copyrightSuffix'], value)} />
-                <Field label="Tagline rodapé" value={draft.footer.tagline} onChange={(value) => updateDraft(['footer', 'tagline'], value)} />
-              </Row>
+            <SectionCard eyebrow="Modo equipe" title="Permissões da secretaria" description="Neste perfil, o painel fica focado no operacional: ver datas liberadas, cadastrar pacientes, atualizar status e manter os dados organizados.">
+              <p style={{ margin: 0, color: 'rgba(245,240,232,0.7)', lineHeight: 1.8 }}>A parte visual do site e a liberação de agenda ficam reservadas para o acesso de administração da Dra.</p>
             </SectionCard>
           </>
-        ) : (
-          <SectionCard eyebrow="Modo equipe" title="Permissões da secretaria" description="Neste perfil, o painel fica focado no operacional: ver datas liberadas, cadastrar pacientes, atualizar status e manter os dados organizados.">
-            <p style={{ margin: 0, color: 'rgba(245,240,232,0.7)', lineHeight: 1.8 }}>A parte visual do site, os textos e as imagens ficam reservados para o acesso de administração da Dra.</p>
-          </SectionCard>
-        )}
+        ) : null}
         </div>
       </div>
 
