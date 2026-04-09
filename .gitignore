@@ -5,3 +5,8 @@ server/data/*.sqlite
 server/data/*.sqlite-*
 server/data/*.json
 .env
+tmp-*
+*.err.log
+*.out.log
+*.log
+*.png

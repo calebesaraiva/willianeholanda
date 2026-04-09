@@ -25,7 +25,7 @@ async function apiFetch(url, options = {}) {
   const payload = contentType.includes('application/json') ? await response.json() : await response.text();
 
   if (!response.ok) {
-    const errorMessage = typeof payload === 'object' && payload?.error ? payload.error : 'Falha na requisicao.';
+    const errorMessage = typeof payload === 'object' && payload?.error ? payload.error : 'Falha na requisição.';
     throw new Error(errorMessage);
   }
 
@@ -42,6 +42,7 @@ export function SiteContentProvider({ children }) {
     summary: null,
     auditLogs: [],
   });
+  const [whatsAppStatus, setWhatsAppStatus] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const authHeaders = useMemo(
@@ -93,18 +94,33 @@ export function SiteContentProvider({ children }) {
     });
   };
 
+  const loadWhatsAppStatus = async (headers = authHeaders, user = currentUser) => {
+    if (!headers.Authorization || user?.role !== 'admin') {
+      setWhatsAppStatus(null);
+      return;
+    }
+    const result = await apiFetch('/api/admin/integrations/whatsapp', { headers });
+    setWhatsAppStatus(result || null);
+  };
+
   const loadSession = async (headers = authHeaders) => {
     if (!headers.Authorization) {
       setCurrentUser(null);
       setUsers([]);
       setSchedule(defaultSiteContent.admin);
       setDashboard({ summary: null, auditLogs: [] });
+      setWhatsAppStatus(null);
       return;
     }
 
     const me = await apiFetch('/api/auth/me', { headers });
     setCurrentUser(me.user);
-    await Promise.all([loadUsers(headers), loadSchedule(headers), loadDashboard(headers)]);
+    await Promise.all([
+      loadUsers(headers),
+      loadSchedule(headers),
+      loadDashboard(headers),
+      loadWhatsAppStatus(headers, me.user),
+    ]);
   };
 
   useEffect(() => {
@@ -124,6 +140,7 @@ export function SiteContentProvider({ children }) {
           setUsers([]);
           setSchedule(defaultSiteContent.admin);
           setDashboard({ summary: null, auditLogs: [] });
+          setWhatsAppStatus(null);
         }
       } finally {
         if (mounted) setLoading(false);
@@ -143,6 +160,7 @@ export function SiteContentProvider({ children }) {
       currentUser,
       users,
       dashboard,
+      whatsAppStatus,
       loading,
       async refreshAll() {
         await loadSiteContent();
@@ -166,7 +184,13 @@ export function SiteContentProvider({ children }) {
         const nextHeaders = {
           Authorization: `Bearer ${result.token}`,
         };
-        await Promise.all([loadSiteContent(), loadUsers(nextHeaders), loadSchedule(nextHeaders), loadDashboard(nextHeaders)]);
+        await Promise.all([
+          loadSiteContent(),
+          loadUsers(nextHeaders),
+          loadSchedule(nextHeaders),
+          loadDashboard(nextHeaders),
+          loadWhatsAppStatus(nextHeaders, result.user),
+        ]);
         return result.user;
       },
       logout() {
@@ -176,6 +200,7 @@ export function SiteContentProvider({ children }) {
         setUsers([]);
         setSchedule(defaultSiteContent.admin);
         setDashboard({ summary: null, auditLogs: [] });
+        setWhatsAppStatus(null);
       },
       async saveContent(nextContent) {
         await apiFetch('/api/admin/site-content', {
@@ -189,7 +214,7 @@ export function SiteContentProvider({ children }) {
         const nextRaw = { ...nextContent };
         delete nextRaw.admin;
         setRawContent(nextRaw);
-        await loadDashboard(authHeaders);
+        await Promise.all([loadDashboard(authHeaders), loadWhatsAppStatus(authHeaders)]);
       },
       async resetContent() {
         await apiFetch('/api/admin/site-content', {
@@ -201,7 +226,7 @@ export function SiteContentProvider({ children }) {
           body: JSON.stringify({}),
         });
         setRawContent({});
-        await loadDashboard(authHeaders);
+        await Promise.all([loadDashboard(authHeaders), loadWhatsAppStatus(authHeaders)]);
       },
       async saveSchedule(nextSchedule) {
         const result = await apiFetch('/api/admin/schedule', {
@@ -213,7 +238,7 @@ export function SiteContentProvider({ children }) {
           body: JSON.stringify(nextSchedule),
         });
         setSchedule(deepMerge(defaultSiteContent.admin, result.schedule || {}));
-        await loadDashboard(authHeaders);
+        await Promise.all([loadDashboard(authHeaders), loadWhatsAppStatus(authHeaders)]);
       },
       async changeOwnPassword(currentPassword, newPassword) {
         await apiFetch('/api/auth/change-password', {
@@ -250,6 +275,38 @@ export function SiteContentProvider({ children }) {
         await Promise.all([loadUsers(authHeaders), loadDashboard(authHeaders)]);
         return result.user;
       },
+      async simulateWhatsAppInbound(payload) {
+        const result = await apiFetch('/api/admin/whatsapp/simulate-inbound', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...authHeaders,
+          },
+          body: JSON.stringify(payload),
+        });
+        setWhatsAppStatus(result.status || null);
+        await Promise.all([loadSchedule(authHeaders), loadDashboard(authHeaders)]);
+        return result.result;
+      },
+      async sendWhatsAppTestMessage(payload) {
+        const result = await apiFetch('/api/admin/whatsapp/test-message', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...authHeaders,
+          },
+          body: JSON.stringify(payload),
+        });
+        setWhatsAppStatus(result.status || null);
+        return result;
+      },
+      async runSystemCheck() {
+        return apiFetch('/api/admin/system-check', {
+          headers: {
+            ...authHeaders,
+          },
+        });
+      },
       async downloadBackup() {
         const response = await fetch('/api/admin/backup', {
           headers: {
@@ -272,7 +329,7 @@ export function SiteContentProvider({ children }) {
         window.URL.revokeObjectURL(url);
       },
     }),
-    [siteContent, token, currentUser, users, dashboard, loading, authHeaders]
+    [siteContent, token, currentUser, users, dashboard, whatsAppStatus, loading, authHeaders]
   );
 
   return <SiteContentContext.Provider value={value}>{children}</SiteContentContext.Provider>;

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { defaultSiteContent } from '../content/defaultSiteContent';
 import { useSiteContent } from '../content/SiteContentContext';
 
@@ -30,6 +30,14 @@ function formatCpf(value) {
 
 function normalizeCpf(value) {
   return String(value || '').replace(/\D/g, '').slice(0, 11);
+}
+
+function normalizeTime(value) {
+  return /^\d{2}:\d{2}$/.test(String(value || '').trim()) ? String(value).trim() : '';
+}
+
+function sortTimes(values) {
+  return [...new Set(values.map(normalizeTime).filter(Boolean))].sort((a, b) => a.localeCompare(b));
 }
 
 function formatDateLabel(dateString) {
@@ -161,7 +169,7 @@ function SelectField({ label, value, onChange, options, disabled = false }) {
   );
 }
 
-function SectionCard({ title, eyebrow, description, children }) {
+function SectionCard({ title, eyebrow, description, children, style }) {
   return (
     <section
       style={{
@@ -171,6 +179,7 @@ function SectionCard({ title, eyebrow, description, children }) {
         padding: '28px',
         marginBottom: '24px',
         boxShadow: '0 18px 44px rgba(0,0,0,0.28)',
+        ...style,
       }}
     >
       <div style={{ marginBottom: '20px' }}>
@@ -189,27 +198,52 @@ function SectionCard({ title, eyebrow, description, children }) {
   );
 }
 
-function Row({ children }) {
-  return <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>{children}</div>;
+function Row({ children, minWidth = 220, style }) {
+  return <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fit, minmax(${minWidth}px, 1fr))`, gap: '16px', ...style }}>{children}</div>;
 }
 
-function ActionButton({ children, onClick, variant = 'outline', type = 'button', disabled = false }) {
+function ActionButton({ children, onClick, variant = 'outline', type = 'button', disabled = false, stretch = false, style }) {
+  const [isHovered, setIsHovered] = useState(false);
   const palette =
     variant === 'primary'
-      ? { background: '#C9A96E', color: '#151515', border: '1px solid #C9A96E' }
+      ? { background: '#C9A96E', color: '#151515', border: '1px solid #C9A96E', hoverBackground: '#D8B77C', hoverColor: '#111111', hoverBorder: '#D8B77C', hoverShadow: '0 14px 28px rgba(201,169,110,0.24)' }
       : variant === 'danger'
-        ? { background: 'transparent', color: '#E7B1B1', border: '1px solid rgba(231,177,177,0.35)' }
-        : { background: 'transparent', color: '#F5F0E8', border: '1px solid rgba(255,255,255,0.12)' };
+        ? { background: 'transparent', color: '#E7B1B1', border: '1px solid rgba(231,177,177,0.35)', hoverBackground: 'rgba(231,177,177,0.08)', hoverColor: '#F2C6C6', hoverBorder: 'rgba(231,177,177,0.55)', hoverShadow: '0 12px 24px rgba(231,177,177,0.12)' }
+        : { background: 'transparent', color: '#F5F0E8', border: '1px solid rgba(255,255,255,0.12)', hoverBackground: 'rgba(255,255,255,0.08)', hoverColor: '#FFFFFF', hoverBorder: 'rgba(201,169,110,0.26)', hoverShadow: '0 12px 24px rgba(0,0,0,0.18)' };
+
+  const hoverStyles = !disabled && isHovered
+    ? {
+      background: palette.hoverBackground,
+      color: palette.hoverColor,
+      border: `1px solid ${palette.hoverBorder}`,
+      transform: 'translateY(-1px)',
+      boxShadow: palette.hoverShadow,
+    }
+    : {};
 
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
-      style={{ ...palette, borderRadius: '999px', padding: '12px 18px', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.55 : 1, fontWeight: 500 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{ ...palette, ...hoverStyles, borderRadius: '999px', padding: '12px 18px', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.55 : 1, fontWeight: 500, width: stretch ? '100%' : 'auto', transition: 'background 180ms ease, color 180ms ease, border 180ms ease, transform 180ms ease, box-shadow 180ms ease', ...style }}
     >
       {children}
     </button>
+  );
+}
+
+function QuickActionCard({ title, description, children }) {
+  return (
+    <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '20px', padding: '18px', border: '1px solid rgba(255,255,255,0.05)', display: 'grid', gap: '12px' }}>
+      <div>
+        <strong style={{ display: 'block', fontSize: '17px', marginBottom: '6px' }}>{title}</strong>
+        <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>{description}</p>
+      </div>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>{children}</div>
+    </div>
   );
 }
 
@@ -258,6 +292,18 @@ function UserStatusPill({ active, role }) {
   );
 }
 
+function SourcePill({ source }) {
+  const palette = source === 'whatsapp'
+    ? { background: 'rgba(91,196,142,0.16)', color: '#9BE6BA' }
+    : { background: 'rgba(201,169,110,0.16)', color: '#E8D5A3' };
+
+  return (
+    <span style={{ borderRadius: '999px', padding: '7px 11px', background: palette.background, color: palette.color, fontSize: '12px' }}>
+      {source === 'whatsapp' ? 'WhatsApp' : 'Painel'}
+    </span>
+  );
+}
+
 function StatCard({ label, value, tone = 'gold' }) {
   const tones = {
     gold: { background: 'rgba(201,169,110,0.12)', border: 'rgba(201,169,110,0.22)', color: '#F1DEC0' },
@@ -287,6 +333,7 @@ export default function AdminPanel() {
     currentUser,
     users,
     dashboard,
+    whatsAppStatus,
     saveContent,
     resetContent,
     saveSchedule,
@@ -294,24 +341,61 @@ export default function AdminPanel() {
     createUser,
     updateUser,
     downloadBackup,
+    simulateWhatsAppInbound,
+    sendWhatsAppTestMessage,
+    runSystemCheck,
   } = useSiteContent();
 
   const [draft, setDraft] = useState(() => cloneContent(siteContent));
   const [loginForm, setLoginForm] = useState({ username: 'williane', password: '' });
-  const [appointmentForm, setAppointmentForm] = useState({ fullName: '', address: '', cpf: '', date: '', procedureName: '', notes: '' });
+  const [appointmentForm, setAppointmentForm] = useState({ fullName: '', address: '', cpf: '', date: '', time: '', procedureName: '', notes: '' });
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [userForm, setUserForm] = useState({ displayName: '', username: '', password: '', role: 'staff' });
+  const [slotEditor, setSlotEditor] = useState({ date: '', time: '' });
+  const [whatsAppSimulationForm, setWhatsAppSimulationForm] = useState({
+    from: '5599999999999',
+    profileName: 'Paciente WhatsApp',
+    text: 'AGENDAR',
+  });
+  const [whatsAppOutboundForm, setWhatsAppOutboundForm] = useState({
+    to: '5599999999999',
+    text: 'Mensagem de teste enviada pelo painel.',
+  });
   const [userEdits, setUserEdits] = useState({});
   const [calendarMonth, setCalendarMonth] = useState(() => new Date());
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState('');
   const [notice, setNotice] = useState(null);
   const [busyKey, setBusyKey] = useState('');
+  const [systemCheckReport, setSystemCheckReport] = useState(null);
+  const [systemCheckModalOpen, setSystemCheckModalOpen] = useState(false);
+  const [viewportWidth, setViewportWidth] = useState(() => window.innerWidth);
 
   const isAdmin = currentUser?.role === 'admin';
   const dashboardUrl = useMemo(() => `${window.location.origin}/`, []);
+  const isMobile = viewportWidth < 768;
+  const isTablet = viewportWidth < 1100;
+  const sectionPadding = isMobile ? '20px' : '28px';
+  const pagePadding = isMobile ? '14px' : '24px';
+  const calendarCellMinHeight = isMobile ? '64px' : '78px';
+  const calendarGap = isMobile ? '6px' : '8px';
+  const compactButtonStyle = isMobile ? { width: '100%' } : null;
 
   useEffect(() => {
     setDraft(cloneContent(siteContent));
   }, [siteContent]);
+
+  useEffect(() => {
+    const handleResize = () => setViewportWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    setSelectedCalendarDate((previous) => {
+      if (previous && siteContent.admin.availableDates.includes(previous)) return previous;
+      return siteContent.admin.availableDates[0] || '';
+    });
+  }, [siteContent.admin.availableDates]);
 
   useEffect(() => {
     setUserEdits(users.reduce((accumulator, user) => {
@@ -322,6 +406,7 @@ export default function AdminPanel() {
 
   const flashNotice = (type, message) => setNotice({ type, message });
   const updateDraft = (path, value) => setDraft((previous) => setAtPath(previous, path, value));
+  const availableTimeSlots = draft.admin.availableTimeSlots || {};
   const addArrayItem = (path, item) => setDraft((previous) => {
     const target = path.reduce((accumulator, key) => accumulator[key], previous);
     return setAtPath(previous, path, [...target, item]);
@@ -338,16 +423,25 @@ export default function AdminPanel() {
       const exists = previous.admin.availableDates.includes(dateString);
       const nextDates = exists ? previous.admin.availableDates.filter((item) => item !== dateString) : sortDates([...previous.admin.availableDates, dateString]);
       const nextAppointments = previous.admin.appointments.filter((item) => item.status === 'cancelado' || nextDates.includes(item.date));
+      const nextAvailableTimeSlots = { ...(previous.admin.availableTimeSlots || {}) };
+      if (exists) {
+        delete nextAvailableTimeSlots[dateString];
+      } else {
+        nextAvailableTimeSlots[dateString] = nextAvailableTimeSlots[dateString] || [];
+      }
 
       return {
         ...previous,
         admin: {
           ...previous.admin,
           availableDates: nextDates,
+          availableTimeSlots: nextAvailableTimeSlots,
           appointments: nextAppointments,
         },
       };
     });
+
+    setSelectedCalendarDate(dateString);
   };
 
   const updateAppointment = (id, field, value) => {
@@ -362,10 +456,60 @@ export default function AdminPanel() {
     removeArrayItem(['admin', 'appointments'], appointmentIndex);
   };
 
+  const addTimeSlotToDate = (dateString, timeValue) => {
+    const normalizedTime = normalizeTime(timeValue);
+    if (!dateString || !normalizedTime) {
+      flashNotice('error', 'Selecione uma data e informe um horário válido.');
+      return;
+    }
+
+    setDraft((previous) => {
+      const nextSlots = sortTimes([...(previous.admin.availableTimeSlots?.[dateString] || []), normalizedTime]);
+      return {
+        ...previous,
+        admin: {
+          ...previous.admin,
+          availableTimeSlots: {
+            ...(previous.admin.availableTimeSlots || {}),
+            [dateString]: nextSlots,
+          },
+        },
+      };
+    });
+    setSlotEditor((previous) => ({ ...previous, time: '' }));
+  };
+
+  const removeTimeSlotFromDate = (dateString, timeValue) => {
+    const hasAppointment = draft.admin.appointments.some(
+      (item) => item.date === dateString && item.time === timeValue && item.status !== 'cancelado'
+    );
+    if (hasAppointment) {
+      flashNotice('error', 'Não é possível remover um horário que já possui paciente agendado.');
+      return;
+    }
+
+    setDraft((previous) => ({
+      ...previous,
+      admin: {
+        ...previous.admin,
+        availableTimeSlots: {
+          ...(previous.admin.availableTimeSlots || {}),
+          [dateString]: (previous.admin.availableTimeSlots?.[dateString] || []).filter((item) => item !== timeValue),
+        },
+      },
+    }));
+
+    setAppointmentForm((previous) => (
+      previous.date === dateString && previous.time === timeValue
+        ? { ...previous, time: '' }
+        : previous
+    ));
+  };
+
   const handleAddAppointment = () => {
     const normalizedCpf = normalizeCpf(appointmentForm.cpf);
 
-    if (!appointmentForm.fullName.trim() || !appointmentForm.address.trim() || !normalizedCpf || !appointmentForm.date) {
+    if (!appointmentForm.fullName.trim() || !appointmentForm.address.trim() || !normalizedCpf || !appointmentForm.date || !appointmentForm.time) {
       flashNotice('error', 'Preencha nome completo, endereço, CPF e data.');
       return;
     }
@@ -377,8 +521,12 @@ export default function AdminPanel() {
       flashNotice('error', 'A data escolhida não foi liberada pela Dra.');
       return;
     }
+    if (!(draft.admin.availableTimeSlots?.[appointmentForm.date] || []).includes(appointmentForm.time)) {
+      flashNotice('error', 'O horário escolhido não está liberado pela Dra.');
+      return;
+    }
 
-    const duplicate = draft.admin.appointments.some((item) => item.date === appointmentForm.date && normalizeCpf(item.cpf) === normalizedCpf && item.status !== 'cancelado');
+    const duplicate = draft.admin.appointments.some((item) => item.date === appointmentForm.date && item.time === appointmentForm.time && item.status !== 'cancelado');
     if (duplicate) {
       flashNotice('error', 'Já existe um agendamento ativo para esse CPF nessa data.');
       return;
@@ -390,6 +538,7 @@ export default function AdminPanel() {
       address: appointmentForm.address.trim(),
       cpf: formatCpf(normalizedCpf),
       date: appointmentForm.date,
+      time: appointmentForm.time,
       status: 'agendado',
       procedureName: appointmentForm.procedureName.trim(),
       notes: appointmentForm.notes.trim(),
@@ -397,25 +546,123 @@ export default function AdminPanel() {
       updatedAt: new Date().toISOString(),
     });
 
-    setAppointmentForm({ fullName: '', address: '', cpf: '', date: '', procedureName: '', notes: '' });
+    setAppointmentForm({ fullName: '', address: '', cpf: '', date: appointmentForm.date, time: '', procedureName: '', notes: '' });
     flashNotice('success', 'Agendamento adicionado ao painel. Agora é só salvar a agenda.');
   };
 
   const appointmentsByDate = useMemo(() => [...draft.admin.appointments].sort((a, b) => {
     const dateComparison = a.date.localeCompare(b.date);
     if (dateComparison !== 0) return dateComparison;
+    const timeComparison = (a.time || '').localeCompare(b.time || '');
+    if (timeComparison !== 0) return timeComparison;
     return a.fullName.localeCompare(b.fullName);
   }), [draft.admin.appointments]);
 
   const monthGrid = useMemo(() => monthDays(calendarMonth), [calendarMonth]);
-  const upcomingHighlights = useMemo(() => draft.admin.availableDates.slice(0, 8), [draft.admin.availableDates]);
+  const occupiedSlotsByDate = useMemo(
+    () => draft.admin.appointments.reduce((accumulator, item) => {
+      if (item.status === 'cancelado' || !item.time) return accumulator;
+      accumulator[item.date] = accumulator[item.date] || [];
+      accumulator[item.date].push(item.time);
+      return accumulator;
+    }, {}),
+    [draft.admin.appointments]
+  );
+  const freeTimeSlotsByDate = useMemo(
+    () => draft.admin.availableDates.reduce((accumulator, date) => {
+      const occupied = new Set(occupiedSlotsByDate[date] || []);
+      accumulator[date] = sortTimes((availableTimeSlots[date] || []).filter((time) => !occupied.has(time)));
+      return accumulator;
+    }, {}),
+    [draft.admin.availableDates, availableTimeSlots, occupiedSlotsByDate]
+  );
+  const receptionistAvailableDates = useMemo(
+    () => draft.admin.availableDates.filter((date) => (freeTimeSlotsByDate[date] || []).length > 0),
+    [draft.admin.availableDates, freeTimeSlotsByDate]
+  );
+  const upcomingHighlights = useMemo(() => receptionistAvailableDates.slice(0, 8), [receptionistAvailableDates]);
+  const nextSlotsPreview = useMemo(
+    () => receptionistAvailableDates.slice(0, 3).map((date) => ({
+      date,
+      times: (freeTimeSlotsByDate[date] || []).slice(0, 3),
+      count: (freeTimeSlotsByDate[date] || []).length,
+    })),
+    [receptionistAvailableDates, freeTimeSlotsByDate]
+  );
+  const nextAvailableDate = receptionistAvailableDates[0] || '';
+  const selectedDateSlots = availableTimeSlots[selectedCalendarDate] || [];
+  const selectedDateFreeSlots = freeTimeSlotsByDate[selectedCalendarDate] || [];
+  const selectedDateOccupiedSlots = selectedDateSlots.filter((time) => !selectedDateFreeSlots.includes(time));
+  const selectedDateIsAvailable = draft.admin.availableDates.includes(selectedCalendarDate);
+  const selectedDateIsFull = selectedDateIsAvailable && selectedDateSlots.length > 0 && selectedDateFreeSlots.length === 0;
+  const datesWithoutSlots = draft.admin.availableDates.filter((date) => (availableTimeSlots[date] || []).length === 0);
+  const appointmentTimeOptions = appointmentForm.date ? (freeTimeSlotsByDate[appointmentForm.date] || []) : [];
   const summary = dashboard?.summary || {};
+  useEffect(() => {
+    if (appointmentForm.date && !(freeTimeSlotsByDate[appointmentForm.date] || []).includes(appointmentForm.time)) {
+      setAppointmentForm((previous) => ({ ...previous, time: '' }));
+    }
+  }, [appointmentForm.date, appointmentForm.time, freeTimeSlotsByDate]);
+  useEffect(() => {
+    if (!appointmentForm.date) return;
+    const options = freeTimeSlotsByDate[appointmentForm.date] || [];
+    if (options.length === 1 && appointmentForm.time !== options[0]) {
+      setAppointmentForm((previous) => ({ ...previous, time: options[0] }));
+    }
+  }, [appointmentForm.date, appointmentForm.time, freeTimeSlotsByDate]);
   const auditLogs = dashboard?.auditLogs || [];
+  const whatsAppEvents = whatsAppStatus?.recentEvents || [];
   const todayDate = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const todayAppointments = useMemo(
     () => appointmentsByDate.filter((item) => item.date === todayDate && item.status !== 'cancelado'),
     [appointmentsByDate, todayDate]
   );
+  const quickSlotPresets = ['08:00', '09:00', '10:00', '14:00', '15:00', '16:00'];
+  const visibleMonthGrid = useMemo(
+    () => (isAdmin ? monthGrid : monthGrid.filter((date) => (freeTimeSlotsByDate[date.toISOString().slice(0, 10)] || []).length > 0)),
+    [isAdmin, monthGrid, freeTimeSlotsByDate]
+  );
+
+  const jumpToDate = (dateString) => {
+    if (!dateString) return;
+    const targetDate = new Date(`${dateString}T12:00:00`);
+    setCalendarMonth(new Date(targetDate.getFullYear(), targetDate.getMonth(), 1));
+    setSelectedCalendarDate(dateString);
+  };
+
+  const applyPresetSlotsToDate = (dateString) => {
+    if (!isAdmin || !dateString) return;
+    setDraft((previous) => {
+      const nextSlots = sortTimes([...(previous.admin.availableTimeSlots?.[dateString] || []), ...quickSlotPresets]);
+      const nextDates = previous.admin.availableDates.includes(dateString)
+        ? previous.admin.availableDates
+        : sortDates([...previous.admin.availableDates, dateString]);
+
+      return {
+        ...previous,
+        admin: {
+          ...previous.admin,
+          availableDates: nextDates,
+          availableTimeSlots: {
+            ...(previous.admin.availableTimeSlots || {}),
+            [dateString]: nextSlots,
+          },
+        },
+      };
+    });
+    jumpToDate(dateString);
+    flashNotice('success', `Horários padrão aplicados em ${formatDateLabel(dateString)}.`);
+  };
+
+  const prepareQuickAppointment = (dateString) => {
+    if (!dateString) return;
+    jumpToDate(dateString);
+    setAppointmentForm((previous) => ({
+      ...previous,
+      date: dateString,
+      time: '',
+    }));
+  };
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -432,6 +679,11 @@ export default function AdminPanel() {
   };
 
   const handleSaveSchedule = async () => {
+    if (datesWithoutSlots.length > 0) {
+      flashNotice('error', `Existe data liberada sem horário: ${datesWithoutSlots[0]}.`);
+      return;
+    }
+
     setBusyKey('schedule');
     try {
       await saveSchedule(draft.admin);
@@ -545,9 +797,47 @@ export default function AdminPanel() {
     }
   };
 
+  const handleSimulateWhatsApp = async () => {
+    setBusyKey('whatsapp-simulate');
+    try {
+      const result = await simulateWhatsAppInbound(whatsAppSimulationForm);
+      flashNotice('success', `Simulação processada: ${result.replyText}`);
+    } catch (error) {
+      flashNotice('error', error.message);
+    } finally {
+      setBusyKey('');
+    }
+  };
+
+  const handleSendWhatsAppTest = async () => {
+    setBusyKey('whatsapp-send');
+    try {
+      await sendWhatsAppTestMessage(whatsAppOutboundForm);
+      flashNotice('success', 'Mensagem de teste enviada pelo WhatsApp.');
+    } catch (error) {
+      flashNotice('error', error.message);
+    } finally {
+      setBusyKey('');
+    }
+  };
+
+  const handleRunSystemCheck = async () => {
+    setBusyKey('system-check');
+    try {
+      const report = await runSystemCheck();
+      setSystemCheckReport(report);
+      setSystemCheckModalOpen(true);
+      flashNotice(report.ok ? 'success' : 'error', report.summary);
+    } catch (error) {
+      flashNotice('error', error.message);
+    } finally {
+      setBusyKey('');
+    }
+  };
+
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: 'radial-gradient(circle at top, rgba(201,169,110,0.12) 0%, rgba(10,10,10,1) 55%)', color: '#F5F0E8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px' }}>
+      <div style={{ minHeight: '100vh', background: 'radial-gradient(circle at top, rgba(201,169,110,0.12) 0%, rgba(10,10,10,1) 55%)', color: '#F5F0E8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: pagePadding }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ color: '#C9A96E', letterSpacing: '0.22em', textTransform: 'uppercase', fontSize: '11px', marginBottom: '10px' }}>Painel administrativo</div>
           <h1 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '40px', fontWeight: 400 }}>Carregando ambiente</h1>
@@ -558,20 +848,20 @@ export default function AdminPanel() {
 
   if (!currentUser) {
     return (
-      <div style={{ minHeight: '100vh', background: 'radial-gradient(circle at top, rgba(201,169,110,0.12) 0%, rgba(10,10,10,1) 55%)', color: '#F5F0E8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px' }}>
-        <form onSubmit={handleLogin} style={{ width: '100%', maxWidth: '480px', background: 'linear-gradient(180deg, rgba(17,17,17,0.98) 0%, rgba(10,10,10,0.98) 100%)', border: '1px solid rgba(201,169,110,0.16)', borderRadius: '28px', padding: '34px', boxShadow: '0 32px 70px rgba(0,0,0,0.34)' }}>
+      <div style={{ minHeight: '100vh', background: 'radial-gradient(circle at top, rgba(201,169,110,0.12) 0%, rgba(10,10,10,1) 55%)', color: '#F5F0E8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: pagePadding }}>
+        <form onSubmit={handleLogin} style={{ width: '100%', maxWidth: '480px', background: 'linear-gradient(180deg, rgba(17,17,17,0.98) 0%, rgba(10,10,10,0.98) 100%)', border: '1px solid rgba(201,169,110,0.16)', borderRadius: '28px', padding: isMobile ? '24px' : '34px', boxShadow: '0 32px 70px rgba(0,0,0,0.34)' }}>
           <div style={{ color: '#C9A96E', textTransform: 'uppercase', letterSpacing: '0.24em', fontSize: '11px', marginBottom: '12px' }}>Painel Admin</div>
-          <h1 style={{ margin: '0 0 12px', fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontSize: '42px' }}>Entrar no painel</h1>
+          <h1 style={{ margin: '0 0 12px', fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontSize: isMobile ? '34px' : '42px' }}>Entrar no painel</h1>
           <p style={{ margin: '0 0 22px', color: 'rgba(245,240,232,0.66)', lineHeight: 1.8 }}>A Dra controla o conteúdo e libera as datas. A equipe usa o mesmo painel para cadastrar pacientes somente nas datas abertas.</p>
-          <Row>
+          <Row minWidth={isMobile ? 180 : 220}>
             <Field label="Usuário" value={loginForm.username} onChange={(value) => setLoginForm((previous) => ({ ...previous, username: value }))} />
             <Field label="Senha" type="password" value={loginForm.password} onChange={(value) => setLoginForm((previous) => ({ ...previous, password: value }))} />
           </Row>
           <div style={{ display: 'grid', gap: '10px', marginTop: '18px', color: 'rgba(245,240,232,0.6)', fontSize: '14px', lineHeight: 1.7 }}>
             <div>Dra: <code>williane</code> / <code>Acesso@2025</code></div>
-            <div>Equipe: <code>secretaria</code> / <code>EquipeWH#2026!</code></div>
+            <div>Equipe: <code>secretaria</code> / <code>secretaria123</code></div>
           </div>
-          <div style={{ marginTop: '18px' }}><ActionButton type="submit" variant="primary" disabled={busyKey === 'login'}>{busyKey === 'login' ? 'Entrando...' : 'Entrar'}</ActionButton></div>
+          <div style={{ marginTop: '18px' }}><ActionButton type="submit" variant="primary" disabled={busyKey === 'login'} stretch={isMobile}>{busyKey === 'login' ? 'Entrando...' : 'Entrar'}</ActionButton></div>
           {notice ? <div style={{ marginTop: '16px', borderRadius: '16px', padding: '14px 16px', background: notice.type === 'error' ? 'rgba(231,177,177,0.1)' : 'rgba(201,169,110,0.1)', border: notice.type === 'error' ? '1px solid rgba(231,177,177,0.24)' : '1px solid rgba(201,169,110,0.24)' }}>{notice.message}</div> : null}
         </form>
       </div>
@@ -579,32 +869,96 @@ export default function AdminPanel() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'radial-gradient(circle at top, rgba(201,169,110,0.10) 0%, rgba(9,9,9,1) 58%)', color: '#F5F0E8', padding: '24px' }}>
-      <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '18px', flexWrap: 'wrap', marginBottom: '24px', padding: '20px 0' }}>
+    <>
+      <div style={{ minHeight: '100vh', background: 'radial-gradient(circle at top, rgba(201,169,110,0.10) 0%, rgba(9,9,9,1) 58%)', color: '#F5F0E8', padding: pagePadding }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', flexDirection: isMobile ? 'column' : 'row', gap: '18px', flexWrap: 'wrap', marginBottom: '24px', padding: '20px 0' }}>
           <div>
             <div style={{ color: '#C9A96E', textTransform: 'uppercase', letterSpacing: '0.22em', fontSize: '11px', marginBottom: '8px' }}>Painel Administrativo</div>
-            <h1 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '50px', fontWeight: 400 }}>Dra. Williane Holanda</h1>
+            <h1 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: isMobile ? '38px' : '50px', fontWeight: 400 }}>Dra. Williane Holanda</h1>
             <p style={{ margin: '10px 0 0', color: 'rgba(245,240,232,0.64)' }}>Logada como <strong>{currentUser.displayName}</strong> ({isAdmin ? 'Admin' : 'Equipe'})</p>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(150px, max-content))', gap: '12px', width: isMobile ? '100%' : 'auto' }}>
             <a href={dashboardUrl} target="_blank" rel="noreferrer" style={{ color: '#F5F0E8' }}><ActionButton>Ver site</ActionButton></a>
-            <ActionButton onClick={handleSaveSchedule} variant="primary" disabled={busyKey === 'schedule'}>{busyKey === 'schedule' ? 'Salvando agenda...' : 'Salvar agenda'}</ActionButton>
-            {isAdmin ? <ActionButton onClick={handleSaveContent} variant="primary" disabled={busyKey === 'content'}>{busyKey === 'content' ? 'Salvando site...' : 'Salvar site'}</ActionButton> : null}
-            {isAdmin ? <ActionButton onClick={handleReset} variant="danger" disabled={busyKey === 'reset'}>Restaurar visual</ActionButton> : null}
-            <ActionButton onClick={logout}>Sair</ActionButton>
+            <ActionButton onClick={handleSaveSchedule} variant="primary" disabled={busyKey === 'schedule'} stretch={isMobile}>{busyKey === 'schedule' ? 'Salvando agenda...' : 'Salvar agenda'}</ActionButton>
+            {isAdmin ? <ActionButton onClick={handleSaveContent} variant="primary" disabled={busyKey === 'content'} stretch={isMobile}>{busyKey === 'content' ? 'Salvando site...' : 'Salvar site'}</ActionButton> : null}
+            {isAdmin ? <ActionButton onClick={handleReset} variant="danger" disabled={busyKey === 'reset'} stretch={isMobile}>Restaurar visual</ActionButton> : null}
+            <ActionButton onClick={logout} stretch={isMobile}>Sair</ActionButton>
           </div>
         </div>
 
         {notice ? <div style={{ marginBottom: '20px', background: notice.type === 'error' ? 'rgba(231,177,177,0.1)' : 'rgba(201,169,110,0.1)', border: notice.type === 'error' ? '1px solid rgba(231,177,177,0.24)' : '1px solid rgba(201,169,110,0.24)', borderRadius: '16px', padding: '14px 16px' }}>{notice.message}</div> : null}
 
-        <SectionCard eyebrow="Visão geral" title="Painel executivo" description="Resumo rápido para a Dra acompanhar equipe, agenda e base de pacientes sem depender do código.">
+        <SectionCard eyebrow="Ações rápidas" title="Atalhos do dia" description="Os botões abaixo deixam o uso mais direto no celular e no atendimento do dia a dia." style={{ padding: sectionPadding }}>
+          <Row minWidth={isMobile ? 180 : 240}>
+            <QuickActionCard title="Agenda" description="Abra o dia certo e já deixe a agenda pronta para uso.">
+              <ActionButton onClick={() => jumpToDate(todayDate)} stretch={isMobile} style={compactButtonStyle}>Ir para hoje</ActionButton>
+              <ActionButton onClick={() => jumpToDate(nextAvailableDate)} disabled={!nextAvailableDate} stretch={isMobile} style={compactButtonStyle}>Próxima vaga</ActionButton>
+              {isAdmin ? <ActionButton onClick={() => applyPresetSlotsToDate(selectedCalendarDate || todayDate)} variant="primary" stretch={isMobile} style={compactButtonStyle}>Aplicar horários padrão</ActionButton> : null}
+            </QuickActionCard>
+            <QuickActionCard title="Atendimento" description="Comece um agendamento sem ficar procurando data disponível.">
+              <ActionButton onClick={() => prepareQuickAppointment(nextAvailableDate || todayDate)} variant="primary" disabled={!nextAvailableDate && !todayDate} stretch={isMobile} style={compactButtonStyle}>Novo agendamento</ActionButton>
+              {isAdmin ? <ActionButton onClick={() => toggleAvailableDate(todayDate)} stretch={isMobile} style={compactButtonStyle}>{draft.admin.availableDates.includes(todayDate) ? 'Fechar hoje' : 'Liberar hoje'}</ActionButton> : null}
+              <ActionButton onClick={handleSaveSchedule} disabled={busyKey === 'schedule'} stretch={isMobile} style={compactButtonStyle}>Salvar agenda</ActionButton>
+            </QuickActionCard>
+            <QuickActionCard title="Comunicação" description="Tenha os comandos mais usados à mão para testes e operação.">
+              {isAdmin ? <ActionButton onClick={handleSimulateWhatsApp} disabled={busyKey === 'whatsapp-simulate'} stretch={isMobile} style={compactButtonStyle}>Simular WhatsApp</ActionButton> : null}
+              {isAdmin ? <ActionButton onClick={handleSendWhatsAppTest} disabled={busyKey === 'whatsapp-send' || !whatsAppStatus?.configured} stretch={isMobile} style={compactButtonStyle}>Enviar teste</ActionButton> : null}
+              {isAdmin ? <ActionButton onClick={handleBackupDownload} disabled={busyKey === 'backup'} stretch={isMobile} style={compactButtonStyle}>Baixar backup</ActionButton> : null}
+              <ActionButton onClick={handleRunSystemCheck} disabled={busyKey === 'system-check'} stretch={isMobile} style={compactButtonStyle}>{busyKey === 'system-check' ? 'Testando sistema...' : 'Testar todo o sistema'}</ActionButton>
+              {!isAdmin ? <ActionButton onClick={() => jumpToDate(nextAvailableDate)} disabled={!nextAvailableDate} stretch={isMobile} style={compactButtonStyle}>Ver próxima data livre</ActionButton> : null}
+              {!isAdmin ? <ActionButton onClick={logout} stretch={isMobile} style={compactButtonStyle}>Sair do painel</ActionButton> : null}
+            </QuickActionCard>
+          </Row>
+        </SectionCard>
+
+        {systemCheckReport ? (
+          <SectionCard eyebrow="Diagnóstico" title="Último teste do sistema" description="Esse relatório ajuda o suporte a entender rapidamente se o problema está no login, agenda, painel ou WhatsApp." style={{ padding: sectionPadding }}>
+            <div style={{ display: 'grid', gap: '12px' }}>
+              <div style={{ padding: '16px 18px', borderRadius: '18px', background: systemCheckReport.ok ? 'rgba(91,196,142,0.12)' : 'rgba(231,177,177,0.12)', border: systemCheckReport.ok ? '1px solid rgba(91,196,142,0.24)' : '1px solid rgba(231,177,177,0.24)' }}>
+                <strong style={{ display: 'block', marginBottom: '6px', color: systemCheckReport.ok ? '#9BE6BA' : '#F2C6C6' }}>
+                  {systemCheckReport.ok ? 'Sistema aprovado nas verificações principais' : 'Foram encontrados pontos para revisar'}
+                </strong>
+                <div style={{ color: 'rgba(245,240,232,0.76)', lineHeight: 1.7 }}>
+                  <div><strong>Resumo:</strong> {systemCheckReport.summary}</div>
+                  <div><strong>Executado em:</strong> {systemCheckReport.finishedAt ? new Date(systemCheckReport.finishedAt).toLocaleString('pt-BR') : '-'}</div>
+                  <div><strong>Perfil:</strong> {systemCheckReport.role === 'admin' ? 'Administração' : 'Recepção'}</div>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gap: '10px' }}>
+                {systemCheckReport.checks.map((item) => (
+                  <div key={item.key} style={{ padding: '14px 16px', borderRadius: '18px', background: 'rgba(23,23,23,0.92)', border: item.ok ? '1px solid rgba(91,196,142,0.20)' : '1px solid rgba(231,177,177,0.24)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                      <strong>{item.label}</strong>
+                      <span style={{ color: item.ok ? '#9BE6BA' : '#F2C6C6', fontSize: '13px' }}>{item.ok ? 'OK' : 'Falhou'}</span>
+                    </div>
+                    {item.ok ? (
+                      <div style={{ color: 'rgba(245,240,232,0.72)', fontSize: '13px', lineHeight: 1.7 }}>
+                        {Object.entries(item.details || {}).map(([key, value]) => (
+                          <div key={key}><strong>{key}:</strong> {String(value)}</div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={{ color: '#F2C6C6', fontSize: '13px', lineHeight: 1.7 }}>
+                        {item.error}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </SectionCard>
+        ) : null}
+
+        <SectionCard eyebrow="Visão geral" title="Painel executivo" description="Resumo rápido para a Dra acompanhar equipe, agenda e base de pacientes sem depender do código." style={{ padding: sectionPadding }}>
           <Row>
             <StatCard label="Usuários ativos" value={summary.activeUsers ?? 0} />
             <StatCard label="Datas liberadas" value={summary.releasedDates ?? 0} />
             <StatCard label="Agendamentos ativos" value={summary.activeAppointments ?? 0} tone="green" />
             <StatCard label="Pacientes únicos" value={summary.uniquePatients ?? 0} tone="white" />
+            <StatCard label="Conversas Whats" value={whatsAppStatus?.activeConversations ?? 0} tone="white" />
           </Row>
 
           <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '20px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
@@ -633,78 +987,226 @@ export default function AdminPanel() {
           </div>
         </SectionCard>
 
-        <SectionCard eyebrow="Fluxo real da clínica" title="Agenda e agendamentos" description="A Dra libera os dias de atendimento. A equipe cadastra o paciente com nome completo, endereço e CPF, e só consegue trabalhar em datas liberadas.">
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(340px, 1.25fr) minmax(320px, 0.95fr)', gap: '20px' }}>
+        <SectionCard eyebrow="Fluxo real da clínica" title="Agenda e agendamentos" description="A Dra libera os dias de atendimento. A equipe cadastra o paciente com nome completo, endereço e CPF, e só consegue trabalhar em datas liberadas." style={{ padding: sectionPadding }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isTablet ? '1fr' : 'minmax(340px, 1.25fr) minmax(320px, 0.95fr)', gap: '20px' }}>
             <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '12px', flexWrap: 'wrap' }}>
-                <ActionButton onClick={() => setCalendarMonth((previous) => new Date(previous.getFullYear(), previous.getMonth() - 1, 1))}>Mês anterior</ActionButton>
-                <strong style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '30px', fontWeight: 400, textTransform: 'capitalize' }}>{calendarMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</strong>
-                <ActionButton onClick={() => setCalendarMonth((previous) => new Date(previous.getFullYear(), previous.getMonth() + 1, 1))}>Próximo mês</ActionButton>
+                <ActionButton onClick={() => setCalendarMonth((previous) => new Date(previous.getFullYear(), previous.getMonth() - 1, 1))} stretch={isMobile}>Mês anterior</ActionButton>
+                <strong style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: isMobile ? '26px' : '30px', fontWeight: 400, textTransform: 'capitalize', textAlign: 'center', flex: 1 }}>{calendarMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</strong>
+                <ActionButton onClick={() => setCalendarMonth((previous) => new Date(previous.getFullYear(), previous.getMonth() + 1, 1))} stretch={isMobile}>Próximo mês</ActionButton>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', marginBottom: '10px', textAlign: 'center', color: 'rgba(245,240,232,0.6)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'].map((item) => <div key={item}>{item}</div>)}
-              </div>
+              {isAdmin ? (
+                <>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: calendarGap, marginBottom: '10px', textAlign: 'center', color: 'rgba(245,240,232,0.6)', fontSize: isMobile ? '10px' : '12px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'].map((item) => <div key={item}>{item}</div>)}
+                  </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
-                {monthGrid.map((date) => {
-                  const dateString = date.toISOString().slice(0, 10);
-                  const isCurrentMonth = sameMonth(date, calendarMonth);
-                  const isAvailable = draft.admin.availableDates.includes(dateString);
-                  const hasAppointment = draft.admin.appointments.some((item) => item.date === dateString && item.status !== 'cancelado');
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: calendarGap }}>
+                    {monthGrid.map((date) => {
+                      const dateString = date.toISOString().slice(0, 10);
+                      const isCurrentMonth = sameMonth(date, calendarMonth);
+                      const isAvailable = draft.admin.availableDates.includes(dateString);
+                      const hasAppointment = draft.admin.appointments.some((item) => item.date === dateString && item.status !== 'cancelado');
+                      const hasFreeSlot = (freeTimeSlotsByDate[dateString] || []).length > 0;
+                      const totalSlots = (availableTimeSlots[dateString] || []).length;
+                      const freeSlots = (freeTimeSlotsByDate[dateString] || []).length;
+                      const isFull = isAvailable && totalSlots > 0 && freeSlots === 0;
+                      const isSelected = selectedCalendarDate === dateString;
+                      const canSelectDate = true;
+                      const dayTextColor = !isCurrentMonth
+                        ? 'rgba(245,240,232,0.18)'
+                        : canSelectDate
+                          ? '#F5F0E8'
+                          : 'rgba(245,240,232,0.38)';
+                      const dayBackground = isAvailable
+                        ? 'rgba(201,169,110,0.16)'
+                        : 'rgba(14,14,14,0.65)';
 
-                  return (
-                    <button key={dateString} type="button" onClick={() => toggleAvailableDate(dateString)} disabled={!isAdmin} style={{ minHeight: '78px', padding: '8px', borderRadius: '16px', border: hasAppointment ? '1px solid rgba(91,196,142,0.7)' : '1px solid rgba(255,255,255,0.06)', background: isAvailable ? 'rgba(201,169,110,0.16)' : 'rgba(14,14,14,0.95)', color: isCurrentMonth ? '#F5F0E8' : 'rgba(245,240,232,0.26)', cursor: isAdmin ? 'pointer' : 'default', opacity: isAdmin ? 1 : 0.95, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <span style={{ fontSize: '13px' }}>{date.getDate()}</span>
-                      {hasAppointment ? <span style={{ fontSize: '10px', color: '#7AE1A5' }}>Paciente</span> : null}
-                    </button>
-                  );
-                })}
-              </div>
+                      return (
+                        <button key={dateString} type="button" onClick={() => setSelectedCalendarDate(dateString)} style={{ minHeight: calendarCellMinHeight, padding: isMobile ? '6px' : '8px', borderRadius: '16px', border: isSelected ? '1px solid #C9A96E' : hasAppointment ? '1px solid rgba(91,196,142,0.7)' : '1px solid rgba(255,255,255,0.06)', background: dayBackground, color: dayTextColor, cursor: 'pointer', opacity: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <span style={{ fontSize: isMobile ? '12px' : '13px' }}>{date.getDate()}</span>
+                          <div style={{ display: 'grid', gap: '2px' }}>
+                            {hasFreeSlot ? <span style={{ fontSize: isMobile ? '9px' : '10px', color: freeSlots === 1 ? '#F1DEC0' : '#7AE1A5' }}>{freeSlots === 1 ? 'Última vaga' : `${freeSlots} vaga(s)`}</span> : null}
+                            {isFull ? <span style={{ fontSize: isMobile ? '9px' : '10px', color: '#E7B1B1' }}>Lotado</span> : null}
+                            {hasAppointment && !isFull ? <span style={{ fontSize: isMobile ? '9px' : '10px', color: '#7AE1A5' }}>Paciente</span> : null}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : (
+                <div style={{ display: 'grid', gap: '10px' }}>
+                  <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
+                    A recepção vê apenas as datas com vaga disponível.
+                  </p>
+                  {visibleMonthGrid.length === 0 ? (
+                    <p style={{ margin: 0, color: '#E7B1B1', lineHeight: 1.7 }}>
+                      Nenhuma data livre encontrada neste mês.
+                    </p>
+                  ) : (
+                    <div style={{ display: 'grid', gap: '10px' }}>
+                      {visibleMonthGrid.map((date) => {
+                        const dateString = date.toISOString().slice(0, 10);
+                        const freeSlots = (freeTimeSlotsByDate[dateString] || []).length;
+                        const isSelected = selectedCalendarDate === dateString;
+
+                        return (
+                          <button key={dateString} type="button" onClick={() => setSelectedCalendarDate(dateString)} style={{ textAlign: 'left', minHeight: '72px', padding: '12px 14px', borderRadius: '18px', border: isSelected ? '1px solid #C9A96E' : '1px solid rgba(201,169,110,0.18)', background: isSelected ? 'rgba(201,169,110,0.16)' : 'rgba(23,23,23,0.86)', color: '#F5F0E8', cursor: 'pointer', display: 'grid', gap: '6px' }}>
+                            <strong style={{ fontSize: '14px' }}>{formatDateLabel(dateString)}</strong>
+                            <span style={{ fontSize: '12px', color: freeSlots === 1 ? '#F1DEC0' : '#9BE6BA' }}>
+                              {freeSlots === 1 ? 'Última vaga disponível' : `${freeSlots} horários livres`}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div style={{ marginTop: '18px', display: 'grid', gap: '12px' }}>
                 <CalendarLegend />
-                {!isAdmin ? <div style={{ color: 'rgba(245,240,232,0.58)', fontSize: '13px' }}>Somente a Dra pode liberar ou bloquear datas.</div> : null}
+                {!isAdmin ? <div style={{ color: 'rgba(245,240,232,0.58)', fontSize: '13px' }}>Somente a Dra pode liberar ou bloquear datas e horários.</div> : null}
               </div>
             </div>
 
             <div style={{ display: 'grid', gap: '18px' }}>
               <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Datas liberadas</strong>
-                {upcomingHighlights.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Ainda não existem datas abertas para atendimento.</p> : <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>{upcomingHighlights.map((date) => <span key={date} style={{ padding: '10px 12px', borderRadius: '999px', background: 'rgba(201,169,110,0.12)', border: '1px solid rgba(201,169,110,0.24)', color: '#F1DEC0', fontSize: '13px' }}>{formatDateLabel(date)}</span>)}</div>}
-              </div>
-
-              <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Novo agendamento</strong>
+                <p style={{ margin: '0 0 14px', color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
+                  A recepção só enxerga dias e horários realmente livres.
+                </p>
+                {appointmentForm.date ? (
+                  <div style={{ display: 'grid', gap: '10px', marginBottom: '14px', padding: '14px', borderRadius: '18px', background: 'rgba(201,169,110,0.08)', border: '1px solid rgba(201,169,110,0.18)' }}>
+                    <strong style={{ fontSize: '14px', color: '#F1DEC0' }}>Resumo da data escolhida</strong>
+                    <div style={{ color: 'rgba(245,240,232,0.78)', fontSize: '13px' }}>{formatDateLabel(appointmentForm.date)}</div>
+                    <div style={{ color: (appointmentTimeOptions.length === 1) ? '#F1DEC0' : 'rgba(245,240,232,0.72)', fontSize: '13px' }}>
+                      {appointmentTimeOptions.length === 1 ? `Última vaga disponível: ${appointmentTimeOptions[0]}` : `${appointmentTimeOptions.length} horários livres nesta data`}
+                    </div>
+                  </div>
+                ) : null}
                 <div style={{ display: 'grid', gap: '14px' }}>
                   <Field label="Nome completo do paciente" value={appointmentForm.fullName} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, fullName: value }))} />
                   <Field label="Endereço" value={appointmentForm.address} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, address: value }))} />
                   <Field label="CPF" value={appointmentForm.cpf} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, cpf: formatCpf(value) }))} />
                   <Field label="Procedimento (opcional)" value={appointmentForm.procedureName} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, procedureName: value }))} />
-                  <SelectField label="Data liberada" value={appointmentForm.date} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, date: value }))} options={[{ value: '', label: 'Selecione uma data' }, ...draft.admin.availableDates.map((date) => ({ value: date, label: formatDateLabel(date) }))]} />
+                  <SelectField label="Data liberada" value={appointmentForm.date} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, date: value, time: '' }))} options={[{ value: '', label: 'Selecione uma data' }, ...receptionistAvailableDates.map((date) => ({ value: date, label: formatDateLabel(date) }))]} />
                   <Field label="Observações internas" value={appointmentForm.notes} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, notes: value }))} multiline />
-                  <ActionButton onClick={handleAddAppointment} variant="primary">Adicionar agendamento</ActionButton>
+                  <SelectField label="Horário livre" value={appointmentForm.time} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, time: value }))} options={[{ value: '', label: appointmentForm.date ? (appointmentTimeOptions.length === 1 ? 'Horário preenchido automaticamente' : 'Selecione um horário') : 'Escolha a data primeiro' }, ...appointmentTimeOptions.map((time) => ({ value: time, label: time }))]} />
+                  <ActionButton onClick={handleAddAppointment} variant="primary" stretch={isMobile}>Adicionar agendamento</ActionButton>
                 </div>
+                {receptionistAvailableDates.length === 0 ? (
+                  <p style={{ margin: '14px 0 0', color: '#E7B1B1', lineHeight: 1.7 }}>
+                    Nenhum dia está liberado com horário disponível no momento.
+                  </p>
+                ) : null}
+              </div>
+
+              <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Próximas vagas</strong>
+                <p style={{ margin: '0 0 14px', color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
+                  Uma leitura rápida para a recepção bater o olho e responder o paciente.
+                </p>
+                {nextSlotsPreview.length === 0 ? (
+                  <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Ainda não existem datas abertas para atendimento.</p>
+                ) : (
+                  <div style={{ display: 'grid', gap: '10px' }}>
+                    {nextSlotsPreview.map((item) => (
+                      <button key={item.date} type="button" onClick={() => prepareQuickAppointment(item.date)} style={{ textAlign: 'left', padding: '14px', borderRadius: '18px', background: 'rgba(201,169,110,0.12)', border: '1px solid rgba(201,169,110,0.24)', color: '#F1DEC0', cursor: 'pointer' }}>
+                        <strong style={{ display: 'block', marginBottom: '6px', fontSize: '14px' }}>{formatDateLabel(item.date)}</strong>
+                        <span style={{ display: 'block', color: item.count === 1 ? '#F1DEC0' : 'rgba(245,240,232,0.72)', fontSize: '12px', marginBottom: '8px' }}>
+                          {item.count === 1 ? 'Última vaga do dia' : `${item.count} horários livres`}
+                        </span>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          {item.times.map((time) => (
+                            <span key={time} style={{ padding: '6px 10px', borderRadius: '999px', background: 'rgba(255,255,255,0.08)', color: '#F5F0E8', fontSize: '12px' }}>{time}</span>
+                          ))}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Datas liberadas</strong>
+                {upcomingHighlights.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Ainda não existem datas abertas para atendimento.</p> : <div style={{ display: 'grid', gap: '10px' }}>{upcomingHighlights.map((date) => { const freeSlotsCount = (freeTimeSlotsByDate[date] || []).length; return <div key={date} style={{ padding: '12px 14px', borderRadius: '18px', background: 'rgba(201,169,110,0.12)', border: '1px solid rgba(201,169,110,0.24)', color: '#F1DEC0' }}><strong style={{ display: 'block', marginBottom: '4px', fontSize: '14px' }}>{formatDateLabel(date)}</strong><span style={{ fontSize: '12px', color: freeSlotsCount === 1 ? '#F1DEC0' : 'rgba(245,240,232,0.72)' }}>{freeSlotsCount === 1 ? 'Última vaga disponível' : `${freeSlotsCount} horário(s) livre(s)`}</span></div>; })}</div>}
+              </div>
+
+              <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Horários do dia</strong>
+                <p style={{ margin: '0 0 14px', color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
+                  {selectedCalendarDate ? formatDateLabel(selectedCalendarDate) : 'Selecione um dia no calendário para ver ou editar os horários.'}
+                </p>
+                {selectedCalendarDate ? (
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
+                    <span style={{ borderRadius: '999px', padding: '8px 12px', background: 'rgba(255,255,255,0.05)', fontSize: '12px' }}>{selectedDateSlots.length} horário(s)</span>
+                    <span style={{ borderRadius: '999px', padding: '8px 12px', background: 'rgba(91,196,142,0.12)', color: '#9BE6BA', fontSize: '12px' }}>{selectedDateFreeSlots.length} livre(s)</span>
+                    <span style={{ borderRadius: '999px', padding: '8px 12px', background: 'rgba(231,177,177,0.12)', color: '#E7B1B1', fontSize: '12px' }}>{selectedDateOccupiedSlots.length} ocupado(s)</span>
+                    {selectedDateFreeSlots.length === 1 ? <span style={{ borderRadius: '999px', padding: '8px 12px', background: 'rgba(201,169,110,0.16)', color: '#F1DEC0', fontSize: '12px' }}>Última vaga</span> : null}
+                    {selectedDateIsFull ? <span style={{ borderRadius: '999px', padding: '8px 12px', background: 'rgba(231,177,177,0.12)', color: '#E7B1B1', fontSize: '12px' }}>Dia lotado</span> : null}
+                  </div>
+                ) : null}
+                {selectedCalendarDate ? (
+                  <>
+                    {isAdmin ? (
+                      <div style={{ display: 'grid', gap: '12px' }}>
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                          <ActionButton onClick={() => toggleAvailableDate(selectedCalendarDate)} variant={draft.admin.availableDates.includes(selectedCalendarDate) ? 'danger' : 'primary'} stretch={isMobile} style={compactButtonStyle}>
+                            {draft.admin.availableDates.includes(selectedCalendarDate) ? 'Bloquear dia' : 'Liberar dia'}
+                          </ActionButton>
+                          {['08:00', '09:00', '10:00', '14:00', '15:00', '16:00'].map((time) => (
+                            <ActionButton key={time} onClick={() => addTimeSlotToDate(selectedCalendarDate, time)}>{time}</ActionButton>
+                          ))}
+                        </div>
+                        <Field label="Novo horário" type="time" value={slotEditor.time} onChange={(value) => setSlotEditor((previous) => ({ ...previous, time: value }))} />
+                        <ActionButton onClick={() => addTimeSlotToDate(selectedCalendarDate, slotEditor.time)} variant="primary" stretch={isMobile}>Adicionar horário</ActionButton>
+                      </div>
+                    ) : null}
+
+                    <div style={{ display: 'grid', gap: '10px', marginTop: '14px' }}>
+                      {(selectedDateSlots.length === 0) ? (
+                        <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)' }}>
+                          Nenhum horário cadastrado para este dia.
+                        </p>
+                      ) : (
+                        selectedDateSlots.map((time) => (
+                          <div key={time} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <div>
+                              <strong>{time}</strong>
+                              <div style={{ color: 'rgba(245,240,232,0.62)', fontSize: '13px' }}>
+                                {(selectedDateFreeSlots || []).includes(time) ? 'Horário livre' : 'Horário ocupado'}
+                              </div>
+                            </div>
+                            {isAdmin ? <ActionButton variant="danger" onClick={() => removeTimeSlotFromDate(selectedCalendarDate, time)}>Remover</ActionButton> : null}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </>
+                ) : null}
               </div>
             </div>
           </div>
 
           <div>
             <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Pacientes cadastrados</strong>
-            {appointmentsByDate.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Nenhum agendamento cadastrado ainda.</p> : <div style={{ display: 'grid', gap: '14px' }}>{appointmentsByDate.map((appointment) => <div key={appointment.id} style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '20px', padding: '18px', border: '1px solid rgba(255,255,255,0.05)' }}><div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '14px' }}><div><strong style={{ display: 'block', fontSize: '18px' }}>{appointment.fullName}</strong><span style={{ color: '#C9A96E', fontSize: '13px' }}>{formatDateLabel(appointment.date)}</span></div><div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}><select value={appointment.status} onChange={(event) => updateAppointment(appointment.id, 'status', event.target.value)} style={{ ...baseInputStyle(), width: 'auto', padding: '10px 12px' }}><option value="agendado">Agendado</option><option value="confirmado">Confirmado</option><option value="concluido">Concluído</option><option value="cancelado">Cancelado</option></select><ActionButton variant="danger" onClick={() => removeAppointment(appointment.id)}>Excluir</ActionButton></div></div><div style={{ display: 'grid', gap: '8px', color: 'rgba(245,240,232,0.76)', lineHeight: 1.7 }}><div><strong>CPF:</strong> {appointment.cpf}</div><div><strong>Endereço:</strong> {appointment.address}</div><div><strong>Procedimento:</strong> {appointment.procedureName || '-'}</div><div><strong>Observações:</strong> {appointment.notes || '-'}</div><div><strong>Criado em:</strong> {appointment.createdAt ? new Date(appointment.createdAt).toLocaleString('pt-BR') : '-'}</div></div></div>)}</div>}
+            {appointmentsByDate.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Nenhum agendamento cadastrado ainda.</p> : <div style={{ display: 'grid', gap: '14px' }}>{appointmentsByDate.map((appointment) => <div key={appointment.id} style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '20px', padding: '18px', border: '1px solid rgba(255,255,255,0.05)' }}><div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '14px' }}><div><strong style={{ display: 'block', fontSize: '18px' }}>{appointment.fullName}</strong><span style={{ color: '#C9A96E', fontSize: '13px' }}>{formatDateLabel(appointment.date)}{appointment.time ? ` as ${appointment.time}` : ''}</span></div><div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}><SourcePill source={appointment.source} /><select value={appointment.status} onChange={(event) => updateAppointment(appointment.id, 'status', event.target.value)} style={{ ...baseInputStyle(), width: 'auto', padding: '10px 12px' }}><option value="agendado">Agendado</option><option value="confirmado">Confirmado</option><option value="concluido">Concluído</option><option value="cancelado">Cancelado</option></select><ActionButton variant="danger" onClick={() => removeAppointment(appointment.id)}>Excluir</ActionButton></div></div><div style={{ display: 'grid', gap: '8px', color: 'rgba(245,240,232,0.76)', lineHeight: 1.7 }}><div><strong>Horário:</strong> {appointment.time || '-'}</div><div><strong>CPF:</strong> {appointment.cpf}</div><div><strong>Endereço:</strong> {appointment.address}</div><div><strong>Procedimento:</strong> {appointment.procedureName || '-'}</div><div><strong>Observações:</strong> {appointment.notes || '-'}</div><div><strong>Criado em:</strong> {appointment.createdAt ? new Date(appointment.createdAt).toLocaleString('pt-BR') : '-'}</div></div></div>)}</div>}
           </div>
         </SectionCard>
 
-        <SectionCard eyebrow="Segurança" title="Meu acesso" description="Cada pessoa entra com seu próprio usuário. A senha pode ser alterada sem mexer no restante do sistema.">
-          <Row>
+        <SectionCard eyebrow="Segurança" title="Meu acesso" description="Cada pessoa entra com seu próprio usuário. A senha pode ser alterada sem mexer no restante do sistema." style={{ padding: sectionPadding }}>
+          <Row minWidth={isMobile ? 180 : 220}>
             <Field label="Senha atual" type="password" value={passwordForm.currentPassword} onChange={(value) => setPasswordForm((previous) => ({ ...previous, currentPassword: value }))} />
             <Field label="Nova senha" type="password" value={passwordForm.newPassword} onChange={(value) => setPasswordForm((previous) => ({ ...previous, newPassword: value }))} />
             <Field label="Confirmar nova senha" type="password" value={passwordForm.confirmPassword} onChange={(value) => setPasswordForm((previous) => ({ ...previous, confirmPassword: value }))} />
           </Row>
-          <ActionButton onClick={handleChangePassword} variant="primary" disabled={busyKey === 'password'}>{busyKey === 'password' ? 'Atualizando...' : 'Atualizar senha'}</ActionButton>
+          <ActionButton onClick={handleChangePassword} variant="primary" disabled={busyKey === 'password'} stretch={isMobile}>{busyKey === 'password' ? 'Atualizando...' : 'Atualizar senha'}</ActionButton>
         </SectionCard>
 
-        <SectionCard eyebrow="Controle e rastreio" title="Backup e auditoria" description="Aqui fica a camada mais segura para demo e operacao controlada: exportação da base e histórico das últimas ações do painel.">
+        <SectionCard eyebrow="Controle e rastreio" title="Backup e auditoria" description="Aqui fica a camada mais segura para demo e operação controlada: exportação da base e histórico das últimas ações do painel.">
           {isAdmin ? (
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <ActionButton onClick={handleBackupDownload} variant="primary" disabled={busyKey === 'backup'}>
@@ -739,6 +1241,78 @@ export default function AdminPanel() {
             )}
           </div>
         </SectionCard>
+
+        {isAdmin ? (
+          <SectionCard eyebrow="WhatsApp" title="Webhook e automação" description="Esta área mostra o status da integração, permite simular mensagens e enviar um teste real quando as credenciais estiverem configuradas.">
+            <Row>
+              <StatCard label="Webhook" value={whatsAppStatus?.verifyTokenConfigured ? 'OK' : 'Pendente'} tone={whatsAppStatus?.verifyTokenConfigured ? 'green' : 'white'} />
+              <StatCard label="Token API" value={whatsAppStatus?.accessTokenConfigured ? 'OK' : 'Pendente'} tone={whatsAppStatus?.accessTokenConfigured ? 'green' : 'white'} />
+              <StatCard label="Phone ID" value={whatsAppStatus?.phoneNumberIdConfigured ? 'OK' : 'Pendente'} tone={whatsAppStatus?.phoneNumberIdConfigured ? 'green' : 'white'} />
+              <StatCard label="Ativo" value={whatsAppStatus?.configured ? 'Sim' : 'Não'} tone={whatsAppStatus?.configured ? 'green' : 'white'} />
+              <StatCard label="Conversas abertas" value={whatsAppStatus?.activeConversations ?? 0} tone="white" />
+            </Row>
+
+            <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <strong style={{ display: 'block', marginBottom: '12px', fontSize: '18px' }}>Webhook para Meta</strong>
+              <Field label="Callback URL" value={whatsAppStatus?.callbackUrl || ''} onChange={() => {}} disabled />
+              <Field label="Versão Graph" value={whatsAppStatus?.graphVersion || ''} onChange={() => {}} disabled />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '18px' }}>
+              <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Simular mensagem recebida</strong>
+                <div style={{ display: 'grid', gap: '14px' }}>
+                  <Field label="Telefone" value={whatsAppSimulationForm.from} onChange={(value) => setWhatsAppSimulationForm((previous) => ({ ...previous, from: value }))} />
+                  <Field label="Nome do contato" value={whatsAppSimulationForm.profileName} onChange={(value) => setWhatsAppSimulationForm((previous) => ({ ...previous, profileName: value }))} />
+                  <Field label="Mensagem" value={whatsAppSimulationForm.text} onChange={(value) => setWhatsAppSimulationForm((previous) => ({ ...previous, text: value }))} multiline />
+                  <ActionButton onClick={handleSimulateWhatsApp} variant="primary" disabled={busyKey === 'whatsapp-simulate'}>
+                    {busyKey === 'whatsapp-simulate' ? 'Processando...' : 'Simular WhatsApp'}
+                  </ActionButton>
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Enviar teste real</strong>
+                <div style={{ display: 'grid', gap: '14px' }}>
+                  <Field label="Telefone destino" value={whatsAppOutboundForm.to} onChange={(value) => setWhatsAppOutboundForm((previous) => ({ ...previous, to: value }))} />
+                  <Field label="Mensagem de teste" value={whatsAppOutboundForm.text} onChange={(value) => setWhatsAppOutboundForm((previous) => ({ ...previous, text: value }))} multiline />
+                  <ActionButton onClick={handleSendWhatsAppTest} variant="primary" disabled={busyKey === 'whatsapp-send' || !whatsAppStatus?.configured}>
+                    {busyKey === 'whatsapp-send' ? 'Enviando...' : 'Enviar teste pelo WhatsApp'}
+                  </ActionButton>
+                  {!whatsAppStatus?.configured ? (
+                    <p style={{ margin: 0, color: 'rgba(245,240,232,0.58)', lineHeight: 1.7 }}>
+                      Faltam credenciais no ambiente para envio real. A simulação local já está disponível.
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gap: '12px' }}>
+              <strong style={{ display: 'block', fontSize: '18px' }}>Eventos recentes</strong>
+              {whatsAppEvents.length === 0 ? (
+                <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
+                  Ainda não existem eventos do WhatsApp registrados.
+                </p>
+              ) : (
+                whatsAppEvents.map((item) => (
+                  <div key={item.id} style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '18px', padding: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                      <strong>{item.direction === 'inbound' ? 'Entrada' : 'Saída'} - {item.phoneNumber}</strong>
+                      <span style={{ color: '#C9A96E', fontSize: '13px' }}>{item.createdAt ? new Date(item.createdAt).toLocaleString('pt-BR') : '-'}</span>
+                    </div>
+                    <div style={{ color: 'rgba(245,240,232,0.76)', lineHeight: 1.7 }}>
+                      <div><strong>Status:</strong> {item.status}</div>
+                      <div><strong>Tipo:</strong> {item.messageType}</div>
+                      <div><strong>Mensagem:</strong> {item.messageText || '-'}</div>
+                      {item.appointmentId ? <div><strong>Agendamento:</strong> {item.appointmentId}</div> : null}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </SectionCard>
+        ) : null}
 
         {isAdmin ? (
           <SectionCard eyebrow="Equipe" title="Acessos do painel" description="A Dra pode criar perfis para as funcionárias, redefinir senhas e desativar acessos sem abrir o código.">
@@ -869,7 +1443,86 @@ export default function AdminPanel() {
             <p style={{ margin: 0, color: 'rgba(245,240,232,0.7)', lineHeight: 1.8 }}>A parte visual do site, os textos e as imagens ficam reservados para o acesso de administração da Dra.</p>
           </SectionCard>
         )}
+        </div>
       </div>
-    </div>
+
+      {systemCheckModalOpen && systemCheckReport ? (
+        <div
+          onClick={() => setSystemCheckModalOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.72)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: isMobile ? '16px' : '24px',
+            zIndex: 9999,
+          }}
+        >
+          <div
+            onClick={(event) => event.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: '560px',
+              background: 'linear-gradient(180deg, rgba(20,20,20,0.98) 0%, rgba(11,11,11,0.98) 100%)',
+              border: systemCheckReport.ok ? '1px solid rgba(91,196,142,0.28)' : '1px solid rgba(231,177,177,0.28)',
+              borderRadius: '28px',
+              padding: isMobile ? '22px' : '28px',
+              boxShadow: '0 28px 70px rgba(0,0,0,0.34)',
+              color: '#F5F0E8',
+              display: 'grid',
+              gap: '16px',
+            }}
+          >
+            <div>
+              <div style={{ color: systemCheckReport.ok ? '#9BE6BA' : '#F2C6C6', textTransform: 'uppercase', letterSpacing: '0.18em', fontSize: '11px', marginBottom: '10px' }}>
+                Diagnóstico do sistema
+              </div>
+              <h2 style={{ margin: '0 0 10px', fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontSize: isMobile ? '34px' : '42px' }}>
+                {systemCheckReport.ok ? 'Tudo funcionando perfeitamente' : 'Encontramos um problema'}
+              </h2>
+              <p style={{ margin: 0, color: 'rgba(245,240,232,0.72)', lineHeight: 1.8 }}>
+                {systemCheckReport.ok
+                  ? 'As verificações principais passaram. Se ainda existir algum comportamento estranho, envie esse resultado para o suporte com o horário do teste.'
+                  : 'Uma ou mais verificações falharam. Entre em contato com o suporte e envie esse resultado para acelerar o atendimento.'}
+              </p>
+            </div>
+
+            <div style={{ padding: '16px 18px', borderRadius: '18px', background: systemCheckReport.ok ? 'rgba(91,196,142,0.10)' : 'rgba(231,177,177,0.10)', border: systemCheckReport.ok ? '1px solid rgba(91,196,142,0.22)' : '1px solid rgba(231,177,177,0.22)' }}>
+              <div style={{ color: 'rgba(245,240,232,0.8)', lineHeight: 1.8 }}>
+                <div><strong>Resumo:</strong> {systemCheckReport.summary}</div>
+                <div><strong>Executado em:</strong> {systemCheckReport.finishedAt ? new Date(systemCheckReport.finishedAt).toLocaleString('pt-BR') : '-'}</div>
+                <div><strong>Perfil:</strong> {systemCheckReport.role === 'admin' ? 'Administração' : 'Recepção'}</div>
+              </div>
+            </div>
+
+            {!systemCheckReport.ok ? (
+              <div style={{ display: 'grid', gap: '10px' }}>
+                {systemCheckReport.checks.filter((item) => !item.ok).map((item) => (
+                  <div key={item.key} style={{ padding: '14px 16px', borderRadius: '18px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(231,177,177,0.18)' }}>
+                    <strong style={{ display: 'block', marginBottom: '6px', color: '#F2C6C6' }}>{item.label}</strong>
+                    <div style={{ color: 'rgba(245,240,232,0.74)', lineHeight: 1.7 }}>{item.error}</div>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <ActionButton onClick={() => setSystemCheckModalOpen(false)} variant="primary" stretch={isMobile}>Fechar</ActionButton>
+              <ActionButton onClick={handleRunSystemCheck} disabled={busyKey === 'system-check'} stretch={isMobile}>
+                {busyKey === 'system-check' ? 'Testando novamente...' : 'Testar novamente'}
+              </ActionButton>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }
+
+
+
+
+
+

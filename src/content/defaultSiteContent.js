@@ -237,6 +237,7 @@ export const defaultSiteContent = {
   },
   admin: {
     availableDates: [],
+    availableTimeSlots: {},
     appointments: [],
   },
 };

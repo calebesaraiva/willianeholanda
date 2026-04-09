@@ -30,6 +30,7 @@
     ]
   },
   "devDependencies": {
-    "ajv-keywords": "^3.5.2"
+    "ajv-keywords": "^3.5.2",
+    "playwright": "^1.59.1"
   }
 }
