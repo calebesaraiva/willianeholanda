@@ -77,11 +77,13 @@ function sortDates(values) {
   return [...new Set(values)].sort((a, b) => a.localeCompare(b));
 }
 
+const QUICK_SLOT_PRESETS = ['08:00', '09:00', '10:00', '14:00', '15:00', '16:00'];
+
 function baseInputStyle() {
   return {
     width: '100%',
     background: 'rgba(17,17,17,0.95)',
-    border: '1px solid rgba(201,169,110,0.18)',
+    border: '1px solid rgba(47,191,113,0.18)',
     color: '#F5F0E8',
     borderRadius: '14px',
     padding: '12px 14px',
@@ -106,7 +108,7 @@ function Field({ label, value, onChange, multiline = false, placeholder, type = 
           fontSize: '11px',
           letterSpacing: '0.18em',
           textTransform: 'uppercase',
-          color: '#C9A96E',
+          color: '#2FBF71',
           marginBottom: '8px',
         }}
       >
@@ -144,7 +146,7 @@ function SelectField({ label, value, onChange, options, disabled = false }) {
           fontSize: '11px',
           letterSpacing: '0.18em',
           textTransform: 'uppercase',
-          color: '#C9A96E',
+          color: '#2FBF71',
           marginBottom: '8px',
         }}
       >
@@ -174,7 +176,7 @@ function SectionCard({ title, eyebrow, description, children, style }) {
     <section
       style={{
         background: 'linear-gradient(180deg, rgba(20,20,20,0.98) 0%, rgba(11,11,11,0.98) 100%)',
-        border: '1px solid rgba(201,169,110,0.14)',
+        border: '1px solid rgba(47,191,113,0.14)',
         borderRadius: '28px',
         padding: '28px',
         marginBottom: '24px',
@@ -184,7 +186,7 @@ function SectionCard({ title, eyebrow, description, children, style }) {
     >
       <div style={{ marginBottom: '20px' }}>
         {eyebrow ? (
-          <div style={{ color: '#C9A96E', textTransform: 'uppercase', letterSpacing: '0.24em', fontSize: '11px', marginBottom: '8px' }}>
+          <div style={{ color: '#2FBF71', textTransform: 'uppercase', letterSpacing: '0.24em', fontSize: '11px', marginBottom: '8px' }}>
             {eyebrow}
           </div>
         ) : null}
@@ -206,10 +208,10 @@ function ActionButton({ children, onClick, variant = 'outline', type = 'button',
   const [isHovered, setIsHovered] = useState(false);
   const palette =
     variant === 'primary'
-      ? { background: '#C9A96E', color: '#151515', border: '1px solid #C9A96E', hoverBackground: '#D8B77C', hoverColor: '#111111', hoverBorder: '#D8B77C', hoverShadow: '0 14px 28px rgba(201,169,110,0.24)' }
+      ? { background: '#2FBF71', color: '#08130D', border: '1px solid #2FBF71', hoverBackground: '#58D68D', hoverColor: '#07110B', hoverBorder: '#58D68D', hoverShadow: '0 14px 28px rgba(47,191,113,0.24)' }
       : variant === 'danger'
         ? { background: 'transparent', color: '#E7B1B1', border: '1px solid rgba(231,177,177,0.35)', hoverBackground: 'rgba(231,177,177,0.08)', hoverColor: '#F2C6C6', hoverBorder: 'rgba(231,177,177,0.55)', hoverShadow: '0 12px 24px rgba(231,177,177,0.12)' }
-        : { background: 'transparent', color: '#F5F0E8', border: '1px solid rgba(255,255,255,0.12)', hoverBackground: 'rgba(255,255,255,0.08)', hoverColor: '#FFFFFF', hoverBorder: 'rgba(201,169,110,0.26)', hoverShadow: '0 12px 24px rgba(0,0,0,0.18)' };
+        : { background: 'transparent', color: '#F5F0E8', border: '1px solid rgba(255,255,255,0.12)', hoverBackground: 'rgba(255,255,255,0.08)', hoverColor: '#FFFFFF', hoverBorder: 'rgba(47,191,113,0.26)', hoverShadow: '0 12px 24px rgba(0,0,0,0.18)' };
 
   const hoverStyles = !disabled && isHovered
     ? {
@@ -274,7 +276,7 @@ function UploadField({ label, value, onChange }) {
       <div style={{ marginTop: '10px' }}>
         <input type="file" accept="image/*" onChange={handleUpload} />
       </div>
-      {value ? <div style={{ marginTop: '14px' }}><img src={value} alt={label} style={{ width: '100%', maxWidth: '260px', borderRadius: '16px', border: '1px solid rgba(201,169,110,0.22)', boxShadow: '0 18px 34px rgba(0,0,0,0.24)' }} /></div> : null}
+      {value ? <div style={{ marginTop: '14px' }}><img src={value} alt={label} style={{ width: '100%', maxWidth: '260px', borderRadius: '16px', border: '1px solid rgba(47,191,113,0.22)', boxShadow: '0 18px 34px rgba(0,0,0,0.24)' }} /></div> : null}
     </div>
   );
 }
@@ -286,7 +288,7 @@ function CalendarLegend() {
 function UserStatusPill({ active, role }) {
   return (
     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-      <span style={{ borderRadius: '999px', padding: '7px 11px', background: role === 'admin' ? 'rgba(201,169,110,0.16)' : 'rgba(255,255,255,0.06)', color: role === 'admin' ? '#E8D5A3' : '#F5F0E8', fontSize: '12px' }}>{role === 'admin' ? 'Admin' : 'Equipe'}</span>
+      <span style={{ borderRadius: '999px', padding: '7px 11px', background: role === 'admin' ? 'rgba(47,191,113,0.16)' : 'rgba(255,255,255,0.06)', color: role === 'admin' ? '#BFEFD4' : '#F5F0E8', fontSize: '12px' }}>{role === 'admin' ? 'Admin' : 'Equipe'}</span>
       <span style={{ borderRadius: '999px', padding: '7px 11px', background: active ? 'rgba(91,196,142,0.16)' : 'rgba(231,177,177,0.16)', color: active ? '#9BE6BA' : '#E7B1B1', fontSize: '12px' }}>{active ? 'Ativo' : 'Inativo'}</span>
     </div>
   );
@@ -295,7 +297,7 @@ function UserStatusPill({ active, role }) {
 function SourcePill({ source }) {
   const palette = source === 'whatsapp'
     ? { background: 'rgba(91,196,142,0.16)', color: '#9BE6BA' }
-    : { background: 'rgba(201,169,110,0.16)', color: '#E8D5A3' };
+    : { background: 'rgba(47,191,113,0.16)', color: '#BFEFD4' };
 
   return (
     <span style={{ borderRadius: '999px', padding: '7px 11px', background: palette.background, color: palette.color, fontSize: '12px' }}>
@@ -304,9 +306,49 @@ function SourcePill({ source }) {
   );
 }
 
+function formatWhatsAppEventStatus(status) {
+  const labels = {
+    received: 'Recebida',
+    sent: 'Enviada',
+    simulated: 'Simulada',
+    failed: 'Falha no envio',
+  };
+  return labels[status] || status || 'Registrada';
+}
+
+function formatWhatsAppEventText(event) {
+  const action = event?.details?.action || '';
+  const commandType = event?.details?.commandType || '';
+  const text = String(event?.messageText || '');
+
+  if (text === 'menu:dates') return 'Menu: ver datas disponíveis.';
+  if (text === 'menu:schedule') return 'Menu: iniciar agendamento.';
+  if (text === 'menu:help' || text === 'AJUDA') return 'Menu: ajuda.';
+
+  if (action === 'list_dates' || commandType === 'list_dates') {
+    return 'No momento, não há datas liberadas. Abra o menu para ver as opções disponíveis.';
+  }
+
+  if (action === 'help' || commandType === 'help') {
+    return [
+      'Olá! Eu sou o atendimento automático da Dra. Williane Holanda.',
+      'Abra o menu para escolher uma opção.',
+      'Você pode agendar, ver datas disponíveis ou pedir ajuda.',
+    ].join(' ');
+  }
+
+  return text
+    .replace(/�/g, '')
+    .replace(/\bn\?o\b/gi, 'não')
+    .replace(/\bop\?\?es\b/gi, 'opções')
+    .replace(/\bdispon\?veis\b/gi, 'disponíveis')
+    .replace(/\bautom\?tico\b/gi, 'automático')
+    .replace(/\bVoc\?\b/g, 'Você');
+}
+
 function StatCard({ label, value, tone = 'gold' }) {
   const tones = {
-    gold: { background: 'rgba(201,169,110,0.12)', border: 'rgba(201,169,110,0.22)', color: '#F1DEC0' },
+    gold: { background: 'rgba(47,191,113,0.12)', border: 'rgba(47,191,113,0.22)', color: '#DDF8E8' },
     green: { background: 'rgba(91,196,142,0.12)', border: 'rgba(91,196,142,0.22)', color: '#9BE6BA' },
     white: { background: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.12)', color: '#F5F0E8' },
   };
@@ -336,6 +378,7 @@ export default function AdminPanel() {
     whatsAppStatus,
     saveContent,
     resetContent,
+    refreshAll,
     saveSchedule,
     changeOwnPassword,
     createUser,
@@ -343,12 +386,13 @@ export default function AdminPanel() {
     downloadBackup,
     simulateWhatsAppInbound,
     sendWhatsAppTestMessage,
+    saveWhatsAppAutomationConfig,
     runSystemCheck,
   } = useSiteContent();
 
   const [draft, setDraft] = useState(() => cloneContent(siteContent));
   const [loginForm, setLoginForm] = useState({ username: 'williane', password: '' });
-  const [appointmentForm, setAppointmentForm] = useState({ fullName: '', address: '', cpf: '', date: '', time: '', procedureName: '', notes: '' });
+  const [appointmentForm, setAppointmentForm] = useState({ fullName: '', address: '', cpf: '', contactPhone: '', date: '', time: '', procedureName: '', notes: '' });
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [userForm, setUserForm] = useState({ displayName: '', username: '', password: '', role: 'staff' });
   const [slotEditor, setSlotEditor] = useState({ date: '', time: '' });
@@ -361,6 +405,8 @@ export default function AdminPanel() {
     to: '5599999999999',
     text: 'Mensagem de teste enviada pelo painel.',
   });
+  const [whatsAppConfigDraft, setWhatsAppConfigDraft] = useState(null);
+  const [whatsAppAccessTokenInput, setWhatsAppAccessTokenInput] = useState('');
   const [userEdits, setUserEdits] = useState({});
   const [calendarMonth, setCalendarMonth] = useState(() => new Date());
   const [selectedCalendarDate, setSelectedCalendarDate] = useState('');
@@ -371,7 +417,7 @@ export default function AdminPanel() {
   const [viewportWidth, setViewportWidth] = useState(() => window.innerWidth);
 
   const isAdmin = currentUser?.role === 'admin';
-  const dashboardUrl = useMemo(() => `${window.location.origin}/`, []);
+  const isReception = currentUser?.role === 'staff';
   const isMobile = viewportWidth < 768;
   const isTablet = viewportWidth < 1100;
   const sectionPadding = isMobile ? '20px' : '28px';
@@ -379,7 +425,6 @@ export default function AdminPanel() {
   const calendarCellMinHeight = isMobile ? '64px' : '78px';
   const calendarGap = isMobile ? '6px' : '8px';
   const compactButtonStyle = isMobile ? { width: '100%' } : null;
-  const adminScheduleOnly = isAdmin;
 
   useEffect(() => {
     setDraft(cloneContent(siteContent));
@@ -405,8 +450,16 @@ export default function AdminPanel() {
     }, {}));
   }, [users]);
 
+  useEffect(() => {
+    if (whatsAppStatus?.automationConfig) {
+      setWhatsAppConfigDraft(cloneContent(whatsAppStatus.automationConfig));
+      setWhatsAppAccessTokenInput('');
+    }
+  }, [whatsAppStatus?.automationConfig]);
+
   const flashNotice = (type, message) => setNotice({ type, message });
   const updateDraft = (path, value) => setDraft((previous) => setAtPath(previous, path, value));
+  const updateWhatsAppConfigDraft = (path, value) => setWhatsAppConfigDraft((previous) => setAtPath(previous || {}, path, value));
   const availableTimeSlots = draft.admin.availableTimeSlots || {};
   const addArrayItem = (path, item) => setDraft((previous) => {
     const target = path.reduce((accumulator, key) => accumulator[key], previous);
@@ -428,7 +481,9 @@ export default function AdminPanel() {
       if (exists) {
         delete nextAvailableTimeSlots[dateString];
       } else {
-        nextAvailableTimeSlots[dateString] = nextAvailableTimeSlots[dateString] || [];
+        nextAvailableTimeSlots[dateString] = (nextAvailableTimeSlots[dateString] || []).length > 0
+          ? nextAvailableTimeSlots[dateString]
+          : QUICK_SLOT_PRESETS;
       }
 
       return {
@@ -519,11 +574,11 @@ export default function AdminPanel() {
       return;
     }
     if (!draft.admin.availableDates.includes(appointmentForm.date)) {
-      flashNotice('error', 'A data escolhida não foi liberada pela Dra.');
+      flashNotice('error', 'A data escolhida não foi liberada pelo admin.');
       return;
     }
     if (!(draft.admin.availableTimeSlots?.[appointmentForm.date] || []).includes(appointmentForm.time)) {
-      flashNotice('error', 'O horário escolhido não está liberado pela Dra.');
+      flashNotice('error', 'O horário escolhido não está liberado pelo admin.');
       return;
     }
 
@@ -538,6 +593,7 @@ export default function AdminPanel() {
       fullName: appointmentForm.fullName.trim(),
       address: appointmentForm.address.trim(),
       cpf: formatCpf(normalizedCpf),
+      contactPhone: String(appointmentForm.contactPhone || '').replace(/\D/g, ''),
       date: appointmentForm.date,
       time: appointmentForm.time,
       status: 'agendado',
@@ -547,7 +603,7 @@ export default function AdminPanel() {
       updatedAt: new Date().toISOString(),
     });
 
-    setAppointmentForm({ fullName: '', address: '', cpf: '', date: appointmentForm.date, time: '', procedureName: '', notes: '' });
+    setAppointmentForm({ fullName: '', address: '', cpf: '', contactPhone: '', date: appointmentForm.date, time: '', procedureName: '', notes: '' });
     flashNotice('success', 'Agendamento adicionado ao painel. Agora é só salvar a agenda.');
   };
 
@@ -618,12 +674,28 @@ export default function AdminPanel() {
     () => appointmentsByDate.filter((item) => item.date === todayDate && item.status !== 'cancelado'),
     [appointmentsByDate, todayDate]
   );
-  const quickSlotPresets = ['08:00', '09:00', '10:00', '14:00', '15:00', '16:00'];
+  const quickSlotPresets = QUICK_SLOT_PRESETS;
   const visibleMonthGrid = useMemo(
     () => (isAdmin ? monthGrid : monthGrid.filter((date) => (freeTimeSlotsByDate[date.toISOString().slice(0, 10)] || []).length > 0)),
     [isAdmin, monthGrid, freeTimeSlotsByDate]
   );
   const quickActionDate = selectedCalendarDate || nextAvailableDate || todayDate;
+
+  const buildScheduleWithPresetSlots = (schedule, dateString) => {
+    const nextDates = schedule.availableDates.includes(dateString)
+      ? schedule.availableDates
+      : sortDates([...schedule.availableDates, dateString]);
+    const nextSlots = sortTimes([...(schedule.availableTimeSlots?.[dateString] || []), ...quickSlotPresets]);
+
+    return {
+      ...schedule,
+      availableDates: nextDates,
+      availableTimeSlots: {
+        ...(schedule.availableTimeSlots || {}),
+        [dateString]: nextSlots,
+      },
+    };
+  };
 
   const jumpToDate = (dateString) => {
     if (!dateString) return;
@@ -634,36 +706,72 @@ export default function AdminPanel() {
 
   const applyPresetSlotsToDate = (dateString) => {
     if (!isAdmin || !dateString) return;
-    setDraft((previous) => {
-      const nextSlots = sortTimes([...(previous.admin.availableTimeSlots?.[dateString] || []), ...quickSlotPresets]);
-      const nextDates = previous.admin.availableDates.includes(dateString)
-        ? previous.admin.availableDates
-        : sortDates([...previous.admin.availableDates, dateString]);
-
-      return {
-        ...previous,
-        admin: {
-          ...previous.admin,
-          availableDates: nextDates,
-          availableTimeSlots: {
-            ...(previous.admin.availableTimeSlots || {}),
-            [dateString]: nextSlots,
-          },
-        },
-      };
-    });
+    setDraft((previous) => ({
+      ...previous,
+      admin: buildScheduleWithPresetSlots(previous.admin, dateString),
+    }));
     jumpToDate(dateString);
     flashNotice('success', `Horários padrão aplicados em ${formatDateLabel(dateString)}.`);
   };
 
-  const prepareQuickAppointment = (dateString) => {
+  const handleOpenDateAndSave = async (dateString) => {
+    if (!isAdmin || !dateString) return;
+
+    const scheduleToSave = buildScheduleWithPresetSlots(draft.admin, dateString);
+    setBusyKey('open-date');
+    try {
+      await saveSchedule(scheduleToSave);
+      setDraft((previous) => ({ ...previous, admin: scheduleToSave }));
+      jumpToDate(dateString);
+      flashNotice('success', `${formatDateLabel(dateString)} liberado com horarios padrao e salvo para a recepcao.`);
+    } catch (error) {
+      flashNotice('error', error.message);
+    } finally {
+      setBusyKey('');
+    }
+  };
+
+  const prepareQuickAppointment = (dateString, timeValue = '') => {
     if (!dateString) return;
+    const firstFreeTime = timeValue || (freeTimeSlotsByDate[dateString] || [])[0] || '';
     jumpToDate(dateString);
     setAppointmentForm((previous) => ({
       ...previous,
       date: dateString,
-      time: '',
+      time: firstFreeTime,
     }));
+  };
+
+  useEffect(() => {
+    if (!isReception || !nextAvailableDate) return;
+    if (selectedCalendarDate && receptionistAvailableDates.includes(selectedCalendarDate)) return;
+    jumpToDate(nextAvailableDate);
+  }, [isReception, nextAvailableDate, receptionistAvailableDates, selectedCalendarDate]);
+
+  useEffect(() => {
+    if (!currentUser) return undefined;
+
+    const refreshSchedule = () => {
+      refreshAll().catch(() => {});
+    };
+    const handleFocus = () => refreshSchedule();
+
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [currentUser, refreshAll]);
+
+  const handleRefreshPanel = async () => {
+    setBusyKey('refresh');
+    try {
+      await refreshAll();
+      flashNotice('success', 'Agenda atualizada com os dados mais recentes.');
+    } catch (error) {
+      flashNotice('error', error.message);
+    } finally {
+      setBusyKey('');
+    }
   };
 
   const handleLogin = async (event) => {
@@ -681,15 +789,23 @@ export default function AdminPanel() {
   };
 
   const handleSaveSchedule = async () => {
-    if (datesWithoutSlots.length > 0) {
-      flashNotice('error', `Existe data liberada sem horário: ${datesWithoutSlots[0]}.`);
-      return;
-    }
+    const scheduleToSave = isAdmin && datesWithoutSlots.length > 0
+      ? {
+        ...draft.admin,
+        availableTimeSlots: draft.admin.availableDates.reduce((accumulator, date) => ({
+          ...accumulator,
+          [date]: (draft.admin.availableTimeSlots?.[date] || []).length > 0
+            ? draft.admin.availableTimeSlots[date]
+            : quickSlotPresets,
+        }), {}),
+      }
+      : draft.admin;
 
     setBusyKey('schedule');
     try {
-      await saveSchedule(draft.admin);
-      flashNotice('success', 'Agenda salva no servidor com sucesso.');
+      await saveSchedule(scheduleToSave);
+      setDraft((previous) => ({ ...previous, admin: scheduleToSave }));
+      flashNotice('success', datesWithoutSlots.length > 0 ? 'Agenda salva com horários padrão nas datas liberadas.' : 'Agenda salva no servidor com sucesso.');
     } catch (error) {
       flashNotice('error', error.message);
     } finally {
@@ -823,6 +939,54 @@ export default function AdminPanel() {
     }
   };
 
+  const handleSaveWhatsAppAutomation = async () => {
+    if (!whatsAppConfigDraft) return;
+    setBusyKey('whatsapp-config');
+    try {
+      const payload = cloneContent(whatsAppConfigDraft);
+      if (whatsAppAccessTokenInput.trim()) {
+        payload.integration = {
+          ...(payload.integration || {}),
+          accessToken: whatsAppAccessTokenInput.trim(),
+        };
+      } else if (payload.integration) {
+        delete payload.integration.accessToken;
+      }
+      await saveWhatsAppAutomationConfig(payload);
+      setWhatsAppAccessTokenInput('');
+      flashNotice('success', 'Configuração do WhatsApp salva no painel.');
+    } catch (error) {
+      flashNotice('error', error.message);
+    } finally {
+      setBusyKey('');
+    }
+  };
+
+  const handleAddWhatsAppReminder = () => {
+    setWhatsAppConfigDraft((previous) => ({
+      ...(previous || {}),
+      reminders: [
+        ...((previous || {}).reminders || []),
+        {
+          id: `reminder-${Date.now()}`,
+          name: 'Novo lembrete',
+          enabled: true,
+          offsetMinutes: 1440,
+          procedureType: 'todos',
+          status: 'todos',
+          template: 'Olá, {{nome}}. Lembrete do atendimento em {{data}} às {{hora}}.',
+        },
+      ],
+    }));
+  };
+
+  const handleRemoveWhatsAppReminder = (reminderIndex) => {
+    setWhatsAppConfigDraft((previous) => ({
+      ...(previous || {}),
+      reminders: ((previous || {}).reminders || []).filter((_, index) => index !== reminderIndex),
+    }));
+  };
+
   const handleRunSystemCheck = async () => {
     setBusyKey('system-check');
     try {
@@ -839,9 +1003,9 @@ export default function AdminPanel() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: 'radial-gradient(circle at top, rgba(201,169,110,0.12) 0%, rgba(10,10,10,1) 55%)', color: '#F5F0E8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: pagePadding }}>
+      <div style={{ minHeight: '100vh', background: 'radial-gradient(circle at top, rgba(47,191,113,0.12) 0%, rgba(10,10,10,1) 55%)', color: '#F5F0E8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: pagePadding }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ color: '#C9A96E', letterSpacing: '0.22em', textTransform: 'uppercase', fontSize: '11px', marginBottom: '10px' }}>Painel administrativo</div>
+          <div style={{ color: '#2FBF71', letterSpacing: '0.22em', textTransform: 'uppercase', fontSize: '11px', marginBottom: '10px' }}>Painel administrativo</div>
           <h1 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '40px', fontWeight: 400 }}>Carregando ambiente</h1>
         </div>
       </div>
@@ -850,21 +1014,21 @@ export default function AdminPanel() {
 
   if (!currentUser) {
     return (
-      <div style={{ minHeight: '100vh', background: 'radial-gradient(circle at top, rgba(201,169,110,0.12) 0%, rgba(10,10,10,1) 55%)', color: '#F5F0E8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: pagePadding }}>
-        <form onSubmit={handleLogin} style={{ width: '100%', maxWidth: '480px', background: 'linear-gradient(180deg, rgba(17,17,17,0.98) 0%, rgba(10,10,10,0.98) 100%)', border: '1px solid rgba(201,169,110,0.16)', borderRadius: '28px', padding: isMobile ? '24px' : '34px', boxShadow: '0 32px 70px rgba(0,0,0,0.34)' }}>
-          <div style={{ color: '#C9A96E', textTransform: 'uppercase', letterSpacing: '0.24em', fontSize: '11px', marginBottom: '12px' }}>Painel Admin</div>
-          <h1 style={{ margin: '0 0 12px', fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontSize: isMobile ? '34px' : '42px' }}>Entrar no painel</h1>
-          <p style={{ margin: '0 0 22px', color: 'rgba(245,240,232,0.66)', lineHeight: 1.8 }}>A Dra controla o conteúdo e libera as datas. A equipe usa o mesmo painel para cadastrar pacientes somente nas datas abertas.</p>
+      <div style={{ minHeight: '100vh', background: 'radial-gradient(circle at top, rgba(47,191,113,0.12) 0%, rgba(10,10,10,1) 55%)', color: '#F5F0E8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: pagePadding }}>
+        <form onSubmit={handleLogin} style={{ width: '100%', maxWidth: '480px', background: 'linear-gradient(180deg, rgba(17,17,17,0.98) 0%, rgba(10,10,10,0.98) 100%)', border: '1px solid rgba(47,191,113,0.16)', borderRadius: '28px', padding: isMobile ? '24px' : '34px', boxShadow: '0 32px 70px rgba(0,0,0,0.34)' }}>
+          <div style={{ color: '#2FBF71', textTransform: 'uppercase', letterSpacing: '0.24em', fontSize: '11px', marginBottom: '12px' }}>Painel Admin</div>
+          <h1 style={{ margin: '0 0 8px', fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontSize: isMobile ? '36px' : '44px' }}>Williane Holanda</h1>
+          <div style={{ margin: '0 0 12px', color: 'rgba(245,240,232,0.78)', fontSize: '18px' }}>Entrar no painel</div>
+          <p style={{ margin: '0 0 22px', color: 'rgba(245,240,232,0.66)', lineHeight: 1.8 }}>A Dra. Williane controla a agenda e libera as datas. A equipe usa o mesmo painel para cadastrar pacientes somente nos horários abertos.</p>
           <Row minWidth={isMobile ? 180 : 220}>
             <Field label="Usuário" value={loginForm.username} onChange={(value) => setLoginForm((previous) => ({ ...previous, username: value }))} />
             <Field label="Senha" type="password" value={loginForm.password} onChange={(value) => setLoginForm((previous) => ({ ...previous, password: value }))} />
           </Row>
           <div style={{ display: 'grid', gap: '10px', marginTop: '18px', color: 'rgba(245,240,232,0.6)', fontSize: '14px', lineHeight: 1.7 }}>
-            <div>Dra: <code>williane</code> / <code>Acesso@2025</code></div>
-            <div>Equipe: <code>secretaria</code> / <code>secretaria123</code></div>
+            <div>Use o acesso fornecido pela administração da clínica.</div>
           </div>
           <div style={{ marginTop: '18px' }}><ActionButton type="submit" variant="primary" disabled={busyKey === 'login'} stretch={isMobile}>{busyKey === 'login' ? 'Entrando...' : 'Entrar'}</ActionButton></div>
-          {notice ? <div style={{ marginTop: '16px', borderRadius: '16px', padding: '14px 16px', background: notice.type === 'error' ? 'rgba(231,177,177,0.1)' : 'rgba(201,169,110,0.1)', border: notice.type === 'error' ? '1px solid rgba(231,177,177,0.24)' : '1px solid rgba(201,169,110,0.24)' }}>{notice.message}</div> : null}
+          {notice ? <div style={{ marginTop: '16px', borderRadius: '16px', padding: '14px 16px', background: notice.type === 'error' ? 'rgba(231,177,177,0.1)' : 'rgba(47,191,113,0.1)', border: notice.type === 'error' ? '1px solid rgba(231,177,177,0.24)' : '1px solid rgba(47,191,113,0.24)' }}>{notice.message}</div> : null}
         </form>
       </div>
     );
@@ -872,46 +1036,152 @@ export default function AdminPanel() {
 
   return (
     <>
-      <div style={{ minHeight: '100vh', background: 'radial-gradient(circle at top, rgba(201,169,110,0.10) 0%, rgba(9,9,9,1) 58%)', color: '#F5F0E8', padding: pagePadding }}>
+      <div style={{ minHeight: '100vh', background: 'radial-gradient(circle at top, rgba(47,191,113,0.10) 0%, rgba(9,9,9,1) 58%)', color: '#F5F0E8', padding: pagePadding }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', flexDirection: isMobile ? 'column' : 'row', gap: '18px', flexWrap: 'wrap', marginBottom: '24px', padding: '20px 0' }}>
           <div>
-            <div style={{ color: '#C9A96E', textTransform: 'uppercase', letterSpacing: '0.22em', fontSize: '11px', marginBottom: '8px' }}>Painel Administrativo</div>
-            <h1 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: isMobile ? '38px' : '50px', fontWeight: 400 }}>Dra. Williane Holanda</h1>
+            <div style={{ color: '#2FBF71', textTransform: 'uppercase', letterSpacing: '0.22em', fontSize: '11px', marginBottom: '8px' }}>Painel Administrativo</div>
+            <h1 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: isMobile ? '38px' : '50px', fontWeight: 400 }}>Williane Holanda</h1>
             <p style={{ margin: '10px 0 0', color: 'rgba(245,240,232,0.64)' }}>Logada como <strong>{currentUser.displayName}</strong> ({isAdmin ? 'Admin' : 'Equipe'})</p>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(150px, max-content))', gap: '12px', width: isMobile ? '100%' : 'auto' }}>
-            <a href={dashboardUrl} target="_blank" rel="noreferrer" style={{ color: '#F5F0E8' }}><ActionButton>Ver site</ActionButton></a>
+            <ActionButton onClick={handleRefreshPanel} disabled={busyKey === 'refresh'} stretch={isMobile}>{busyKey === 'refresh' ? 'Atualizando...' : 'Atualizar agenda'}</ActionButton>
             <ActionButton onClick={handleSaveSchedule} variant="primary" disabled={busyKey === 'schedule'} stretch={isMobile}>{busyKey === 'schedule' ? 'Salvando agenda...' : 'Salvar agenda'}</ActionButton>
             <ActionButton onClick={logout} stretch={isMobile}>Sair</ActionButton>
           </div>
         </div>
 
-        {notice ? <div style={{ marginBottom: '20px', background: notice.type === 'error' ? 'rgba(231,177,177,0.1)' : 'rgba(201,169,110,0.1)', border: notice.type === 'error' ? '1px solid rgba(231,177,177,0.24)' : '1px solid rgba(201,169,110,0.24)', borderRadius: '16px', padding: '14px 16px' }}>{notice.message}</div> : null}
+        {notice ? <div style={{ marginBottom: '20px', background: notice.type === 'error' ? 'rgba(231,177,177,0.1)' : 'rgba(47,191,113,0.1)', border: notice.type === 'error' ? '1px solid rgba(231,177,177,0.24)' : '1px solid rgba(47,191,113,0.24)', borderRadius: '16px', padding: '14px 16px' }}>{notice.message}</div> : null}
 
-        <SectionCard eyebrow="Ações rápidas" title={adminScheduleOnly ? 'Agenda da Dra' : 'Atalhos do dia'} description={adminScheduleOnly ? 'Aqui a Dra libera os dias e os horários que ficarão disponíveis para a recepção e para o WhatsApp.' : 'Os botões abaixo deixam o uso mais direto no celular e no atendimento do dia a dia.'} style={{ padding: sectionPadding }}>
+        <SectionCard eyebrow="Ações rápidas" title={isAdmin ? 'Configurações da clínica' : 'Atendimento da recepção'} description={isAdmin ? 'Aqui o admin libera agenda, ajusta WhatsApp, automações e configurações do sistema.' : 'A recepção usa este painel apenas para agendar pacientes manualmente nos horários liberados.'} style={{ padding: sectionPadding }}>
           <Row minWidth={isMobile ? 180 : 240}>
             <QuickActionCard title="Agenda" description="Abra o dia certo e já deixe a agenda pronta para uso.">
               <ActionButton onClick={() => jumpToDate(todayDate)} stretch={isMobile} style={compactButtonStyle}>Ir para hoje</ActionButton>
               <ActionButton onClick={() => jumpToDate(nextAvailableDate)} disabled={!nextAvailableDate} stretch={isMobile} style={compactButtonStyle}>Próxima vaga</ActionButton>
+              {isAdmin ? <ActionButton onClick={() => handleOpenDateAndSave(quickActionDate)} variant="primary" disabled={busyKey === 'open-date'} stretch={isMobile} style={compactButtonStyle}>{busyKey === 'open-date' ? 'Abrindo...' : 'Abrir dia e salvar'}</ActionButton> : null}
               {isAdmin ? <ActionButton onClick={() => applyPresetSlotsToDate(quickActionDate)} variant="primary" stretch={isMobile} style={compactButtonStyle}>Aplicar horários padrão</ActionButton> : null}
               {isAdmin ? <ActionButton onClick={() => toggleAvailableDate(todayDate)} variant={draft.admin.availableDates.includes(todayDate) ? 'danger' : 'primary'} stretch={isMobile} style={compactButtonStyle}>{draft.admin.availableDates.includes(todayDate) ? 'Fechar hoje' : 'Liberar hoje'}</ActionButton> : null}
               {isAdmin ? <ActionButton onClick={handleSaveSchedule} disabled={busyKey === 'schedule'} stretch={isMobile} style={compactButtonStyle}>{busyKey === 'schedule' ? 'Salvando agenda...' : 'Salvar agenda'}</ActionButton> : null}
             </QuickActionCard>
-            {!adminScheduleOnly ? <QuickActionCard title="Atendimento" description="Comece um agendamento sem ficar procurando data disponível.">
+            {isReception ? <QuickActionCard title="Atendimento" description="Comece um agendamento sem ficar procurando data disponível.">
               <ActionButton onClick={() => prepareQuickAppointment(nextAvailableDate || todayDate)} variant="primary" disabled={!nextAvailableDate && !todayDate} stretch={isMobile} style={compactButtonStyle}>Novo agendamento</ActionButton>
               <ActionButton onClick={handleSaveSchedule} disabled={busyKey === 'schedule'} stretch={isMobile} style={compactButtonStyle}>Salvar agenda</ActionButton>
             </QuickActionCard> : null}
-            {!adminScheduleOnly ? <QuickActionCard title="Comunicação" description="Tenha os comandos mais usados à mão para testes e operação.">
+            {isAdmin ? <QuickActionCard title="Diagnóstico" description="Teste as partes principais antes de colocar o atendimento em produção.">
               <ActionButton onClick={handleRunSystemCheck} disabled={busyKey === 'system-check'} stretch={isMobile} style={compactButtonStyle}>{busyKey === 'system-check' ? 'Testando sistema...' : 'Testar todo o sistema'}</ActionButton>
-              {!isAdmin ? <ActionButton onClick={() => jumpToDate(nextAvailableDate)} disabled={!nextAvailableDate} stretch={isMobile} style={compactButtonStyle}>Ver próxima data livre</ActionButton> : null}
-              {!isAdmin ? <ActionButton onClick={logout} stretch={isMobile} style={compactButtonStyle}>Sair do painel</ActionButton> : null}
+              <ActionButton onClick={handleBackupDownload} disabled={busyKey === 'backup'} stretch={isMobile} style={compactButtonStyle}>{busyKey === 'backup' ? 'Gerando backup...' : 'Baixar backup'}</ActionButton>
+            </QuickActionCard> : null}
+            {isReception ? <QuickActionCard title="Acesso" description="A recepção fica só no agendamento manual.">
+              <ActionButton onClick={() => jumpToDate(nextAvailableDate)} disabled={!nextAvailableDate} stretch={isMobile} style={compactButtonStyle}>Ver próxima data livre</ActionButton>
+              <ActionButton onClick={logout} stretch={isMobile} style={compactButtonStyle}>Sair do painel</ActionButton>
             </QuickActionCard> : null}
           </Row>
         </SectionCard>
 
-        {!adminScheduleOnly && systemCheckReport ? (
+        {isAdmin && whatsAppConfigDraft ? (
+          <SectionCard eyebrow="WhatsApp" title="Webhook e automação" description="Configure o atendimento automático, os textos do bot e os lembretes enviados antes das consultas e cirurgias." style={{ padding: sectionPadding }}>
+            <Row minWidth={isMobile ? 180 : 240}>
+              <StatCard label="Integração" value={whatsAppStatus?.configured ? 'OK' : 'Pendente'} tone={whatsAppStatus?.configured ? 'green' : 'white'} />
+              <StatCard label="Token" value={whatsAppStatus?.accessTokenConfigured ? 'Salvo' : 'Vazio'} tone={whatsAppStatus?.accessTokenConfigured ? 'green' : 'white'} />
+              <StatCard label="Conversas" value={whatsAppStatus?.activeConversations ?? 0} tone="white" />
+            </Row>
+
+            <div style={{ padding: '16px 18px', borderRadius: '18px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(245,240,232,0.76)', lineHeight: 1.8 }}>
+              <div><strong>Callback URL:</strong> {whatsAppStatus?.callbackUrl || '-'}</div>
+              <div><strong>Variáveis disponíveis nos textos:</strong> {'{{nome}}, {{data}}, {{data_iso}}, {{hora}}, {{status}}, {{procedimento}}, {{observacoes}}, {{telefone}}'}</div>
+            </div>
+
+            <Row minWidth={isMobile ? 180 : 260}>
+              <Field label="URL pública do site" value={whatsAppConfigDraft.integration?.publicBaseUrl || ''} onChange={(value) => updateWhatsAppConfigDraft(['integration', 'publicBaseUrl'], value)} placeholder="https://seu-dominio-ou-ngrok" />
+              <Field label="Verify token do webhook" value={whatsAppConfigDraft.integration?.verifyToken || ''} onChange={(value) => updateWhatsAppConfigDraft(['integration', 'verifyToken'], value)} />
+              <Field label="Phone number ID" value={whatsAppConfigDraft.integration?.phoneNumberId || ''} onChange={(value) => updateWhatsAppConfigDraft(['integration', 'phoneNumberId'], value)} />
+              <Field label="Graph version" value={whatsAppConfigDraft.integration?.graphVersion || 'v23.0'} onChange={(value) => updateWhatsAppConfigDraft(['integration', 'graphVersion'], value)} />
+            </Row>
+            <Field
+              label={whatsAppStatus?.accessTokenConfigured ? 'Novo access token (deixe vazio para manter o atual)' : 'Access token'}
+              type="password"
+              value={whatsAppAccessTokenInput}
+              onChange={setWhatsAppAccessTokenInput}
+              placeholder={whatsAppStatus?.accessTokenConfigured ? 'Token já configurado' : 'Cole o token da Cloud API'}
+            />
+
+            <div>
+              <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Mensagens automáticas</strong>
+              <Row minWidth={isMobile ? 180 : 280}>
+                {Object.entries(whatsAppConfigDraft.messages || {}).map(([key, value]) => (
+                  <Field
+                    key={key}
+                    label={key}
+                    value={value}
+                    onChange={(nextValue) => updateWhatsAppConfigDraft(['messages', key], nextValue)}
+                    multiline
+                  />
+                ))}
+              </Row>
+            </div>
+
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '14px' }}>
+                <strong style={{ fontSize: '18px' }}>Lembretes antes do atendimento</strong>
+                <ActionButton onClick={handleAddWhatsAppReminder} variant="primary" stretch={isMobile}>Adicionar lembrete</ActionButton>
+              </div>
+              <div style={{ display: 'grid', gap: '14px' }}>
+                {(whatsAppConfigDraft.reminders || []).map((reminder, reminderIndex) => (
+                  <ItemCard key={reminder.id || reminderIndex} title={reminder.name || `Lembrete ${reminderIndex + 1}`} onRemove={() => handleRemoveWhatsAppReminder(reminderIndex)}>
+                    <Row minWidth={isMobile ? 180 : 220}>
+                      <Field label="Nome" value={reminder.name || ''} onChange={(value) => updateWhatsAppConfigDraft(['reminders', reminderIndex, 'name'], value)} />
+                      <Field label="Minutos antes" type="number" value={String(reminder.offsetMinutes || 1440)} onChange={(value) => updateWhatsAppConfigDraft(['reminders', reminderIndex, 'offsetMinutes'], Number(value))} />
+                      <SelectField label="Tipo" value={reminder.procedureType || 'todos'} onChange={(value) => updateWhatsAppConfigDraft(['reminders', reminderIndex, 'procedureType'], value)} options={[{ value: 'todos', label: 'Todos' }, { value: 'consulta', label: 'Consulta' }, { value: 'cirurgia', label: 'Cirurgia' }]} />
+                      <SelectField label="Status" value={reminder.status || 'todos'} onChange={(value) => updateWhatsAppConfigDraft(['reminders', reminderIndex, 'status'], value)} options={[{ value: 'todos', label: 'Todos ativos' }, { value: 'agendado', label: 'Agendado' }, { value: 'confirmado', label: 'Confirmado' }]} />
+                      <SelectField label="Ativo" value={reminder.enabled ? 'sim' : 'nao'} onChange={(value) => updateWhatsAppConfigDraft(['reminders', reminderIndex, 'enabled'], value === 'sim')} options={[{ value: 'sim', label: 'Sim' }, { value: 'nao', label: 'Não' }]} />
+                    </Row>
+                    <Field label="Texto enviado" value={reminder.template || ''} onChange={(value) => updateWhatsAppConfigDraft(['reminders', reminderIndex, 'template'], value)} multiline />
+                  </ItemCard>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Teste sem sair do painel</strong>
+              <Row minWidth={isMobile ? 180 : 240}>
+                <Field label="Telefone simulando paciente" value={whatsAppSimulationForm.from} onChange={(value) => setWhatsAppSimulationForm((previous) => ({ ...previous, from: value }))} />
+                <Field label="Nome no WhatsApp" value={whatsAppSimulationForm.profileName} onChange={(value) => setWhatsAppSimulationForm((previous) => ({ ...previous, profileName: value }))} />
+              </Row>
+              <Field label="Mensagem recebida" value={whatsAppSimulationForm.text} onChange={(value) => setWhatsAppSimulationForm((previous) => ({ ...previous, text: value }))} multiline />
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <ActionButton onClick={handleSimulateWhatsApp} disabled={busyKey === 'whatsapp-simulate'} stretch={isMobile}>{busyKey === 'whatsapp-simulate' ? 'Simulando...' : 'Simular entrada'}</ActionButton>
+                <ActionButton onClick={handleSaveWhatsAppAutomation} variant="primary" disabled={busyKey === 'whatsapp-config'} stretch={isMobile}>{busyKey === 'whatsapp-config' ? 'Salvando...' : 'Salvar automação'}</ActionButton>
+              </div>
+            </div>
+
+            <div>
+              <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Envio real de teste</strong>
+              <Row minWidth={isMobile ? 180 : 240}>
+                <Field label="Telefone" value={whatsAppOutboundForm.to} onChange={(value) => setWhatsAppOutboundForm((previous) => ({ ...previous, to: value }))} />
+                <Field label="Mensagem" value={whatsAppOutboundForm.text} onChange={(value) => setWhatsAppOutboundForm((previous) => ({ ...previous, text: value }))} multiline />
+              </Row>
+              <ActionButton onClick={handleSendWhatsAppTest} disabled={busyKey === 'whatsapp-send' || !whatsAppStatus?.configured} stretch={isMobile}>{busyKey === 'whatsapp-send' ? 'Enviando...' : 'Enviar teste real'}</ActionButton>
+            </div>
+
+            <div>
+              <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Últimos eventos</strong>
+              {whatsAppEvents.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)' }}>Nenhum evento registrado ainda.</p> : (
+                <div style={{ display: 'grid', gap: '10px' }}>
+                  {whatsAppEvents.slice(0, 8).map((event) => (
+                    <div key={event.id} style={{ padding: '12px 14px', borderRadius: '16px', background: 'rgba(23,23,23,0.92)', border: '1px solid rgba(255,255,255,0.05)', color: 'rgba(245,240,232,0.76)', lineHeight: 1.6 }}>
+                      <strong>{event.direction === 'inbound' ? 'Recebida' : 'Enviada'} - {formatWhatsAppEventStatus(event.status)}</strong>
+                      <div>{event.phoneNumber} {event.createdAt ? `- ${new Date(event.createdAt).toLocaleString('pt-BR')}` : ''}</div>
+                      <div style={{ color: 'rgba(245,240,232,0.62)' }}>{formatWhatsAppEventText(event)}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </SectionCard>
+        ) : null}
+
+        {isAdmin && systemCheckReport ? (
           <SectionCard eyebrow="Diagnóstico" title="Último teste do sistema" description="Esse relatório ajuda o suporte a entender rapidamente se o problema está no login, agenda, painel ou WhatsApp." style={{ padding: sectionPadding }}>
             <div style={{ display: 'grid', gap: '12px' }}>
               <div style={{ padding: '16px 18px', borderRadius: '18px', background: systemCheckReport.ok ? 'rgba(91,196,142,0.12)' : 'rgba(231,177,177,0.12)', border: systemCheckReport.ok ? '1px solid rgba(91,196,142,0.24)' : '1px solid rgba(231,177,177,0.24)' }}>
@@ -950,8 +1220,8 @@ export default function AdminPanel() {
           </SectionCard>
         ) : null}
 
-        {!adminScheduleOnly ? (
-          <SectionCard eyebrow="Visão geral" title="Painel executivo" description="Resumo rápido para a Dra acompanhar equipe, agenda e base de pacientes sem depender do código." style={{ padding: sectionPadding }}>
+        {isAdmin ? (
+          <SectionCard eyebrow="Visão geral" title="Painel executivo" description="Resumo rápido para a Dra. Williane acompanhar equipe, agenda e base de pacientes sem depender do código." style={{ padding: sectionPadding }}>
             <Row>
               <StatCard label="Usuários ativos" value={summary.activeUsers ?? 0} />
               <StatCard label="Datas liberadas" value={summary.releasedDates ?? 0} />
@@ -976,7 +1246,7 @@ export default function AdminPanel() {
                         <strong style={{ display: 'block' }}>{item.fullName}</strong>
                         <span style={{ color: 'rgba(245,240,232,0.62)', fontSize: '14px' }}>{item.procedureName || 'Procedimento a definir'}</span>
                       </div>
-                      <span style={{ color: '#C9A96E', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                      <span style={{ color: '#2FBF71', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                         {item.status}
                       </span>
                     </div>
@@ -987,7 +1257,7 @@ export default function AdminPanel() {
           </SectionCard>
         ) : null}
 
-        <SectionCard eyebrow="Fluxo real da clínica" title={adminScheduleOnly ? 'Agenda da Dra' : 'Agenda e agendamentos'} description={adminScheduleOnly ? 'Nesta área a Dra só precisa liberar os dias de atendimento e os horários que devem aparecer para a recepção e para o WhatsApp.' : 'A Dra libera os dias de atendimento. A equipe cadastra o paciente com nome completo, endereço e CPF, e só consegue trabalhar em datas liberadas.'} style={{ padding: sectionPadding }}>
+        <SectionCard eyebrow="Fluxo real da clínica" title={isAdmin ? 'Agenda da Dra. Williane' : 'Agendamento manual'} description={isAdmin ? 'Nesta área o admin libera os dias e horários que ficarão disponíveis para a recepção e para o WhatsApp.' : 'A recepção cadastra pacientes manualmente somente nas datas e horários já liberados pelo admin.'} style={{ padding: sectionPadding }}>
           <div style={{ display: 'grid', gridTemplateColumns: isTablet ? '1fr' : 'minmax(340px, 1.25fr) minmax(320px, 0.95fr)', gap: '20px' }}>
             <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '12px', flexWrap: 'wrap' }}>
@@ -1020,14 +1290,14 @@ export default function AdminPanel() {
                           ? '#F5F0E8'
                           : 'rgba(245,240,232,0.38)';
                       const dayBackground = isAvailable
-                        ? 'rgba(201,169,110,0.16)'
+                        ? 'rgba(47,191,113,0.16)'
                         : 'rgba(14,14,14,0.65)';
 
                       return (
-                        <button key={dateString} type="button" onClick={() => setSelectedCalendarDate(dateString)} style={{ minHeight: calendarCellMinHeight, padding: isMobile ? '6px' : '8px', borderRadius: '16px', border: isSelected ? '1px solid #C9A96E' : hasAppointment ? '1px solid rgba(91,196,142,0.7)' : '1px solid rgba(255,255,255,0.06)', background: dayBackground, color: dayTextColor, cursor: 'pointer', opacity: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <button key={dateString} type="button" onClick={() => setSelectedCalendarDate(dateString)} style={{ minHeight: calendarCellMinHeight, padding: isMobile ? '6px' : '8px', borderRadius: '16px', border: isSelected ? '1px solid #2FBF71' : hasAppointment ? '1px solid rgba(91,196,142,0.7)' : '1px solid rgba(255,255,255,0.06)', background: dayBackground, color: dayTextColor, cursor: 'pointer', opacity: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                           <span style={{ fontSize: isMobile ? '12px' : '13px' }}>{date.getDate()}</span>
                           <div style={{ display: 'grid', gap: '2px' }}>
-                            {hasFreeSlot ? <span style={{ fontSize: isMobile ? '9px' : '10px', color: freeSlots === 1 ? '#F1DEC0' : '#7AE1A5' }}>{freeSlots === 1 ? 'Última vaga' : `${freeSlots} vaga(s)`}</span> : null}
+                            {hasFreeSlot ? <span style={{ fontSize: isMobile ? '9px' : '10px', color: freeSlots === 1 ? '#DDF8E8' : '#7AE1A5' }}>{freeSlots === 1 ? 'Última vaga' : `${freeSlots} vaga(s)`}</span> : null}
                             {isFull ? <span style={{ fontSize: isMobile ? '9px' : '10px', color: '#E7B1B1' }}>Lotado</span> : null}
                             {hasAppointment && !isFull ? <span style={{ fontSize: isMobile ? '9px' : '10px', color: '#7AE1A5' }}>Paciente</span> : null}
                           </div>
@@ -1053,9 +1323,9 @@ export default function AdminPanel() {
                         const isSelected = selectedCalendarDate === dateString;
 
                         return (
-                          <button key={dateString} type="button" onClick={() => setSelectedCalendarDate(dateString)} style={{ textAlign: 'left', minHeight: '72px', padding: '12px 14px', borderRadius: '18px', border: isSelected ? '1px solid #C9A96E' : '1px solid rgba(201,169,110,0.18)', background: isSelected ? 'rgba(201,169,110,0.16)' : 'rgba(23,23,23,0.86)', color: '#F5F0E8', cursor: 'pointer', display: 'grid', gap: '6px' }}>
+                          <button key={dateString} type="button" onClick={() => setSelectedCalendarDate(dateString)} style={{ textAlign: 'left', minHeight: '72px', padding: '12px 14px', borderRadius: '18px', border: isSelected ? '1px solid #2FBF71' : '1px solid rgba(47,191,113,0.18)', background: isSelected ? 'rgba(47,191,113,0.16)' : 'rgba(23,23,23,0.86)', color: '#F5F0E8', cursor: 'pointer', display: 'grid', gap: '6px' }}>
                             <strong style={{ fontSize: '14px' }}>{formatDateLabel(dateString)}</strong>
-                            <span style={{ fontSize: '12px', color: freeSlots === 1 ? '#F1DEC0' : '#9BE6BA' }}>
+                            <span style={{ fontSize: '12px', color: freeSlots === 1 ? '#DDF8E8' : '#9BE6BA' }}>
                               {freeSlots === 1 ? 'Última vaga disponível' : `${freeSlots} horários livres`}
                             </span>
                           </button>
@@ -1068,22 +1338,22 @@ export default function AdminPanel() {
 
               <div style={{ marginTop: '18px', display: 'grid', gap: '12px' }}>
                 <CalendarLegend />
-                {!isAdmin ? <div style={{ color: 'rgba(245,240,232,0.58)', fontSize: '13px' }}>Somente a Dra pode liberar ou bloquear datas e horários.</div> : null}
+                {!isAdmin ? <div style={{ color: 'rgba(245,240,232,0.58)', fontSize: '13px' }}>Somente o admin pode liberar ou bloquear datas e horários.</div> : null}
               </div>
             </div>
 
             <div style={{ display: 'grid', gap: '18px' }}>
-              {!adminScheduleOnly ? (
+              {isReception ? (
                 <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
                   <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Novo agendamento</strong>
                   <p style={{ margin: '0 0 14px', color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
                     A recepção só enxerga dias e horários realmente livres.
                   </p>
                   {appointmentForm.date ? (
-                    <div style={{ display: 'grid', gap: '10px', marginBottom: '14px', padding: '14px', borderRadius: '18px', background: 'rgba(201,169,110,0.08)', border: '1px solid rgba(201,169,110,0.18)' }}>
-                      <strong style={{ fontSize: '14px', color: '#F1DEC0' }}>Resumo da data escolhida</strong>
+                    <div style={{ display: 'grid', gap: '10px', marginBottom: '14px', padding: '14px', borderRadius: '18px', background: 'rgba(47,191,113,0.08)', border: '1px solid rgba(47,191,113,0.18)' }}>
+                      <strong style={{ fontSize: '14px', color: '#DDF8E8' }}>Resumo da data escolhida</strong>
                       <div style={{ color: 'rgba(245,240,232,0.78)', fontSize: '13px' }}>{formatDateLabel(appointmentForm.date)}</div>
-                      <div style={{ color: (appointmentTimeOptions.length === 1) ? '#F1DEC0' : 'rgba(245,240,232,0.72)', fontSize: '13px' }}>
+                      <div style={{ color: (appointmentTimeOptions.length === 1) ? '#DDF8E8' : 'rgba(245,240,232,0.72)', fontSize: '13px' }}>
                         {appointmentTimeOptions.length === 1 ? `Última vaga disponível: ${appointmentTimeOptions[0]}` : `${appointmentTimeOptions.length} horários livres nesta data`}
                       </div>
                     </div>
@@ -1092,9 +1362,24 @@ export default function AdminPanel() {
                     <Field label="Nome completo do paciente" value={appointmentForm.fullName} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, fullName: value }))} />
                     <Field label="Endereço" value={appointmentForm.address} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, address: value }))} />
                     <Field label="CPF" value={appointmentForm.cpf} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, cpf: formatCpf(value) }))} />
+                    <Field label="WhatsApp do paciente" value={appointmentForm.contactPhone} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, contactPhone: value }))} placeholder="5599999999999" />
                     <Field label="Procedimento (opcional)" value={appointmentForm.procedureName} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, procedureName: value }))} />
                     <SelectField label="Data liberada" value={appointmentForm.date} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, date: value, time: '' }))} options={[{ value: '', label: 'Selecione uma data' }, ...receptionistAvailableDates.map((date) => ({ value: date, label: formatDateLabel(date) }))]} />
                     <Field label="Observações internas" value={appointmentForm.notes} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, notes: value }))} multiline />
+                    {appointmentTimeOptions.length > 0 ? (
+                      <div>
+                        <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: '11px', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#2FBF71', marginBottom: '8px' }}>
+                          Toque no horário
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          {appointmentTimeOptions.map((time) => (
+                            <ActionButton key={time} onClick={() => setAppointmentForm((previous) => ({ ...previous, time }))} variant={appointmentForm.time === time ? 'primary' : 'outline'} style={{ padding: '10px 13px' }}>
+                              {time}
+                            </ActionButton>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
                     <SelectField label="Horário livre" value={appointmentForm.time} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, time: value }))} options={[{ value: '', label: appointmentForm.date ? (appointmentTimeOptions.length === 1 ? 'Horário preenchido automaticamente' : 'Selecione um horário') : 'Escolha a data primeiro' }, ...appointmentTimeOptions.map((time) => ({ value: time, label: time }))]} />
                     <ActionButton onClick={handleAddAppointment} variant="primary" stretch={isMobile}>Adicionar agendamento</ActionButton>
                   </div>
@@ -1106,7 +1391,7 @@ export default function AdminPanel() {
                 </div>
               ) : null}
 
-              {!adminScheduleOnly ? (
+              {isReception ? (
                 <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
                   <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Próximas vagas</strong>
                   <p style={{ margin: '0 0 14px', color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
@@ -1117,9 +1402,9 @@ export default function AdminPanel() {
                   ) : (
                     <div style={{ display: 'grid', gap: '10px' }}>
                       {nextSlotsPreview.map((item) => (
-                        <button key={item.date} type="button" onClick={() => prepareQuickAppointment(item.date)} style={{ textAlign: 'left', padding: '14px', borderRadius: '18px', background: 'rgba(201,169,110,0.12)', border: '1px solid rgba(201,169,110,0.24)', color: '#F1DEC0', cursor: 'pointer' }}>
+                        <button key={item.date} type="button" onClick={() => prepareQuickAppointment(item.date)} style={{ textAlign: 'left', padding: '14px', borderRadius: '18px', background: 'rgba(47,191,113,0.12)', border: '1px solid rgba(47,191,113,0.24)', color: '#DDF8E8', cursor: 'pointer' }}>
                           <strong style={{ display: 'block', marginBottom: '6px', fontSize: '14px' }}>{formatDateLabel(item.date)}</strong>
-                          <span style={{ display: 'block', color: item.count === 1 ? '#F1DEC0' : 'rgba(245,240,232,0.72)', fontSize: '12px', marginBottom: '8px' }}>
+                          <span style={{ display: 'block', color: item.count === 1 ? '#DDF8E8' : 'rgba(245,240,232,0.72)', fontSize: '12px', marginBottom: '8px' }}>
                             {item.count === 1 ? 'Última vaga do dia' : `${item.count} horários livres`}
                           </span>
                           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -1136,7 +1421,7 @@ export default function AdminPanel() {
 
               <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Datas liberadas</strong>
-                {upcomingHighlights.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Ainda não existem datas abertas para atendimento.</p> : <div style={{ display: 'grid', gap: '10px' }}>{upcomingHighlights.map((date) => { const freeSlotsCount = (freeTimeSlotsByDate[date] || []).length; return <div key={date} style={{ padding: '12px 14px', borderRadius: '18px', background: 'rgba(201,169,110,0.12)', border: '1px solid rgba(201,169,110,0.24)', color: '#F1DEC0' }}><strong style={{ display: 'block', marginBottom: '4px', fontSize: '14px' }}>{formatDateLabel(date)}</strong><span style={{ fontSize: '12px', color: freeSlotsCount === 1 ? '#F1DEC0' : 'rgba(245,240,232,0.72)' }}>{freeSlotsCount === 1 ? 'Última vaga disponível' : `${freeSlotsCount} horário(s) livre(s)`}</span></div>; })}</div>}
+                {upcomingHighlights.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Ainda não existem datas abertas para atendimento.</p> : <div style={{ display: 'grid', gap: '10px' }}>{upcomingHighlights.map((date) => { const freeSlotsCount = (freeTimeSlotsByDate[date] || []).length; return <div key={date} style={{ padding: '12px 14px', borderRadius: '18px', background: 'rgba(47,191,113,0.12)', border: '1px solid rgba(47,191,113,0.24)', color: '#DDF8E8' }}><strong style={{ display: 'block', marginBottom: '4px', fontSize: '14px' }}>{formatDateLabel(date)}</strong><span style={{ fontSize: '12px', color: freeSlotsCount === 1 ? '#DDF8E8' : 'rgba(245,240,232,0.72)' }}>{freeSlotsCount === 1 ? 'Última vaga disponível' : `${freeSlotsCount} horário(s) livre(s)`}</span></div>; })}</div>}
               </div>
 
               <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
@@ -1149,7 +1434,7 @@ export default function AdminPanel() {
                     <span style={{ borderRadius: '999px', padding: '8px 12px', background: 'rgba(255,255,255,0.05)', fontSize: '12px' }}>{selectedDateSlots.length} horário(s)</span>
                     <span style={{ borderRadius: '999px', padding: '8px 12px', background: 'rgba(91,196,142,0.12)', color: '#9BE6BA', fontSize: '12px' }}>{selectedDateFreeSlots.length} livre(s)</span>
                     <span style={{ borderRadius: '999px', padding: '8px 12px', background: 'rgba(231,177,177,0.12)', color: '#E7B1B1', fontSize: '12px' }}>{selectedDateOccupiedSlots.length} ocupado(s)</span>
-                    {selectedDateFreeSlots.length === 1 ? <span style={{ borderRadius: '999px', padding: '8px 12px', background: 'rgba(201,169,110,0.16)', color: '#F1DEC0', fontSize: '12px' }}>Última vaga</span> : null}
+                    {selectedDateFreeSlots.length === 1 ? <span style={{ borderRadius: '999px', padding: '8px 12px', background: 'rgba(47,191,113,0.16)', color: '#DDF8E8', fontSize: '12px' }}>Última vaga</span> : null}
                     {selectedDateIsFull ? <span style={{ borderRadius: '999px', padding: '8px 12px', background: 'rgba(231,177,177,0.12)', color: '#E7B1B1', fontSize: '12px' }}>Dia lotado</span> : null}
                   </div>
                 ) : null}
@@ -1160,6 +1445,9 @@ export default function AdminPanel() {
                         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                           <ActionButton onClick={() => toggleAvailableDate(selectedCalendarDate)} variant={draft.admin.availableDates.includes(selectedCalendarDate) ? 'danger' : 'primary'} stretch={isMobile} style={compactButtonStyle}>
                             {draft.admin.availableDates.includes(selectedCalendarDate) ? 'Bloquear dia' : 'Liberar dia'}
+                          </ActionButton>
+                          <ActionButton onClick={() => handleOpenDateAndSave(selectedCalendarDate)} variant="primary" disabled={busyKey === 'open-date'} stretch={isMobile} style={compactButtonStyle}>
+                            {busyKey === 'open-date' ? 'Abrindo...' : 'Abrir e salvar'}
                           </ActionButton>
                           {['08:00', '09:00', '10:00', '14:00', '15:00', '16:00'].map((time) => (
                             <ActionButton key={time} onClick={() => addTimeSlotToDate(selectedCalendarDate, time)}>{time}</ActionButton>
@@ -1195,15 +1483,15 @@ export default function AdminPanel() {
             </div>
           </div>
 
-          {!adminScheduleOnly ? (
+          {isReception ? (
             <div>
               <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Pacientes cadastrados</strong>
-              {appointmentsByDate.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Nenhum agendamento cadastrado ainda.</p> : <div style={{ display: 'grid', gap: '14px' }}>{appointmentsByDate.map((appointment) => <div key={appointment.id} style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '20px', padding: '18px', border: '1px solid rgba(255,255,255,0.05)' }}><div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '14px' }}><div><strong style={{ display: 'block', fontSize: '18px' }}>{appointment.fullName}</strong><span style={{ color: '#C9A96E', fontSize: '13px' }}>{formatDateLabel(appointment.date)}{appointment.time ? ` as ${appointment.time}` : ''}</span></div><div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}><SourcePill source={appointment.source} /><select value={appointment.status} onChange={(event) => updateAppointment(appointment.id, 'status', event.target.value)} style={{ ...baseInputStyle(), width: 'auto', padding: '10px 12px' }}><option value="agendado">Agendado</option><option value="confirmado">Confirmado</option><option value="concluido">Concluído</option><option value="cancelado">Cancelado</option></select><ActionButton variant="danger" onClick={() => removeAppointment(appointment.id)}>Excluir</ActionButton></div></div><div style={{ display: 'grid', gap: '8px', color: 'rgba(245,240,232,0.76)', lineHeight: 1.7 }}><div><strong>Horário:</strong> {appointment.time || '-'}</div><div><strong>CPF:</strong> {appointment.cpf}</div><div><strong>Endereço:</strong> {appointment.address}</div><div><strong>Procedimento:</strong> {appointment.procedureName || '-'}</div><div><strong>Observações:</strong> {appointment.notes || '-'}</div><div><strong>Criado em:</strong> {appointment.createdAt ? new Date(appointment.createdAt).toLocaleString('pt-BR') : '-'}</div></div></div>)}</div>}
+              {appointmentsByDate.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Nenhum agendamento cadastrado ainda.</p> : <div style={{ display: 'grid', gap: '14px' }}>{appointmentsByDate.map((appointment) => <div key={appointment.id} style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '20px', padding: '18px', border: '1px solid rgba(255,255,255,0.05)' }}><div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '14px' }}><div><strong style={{ display: 'block', fontSize: '18px' }}>{appointment.fullName}</strong><span style={{ color: '#2FBF71', fontSize: '13px' }}>{formatDateLabel(appointment.date)}{appointment.time ? ` as ${appointment.time}` : ''}</span></div><div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}><SourcePill source={appointment.source} /><select value={appointment.status} onChange={(event) => updateAppointment(appointment.id, 'status', event.target.value)} style={{ ...baseInputStyle(), width: 'auto', padding: '10px 12px' }}><option value="agendado">Agendado</option><option value="confirmado">Confirmado</option><option value="concluido">Concluído</option><option value="cancelado">Cancelado</option></select><ActionButton variant="danger" onClick={() => removeAppointment(appointment.id)}>Excluir</ActionButton></div></div><div style={{ display: 'grid', gap: '8px', color: 'rgba(245,240,232,0.76)', lineHeight: 1.7 }}><div><strong>Horário:</strong> {appointment.time || '-'}</div><div><strong>CPF:</strong> {appointment.cpf}</div><div><strong>WhatsApp:</strong> {appointment.contactPhone || '-'}</div><div><strong>Endereço:</strong> {appointment.address}</div><div><strong>Procedimento:</strong> {appointment.procedureName || '-'}</div><div><strong>Observações:</strong> {appointment.notes || '-'}</div><div><strong>Criado em:</strong> {appointment.createdAt ? new Date(appointment.createdAt).toLocaleString('pt-BR') : '-'}</div></div></div>)}</div>}
             </div>
           ) : null}
         </SectionCard>
 
-        {!adminScheduleOnly ? (
+        {isReception ? (
           <>
             <SectionCard eyebrow="Segurança" title="Meu acesso" description="Cada pessoa entra com seu próprio usuário. A senha pode ser alterada sem mexer no restante do sistema." style={{ padding: sectionPadding }}>
               <Row minWidth={isMobile ? 180 : 220}>
@@ -1215,7 +1503,7 @@ export default function AdminPanel() {
             </SectionCard>
 
             <SectionCard eyebrow="Modo equipe" title="Permissões da secretaria" description="Neste perfil, o painel fica focado no operacional: ver datas liberadas, cadastrar pacientes, atualizar status e manter os dados organizados.">
-              <p style={{ margin: 0, color: 'rgba(245,240,232,0.7)', lineHeight: 1.8 }}>A parte visual do site e a liberação de agenda ficam reservadas para o acesso de administração da Dra.</p>
+              <p style={{ margin: 0, color: 'rgba(245,240,232,0.7)', lineHeight: 1.8 }}>A parte visual do sistema e a liberação de agenda ficam reservadas para o acesso de administração.</p>
             </SectionCard>
           </>
         ) : null}
@@ -1296,6 +1584,7 @@ export default function AdminPanel() {
     </>
   );
 }
+
 
 
 
