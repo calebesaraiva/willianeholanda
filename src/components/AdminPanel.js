@@ -469,10 +469,14 @@ export default function AdminPanel() {
 
     setDraft((previous) => {
       const nextSlots = sortTimes([...(previous.admin.availableTimeSlots?.[dateString] || []), normalizedTime]);
+      const nextDates = previous.admin.availableDates.includes(dateString)
+        ? previous.admin.availableDates
+        : sortDates([...previous.admin.availableDates, dateString]);
       return {
         ...previous,
         admin: {
           ...previous.admin,
+          availableDates: nextDates,
           availableTimeSlots: {
             ...(previous.admin.availableTimeSlots || {}),
             [dateString]: nextSlots,

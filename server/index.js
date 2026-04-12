@@ -466,8 +466,11 @@ function createAppointment(input, actor) {
 
 function persistSchedule(input, actor) {
   const currentSchedule = getSchedule();
+  const datesFromSlots = Object.entries(input?.availableTimeSlots || {})
+    .filter(([, slots]) => sortUniqueTimes(slots || []).length > 0)
+    .map(([date]) => String(date));
   const nextAvailableDates = actor.role === 'admin'
-    ? sortUniqueDates((input?.availableDates || []).map((item) => String(item)))
+    ? sortUniqueDates([...(input?.availableDates || []).map((item) => String(item)), ...datesFromSlots])
     : currentSchedule.availableDates;
   const nextAvailableTimeSlots = actor.role === 'admin'
     ? normalizeAvailableTimeSlotsForDates(nextAvailableDates, input?.availableTimeSlots)
