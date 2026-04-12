@@ -50,6 +50,7 @@ const WHATSAPP_PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID || '';
 const DATA_DIR = path.join(__dirname, 'data');
 const SQLITE_PATH = path.join(DATA_DIR, 'database.sqlite');
 const LEGACY_JSON_PATH = path.join(DATA_DIR, 'database.json');
+const DEFAULT_TIME_SLOTS = ['08:00', '09:00', '10:00', '14:00', '15:00', '16:00'];
 
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));
@@ -197,6 +198,14 @@ function formatCpf(value) {
 
 function sortUniqueDates(values) {
   return [...new Set(values.filter((value) => /^\d{4}-\d{2}-\d{2}$/.test(String(value))))].sort((a, b) => a.localeCompare(b));
+}
+
+function normalizeAvailableTimeSlotsForDates(dates, slotsByDate = {}) {
+  return dates.reduce((accumulator, date) => {
+    const slots = sortUniqueTimes(slotsByDate?.[date] || []);
+    accumulator[date] = slots.length > 0 ? slots : DEFAULT_TIME_SLOTS;
+    return accumulator;
+  }, {});
 }
 
 function sanitizeUser(user) {
@@ -461,20 +470,8 @@ function persistSchedule(input, actor) {
     ? sortUniqueDates((input?.availableDates || []).map((item) => String(item)))
     : currentSchedule.availableDates;
   const nextAvailableTimeSlots = actor.role === 'admin'
-    ? nextAvailableDates.reduce((accumulator, date) => {
-        accumulator[date] = sortUniqueTimes(input?.availableTimeSlots?.[date] || []);
-        return accumulator;
-      }, {})
+    ? normalizeAvailableTimeSlotsForDates(nextAvailableDates, input?.availableTimeSlots)
     : currentSchedule.availableTimeSlots;
-
-  if (actor.role === 'admin') {
-    const dateWithoutSlots = nextAvailableDates.find((date) => (nextAvailableTimeSlots[date] || []).length === 0);
-    if (dateWithoutSlots) {
-      const error = new Error(`A data ${dateWithoutSlots} foi liberada sem nenhum horário.`);
-      error.statusCode = 400;
-      throw error;
-    }
-  }
 
   const existingAppointmentsById = new Map(
     currentSchedule.appointments.map((item) => [item.id, item])

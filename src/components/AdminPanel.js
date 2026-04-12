@@ -77,6 +77,8 @@ function sortDates(values) {
   return [...new Set(values)].sort((a, b) => a.localeCompare(b));
 }
 
+const DEFAULT_TIME_SLOTS = ['08:00', '09:00', '10:00', '14:00', '15:00', '16:00'];
+
 function baseInputStyle() {
   return {
     width: '100%',
@@ -344,6 +346,7 @@ export default function AdminPanel() {
     simulateWhatsAppInbound,
     sendWhatsAppTestMessage,
     runSystemCheck,
+    refreshAll,
   } = useSiteContent();
 
   const [draft, setDraft] = useState(() => cloneContent(siteContent));
@@ -428,7 +431,7 @@ export default function AdminPanel() {
       if (exists) {
         delete nextAvailableTimeSlots[dateString];
       } else {
-        nextAvailableTimeSlots[dateString] = nextAvailableTimeSlots[dateString] || [];
+        nextAvailableTimeSlots[dateString] = sortTimes([...(nextAvailableTimeSlots[dateString] || []), ...DEFAULT_TIME_SLOTS]);
       }
 
       return {
@@ -529,7 +532,7 @@ export default function AdminPanel() {
 
     const duplicate = draft.admin.appointments.some((item) => item.date === appointmentForm.date && item.time === appointmentForm.time && item.status !== 'cancelado');
     if (duplicate) {
-      flashNotice('error', 'Já existe um agendamento ativo para esse CPF nessa data.');
+      flashNotice('error', 'Já existe um agendamento ativo nesse horário.');
       return;
     }
 
@@ -618,7 +621,7 @@ export default function AdminPanel() {
     () => appointmentsByDate.filter((item) => item.date === todayDate && item.status !== 'cancelado'),
     [appointmentsByDate, todayDate]
   );
-  const quickSlotPresets = ['08:00', '09:00', '10:00', '14:00', '15:00', '16:00'];
+  const quickSlotPresets = DEFAULT_TIME_SLOTS;
   const visibleMonthGrid = useMemo(
     () => (isAdmin ? monthGrid : monthGrid.filter((date) => (freeTimeSlotsByDate[date.toISOString().slice(0, 10)] || []).length > 0)),
     [isAdmin, monthGrid, freeTimeSlotsByDate]
@@ -666,6 +669,12 @@ export default function AdminPanel() {
     }));
   };
 
+  useEffect(() => {
+    if (isAdmin || !currentUser) return;
+    if (selectedCalendarDate && receptionistAvailableDates.includes(selectedCalendarDate)) return;
+    if (nextAvailableDate) jumpToDate(nextAvailableDate);
+  }, [currentUser, isAdmin, nextAvailableDate, receptionistAvailableDates, selectedCalendarDate]);
+
   const handleLogin = async (event) => {
     event.preventDefault();
     setBusyKey('login');
@@ -681,7 +690,7 @@ export default function AdminPanel() {
   };
 
   const handleSaveSchedule = async () => {
-    if (datesWithoutSlots.length > 0) {
+    if (isAdmin && datesWithoutSlots.length > 0) {
       flashNotice('error', `Existe data liberada sem horário: ${datesWithoutSlots[0]}.`);
       return;
     }
@@ -689,7 +698,7 @@ export default function AdminPanel() {
     setBusyKey('schedule');
     try {
       await saveSchedule(draft.admin);
-      flashNotice('success', 'Agenda salva no servidor com sucesso.');
+      flashNotice('success', isAdmin ? 'Agenda salva. A recepção já pode ver as datas com horários livres.' : 'Agenda salva no servidor com sucesso.');
     } catch (error) {
       flashNotice('error', error.message);
     } finally {
@@ -799,6 +808,18 @@ export default function AdminPanel() {
     }
   };
 
+  const handleRefreshPanel = async () => {
+    setBusyKey('refresh');
+    try {
+      await refreshAll();
+      flashNotice('success', 'Agenda atualizada com as informações mais recentes.');
+    } catch (error) {
+      flashNotice('error', error.message);
+    } finally {
+      setBusyKey('');
+    }
+  };
+
   const handleSimulateWhatsApp = async () => {
     setBusyKey('whatsapp-simulate');
     try {
@@ -883,6 +904,7 @@ export default function AdminPanel() {
 
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(150px, max-content))', gap: '12px', width: isMobile ? '100%' : 'auto' }}>
             <a href={dashboardUrl} target="_blank" rel="noreferrer" style={{ color: '#F5F0E8' }}><ActionButton>Ver site</ActionButton></a>
+            <ActionButton onClick={handleRefreshPanel} disabled={busyKey === 'refresh'} stretch={isMobile}>{busyKey === 'refresh' ? 'Atualizando...' : 'Atualizar agenda'}</ActionButton>
             <ActionButton onClick={handleSaveSchedule} variant="primary" disabled={busyKey === 'schedule'} stretch={isMobile}>{busyKey === 'schedule' ? 'Salvando agenda...' : 'Salvar agenda'}</ActionButton>
             <ActionButton onClick={logout} stretch={isMobile}>Sair</ActionButton>
           </div>
@@ -901,6 +923,7 @@ export default function AdminPanel() {
             </QuickActionCard>
             {!adminScheduleOnly ? <QuickActionCard title="Atendimento" description="Comece um agendamento sem ficar procurando data disponível.">
               <ActionButton onClick={() => prepareQuickAppointment(nextAvailableDate || todayDate)} variant="primary" disabled={!nextAvailableDate && !todayDate} stretch={isMobile} style={compactButtonStyle}>Novo agendamento</ActionButton>
+              <ActionButton onClick={handleRefreshPanel} disabled={busyKey === 'refresh'} stretch={isMobile} style={compactButtonStyle}>{busyKey === 'refresh' ? 'Atualizando...' : 'Atualizar agenda'}</ActionButton>
               <ActionButton onClick={handleSaveSchedule} disabled={busyKey === 'schedule'} stretch={isMobile} style={compactButtonStyle}>Salvar agenda</ActionButton>
             </QuickActionCard> : null}
             {!adminScheduleOnly ? <QuickActionCard title="Comunicação" description="Tenha os comandos mais usados à mão para testes e operação.">
