@@ -240,6 +240,13 @@ export function SiteContentProvider({ children }) {
         setSchedule(deepMerge(defaultSiteContent.admin, result.schedule || {}));
         await Promise.all([loadDashboard(authHeaders), loadWhatsAppStatus(authHeaders)]);
       },
+      async refreshSchedule() {
+        await Promise.all([
+          loadSchedule(authHeaders),
+          loadDashboard(authHeaders),
+          loadWhatsAppStatus(authHeaders),
+        ]);
+      },
       async changeOwnPassword(currentPassword, newPassword) {
         await apiFetch('/api/auth/change-password', {
           method: 'POST',

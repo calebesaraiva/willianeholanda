@@ -79,6 +79,26 @@ function sortDates(values) {
 
 const DEFAULT_TIME_SLOTS = ['08:00', '09:00', '10:00', '14:00', '15:00', '16:00'];
 
+function toggleDateInSchedule(schedule, dateString) {
+  const exists = schedule.availableDates.includes(dateString);
+  const nextDates = exists ? schedule.availableDates.filter((item) => item !== dateString) : sortDates([...schedule.availableDates, dateString]);
+  const nextAppointments = schedule.appointments.filter((item) => item.status === 'cancelado' || nextDates.includes(item.date));
+  const nextAvailableTimeSlots = { ...(schedule.availableTimeSlots || {}) };
+
+  if (exists) {
+    delete nextAvailableTimeSlots[dateString];
+  } else {
+    nextAvailableTimeSlots[dateString] = sortTimes([...(nextAvailableTimeSlots[dateString] || []), ...DEFAULT_TIME_SLOTS]);
+  }
+
+  return {
+    ...schedule,
+    availableDates: nextDates,
+    availableTimeSlots: nextAvailableTimeSlots,
+    appointments: nextAppointments,
+  };
+}
+
 function baseInputStyle() {
   return {
     width: '100%',
@@ -347,6 +367,7 @@ export default function AdminPanel() {
     sendWhatsAppTestMessage,
     runSystemCheck,
     refreshAll,
+    refreshSchedule,
   } = useSiteContent();
 
   const [draft, setDraft] = useState(() => cloneContent(siteContent));
@@ -420,32 +441,25 @@ export default function AdminPanel() {
     return setAtPath(previous, path, target.filter((_, itemIndex) => itemIndex !== index));
   });
 
-  const toggleAvailableDate = (dateString) => {
-    if (!isAdmin) return;
+  const toggleAvailableDate = async (dateString) => {
+    if (!isAdmin || busyKey) return;
 
-    setDraft((previous) => {
-      const exists = previous.admin.availableDates.includes(dateString);
-      const nextDates = exists ? previous.admin.availableDates.filter((item) => item !== dateString) : sortDates([...previous.admin.availableDates, dateString]);
-      const nextAppointments = previous.admin.appointments.filter((item) => item.status === 'cancelado' || nextDates.includes(item.date));
-      const nextAvailableTimeSlots = { ...(previous.admin.availableTimeSlots || {}) };
-      if (exists) {
-        delete nextAvailableTimeSlots[dateString];
-      } else {
-        nextAvailableTimeSlots[dateString] = sortTimes([...(nextAvailableTimeSlots[dateString] || []), ...DEFAULT_TIME_SLOTS]);
-      }
+    const wasAvailable = draft.admin.availableDates.includes(dateString);
+    const nextSchedule = toggleDateInSchedule(draft.admin, dateString);
 
-      return {
-        ...previous,
-        admin: {
-          ...previous.admin,
-          availableDates: nextDates,
-          availableTimeSlots: nextAvailableTimeSlots,
-          appointments: nextAppointments,
-        },
-      };
-    });
+    setDraft((previous) => ({ ...previous, admin: toggleDateInSchedule(previous.admin, dateString) }));
 
     setSelectedCalendarDate(dateString);
+    setBusyKey('schedule');
+    try {
+      await saveSchedule(nextSchedule);
+      flashNotice('success', wasAvailable ? 'Dia bloqueado e agenda salva automaticamente.' : 'Dia liberado e agenda salva automaticamente para a recepção.');
+    } catch (error) {
+      setDraft((previous) => ({ ...previous, admin: draft.admin }));
+      flashNotice('error', error.message);
+    } finally {
+      setBusyKey('');
+    }
   };
 
   const updateAppointment = (id, field, value) => {
@@ -678,6 +692,26 @@ export default function AdminPanel() {
     if (selectedCalendarDate && receptionistAvailableDates.includes(selectedCalendarDate)) return;
     if (nextAvailableDate) jumpToDate(nextAvailableDate);
   }, [currentUser, isAdmin, nextAvailableDate, receptionistAvailableDates, selectedCalendarDate]);
+
+  useEffect(() => {
+    if (isAdmin || !currentUser) return undefined;
+
+    const refreshVisibleSchedule = () => {
+      if (document.visibilityState === 'visible') {
+        refreshSchedule().catch(() => {});
+      }
+    };
+
+    const interval = window.setInterval(refreshVisibleSchedule, 4000);
+    window.addEventListener('focus', refreshVisibleSchedule);
+    document.addEventListener('visibilitychange', refreshVisibleSchedule);
+
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener('focus', refreshVisibleSchedule);
+      document.removeEventListener('visibilitychange', refreshVisibleSchedule);
+    };
+  }, [currentUser, isAdmin, refreshSchedule]);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -922,7 +956,7 @@ export default function AdminPanel() {
               <ActionButton onClick={() => jumpToDate(todayDate)} stretch={isMobile} style={compactButtonStyle}>Ir para hoje</ActionButton>
               <ActionButton onClick={() => jumpToDate(nextAvailableDate)} disabled={!nextAvailableDate} stretch={isMobile} style={compactButtonStyle}>Próxima vaga</ActionButton>
               {isAdmin ? <ActionButton onClick={() => applyPresetSlotsToDate(quickActionDate)} variant="primary" stretch={isMobile} style={compactButtonStyle}>Aplicar horários padrão</ActionButton> : null}
-              {isAdmin ? <ActionButton onClick={() => toggleAvailableDate(todayDate)} variant={draft.admin.availableDates.includes(todayDate) ? 'danger' : 'primary'} stretch={isMobile} style={compactButtonStyle}>{draft.admin.availableDates.includes(todayDate) ? 'Fechar hoje' : 'Liberar hoje'}</ActionButton> : null}
+              {isAdmin ? <ActionButton onClick={() => toggleAvailableDate(todayDate)} variant={draft.admin.availableDates.includes(todayDate) ? 'danger' : 'primary'} disabled={busyKey === 'schedule'} stretch={isMobile} style={compactButtonStyle}>{draft.admin.availableDates.includes(todayDate) ? 'Fechar hoje' : 'Liberar hoje'}</ActionButton> : null}
               {isAdmin ? <ActionButton onClick={handleSaveSchedule} disabled={busyKey === 'schedule'} stretch={isMobile} style={compactButtonStyle}>{busyKey === 'schedule' ? 'Salvando agenda...' : 'Salvar agenda'}</ActionButton> : null}
             </QuickActionCard>
             {!adminScheduleOnly ? <QuickActionCard title="Atendimento" description="Comece um agendamento sem ficar procurando data disponível.">
@@ -1185,8 +1219,8 @@ export default function AdminPanel() {
                     {isAdmin ? (
                       <div style={{ display: 'grid', gap: '12px' }}>
                         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                          <ActionButton onClick={() => toggleAvailableDate(selectedCalendarDate)} variant={draft.admin.availableDates.includes(selectedCalendarDate) ? 'danger' : 'primary'} stretch={isMobile} style={compactButtonStyle}>
-                            {draft.admin.availableDates.includes(selectedCalendarDate) ? 'Bloquear dia' : 'Liberar dia'}
+                          <ActionButton onClick={() => toggleAvailableDate(selectedCalendarDate)} variant={draft.admin.availableDates.includes(selectedCalendarDate) ? 'danger' : 'primary'} disabled={busyKey === 'schedule'} stretch={isMobile} style={compactButtonStyle}>
+                            {busyKey === 'schedule' ? 'Salvando...' : draft.admin.availableDates.includes(selectedCalendarDate) ? 'Bloquear dia' : 'Liberar dia'}
                           </ActionButton>
                           {['08:00', '09:00', '10:00', '14:00', '15:00', '16:00'].map((time) => (
                             <ActionButton key={time} onClick={() => addTimeSlotToDate(selectedCalendarDate, time)}>{time}</ActionButton>
