@@ -114,7 +114,7 @@ function baseInputStyle() {
   };
 }
 
-function Field({ label, value, onChange, multiline = false, placeholder, type = 'text', disabled = false }) {
+function Field({ label, value, onChange, multiline = false, placeholder, type = 'text', disabled = false, autoFocus = false, onKeyDown }) {
   const sharedStyle = {
     ...baseInputStyle(),
     opacity: disabled ? 0.55 : 1,
@@ -138,6 +138,7 @@ function Field({ label, value, onChange, multiline = false, placeholder, type = 
         <textarea
           value={value}
           onChange={(event) => onChange(event.target.value)}
+          onKeyDown={onKeyDown}
           placeholder={placeholder}
           rows={4}
           disabled={disabled}
@@ -148,8 +149,10 @@ function Field({ label, value, onChange, multiline = false, placeholder, type = 
           type={type}
           value={value}
           onChange={(event) => onChange(event.target.value)}
+          onKeyDown={onKeyDown}
           placeholder={placeholder}
           disabled={disabled}
+          autoFocus={autoFocus}
           style={sharedStyle}
         />
       )}
@@ -532,16 +535,18 @@ export default function AdminPanel() {
 
   const openAppointmentModal = (dateString, timeValue = '') => {
     if (!dateString) return;
+    const freeTimes = freeTimeSlotsByDate[dateString] || [];
     jumpToDate(dateString);
     setAppointmentForm((previous) => ({
       ...previous,
       date: dateString,
-      time: timeValue,
+      time: timeValue || freeTimes[0] || '',
     }));
     setAppointmentModalOpen(true);
   };
 
   const handleAddAppointment = async () => {
+    if (busyKey === 'appointment') return;
     const normalizedCpf = normalizeCpf(appointmentForm.cpf);
 
     if (!appointmentForm.fullName.trim() || !appointmentForm.address.trim() || !normalizedCpf || !appointmentForm.date || !appointmentForm.time) {
@@ -613,6 +618,12 @@ export default function AdminPanel() {
     }
   };
 
+  const handleAppointmentKeyDown = (event) => {
+    if (event.key !== 'Enter' || event.shiftKey) return;
+    event.preventDefault();
+    handleAddAppointment();
+  };
+
   const appointmentsByDate = useMemo(() => [...draft.admin.appointments].sort((a, b) => {
     const dateComparison = a.date.localeCompare(b.date);
     if (dateComparison !== 0) return dateComparison;
@@ -669,7 +680,7 @@ export default function AdminPanel() {
   useEffect(() => {
     if (!appointmentForm.date) return;
     const options = freeTimeSlotsByDate[appointmentForm.date] || [];
-    if (options.length === 1 && appointmentForm.time !== options[0]) {
+    if (!appointmentForm.time && options.length > 0) {
       setAppointmentForm((previous) => ({ ...previous, time: options[0] }));
     }
   }, [appointmentForm.date, appointmentForm.time, freeTimeSlotsByDate]);
@@ -1351,11 +1362,14 @@ export default function AdminPanel() {
             </div>
 
             <div style={{ display: 'grid', gap: '12px' }}>
-              <strong style={{ fontSize: '16px' }}>Horários disponíveis</strong>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <strong style={{ fontSize: '16px' }}>Horários disponíveis</strong>
+                {appointmentForm.time ? <span style={{ borderRadius: '8px', padding: '8px 12px', background: 'rgba(91,196,142,0.12)', color: '#9BE6BA', fontSize: '13px' }}>Selecionado: {appointmentForm.time}</span> : null}
+              </div>
               {appointmentTimeOptions.length === 0 ? (
                 <p style={{ margin: 0, color: '#E7B1B1', lineHeight: 1.7 }}>Não há horário livre nessa data.</p>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(86px, 1fr))', gap: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(96px, 1fr))', gap: '10px' }}>
                   {appointmentTimeOptions.map((time) => {
                     const selected = appointmentForm.time === time;
                     return (
@@ -1364,7 +1378,7 @@ export default function AdminPanel() {
                         type="button"
                         onClick={() => setAppointmentForm((previous) => ({ ...previous, time }))}
                         style={{
-                          minHeight: '48px',
+                          minHeight: '56px',
                           borderRadius: '8px',
                           border: selected ? '1px solid #C9A96E' : '1px solid rgba(255,255,255,0.10)',
                           background: selected ? 'rgba(201,169,110,0.18)' : 'rgba(255,255,255,0.05)',
@@ -1382,13 +1396,13 @@ export default function AdminPanel() {
             </div>
 
             <Row minWidth={isMobile ? 180 : 260}>
-              <Field label="Nome completo do paciente" value={appointmentForm.fullName} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, fullName: value }))} />
-              <Field label="CPF" value={appointmentForm.cpf} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, cpf: formatCpf(value) }))} />
+              <Field label="Nome completo do paciente" value={appointmentForm.fullName} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, fullName: value }))} autoFocus onKeyDown={handleAppointmentKeyDown} />
+              <Field label="CPF" value={appointmentForm.cpf} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, cpf: formatCpf(value) }))} onKeyDown={handleAppointmentKeyDown} />
             </Row>
-            <Field label="Endereço" value={appointmentForm.address} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, address: value }))} />
+            <Field label="Endereço" value={appointmentForm.address} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, address: value }))} onKeyDown={handleAppointmentKeyDown} />
             <Row minWidth={isMobile ? 180 : 260}>
-              <Field label="Procedimento (opcional)" value={appointmentForm.procedureName} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, procedureName: value }))} />
-              <SelectField label="Data" value={appointmentForm.date} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, date: value, time: '' }))} options={[{ value: '', label: 'Selecione uma data' }, ...receptionistAvailableDates.map((date) => ({ value: date, label: formatDateLabel(date) }))]} />
+              <Field label="Procedimento (opcional)" value={appointmentForm.procedureName} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, procedureName: value }))} onKeyDown={handleAppointmentKeyDown} />
+              <SelectField label="Data" value={appointmentForm.date} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, date: value, time: (freeTimeSlotsByDate[value] || [])[0] || '' }))} options={[{ value: '', label: 'Selecione uma data' }, ...receptionistAvailableDates.map((date) => ({ value: date, label: formatDateLabel(date) }))]} />
             </Row>
             <Field label="Observações internas" value={appointmentForm.notes} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, notes: value }))} multiline />
 
