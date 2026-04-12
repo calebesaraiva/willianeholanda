@@ -396,6 +396,10 @@ export default function AdminPanel() {
   const [systemCheckReport, setSystemCheckReport] = useState(null);
   const [systemCheckModalOpen, setSystemCheckModalOpen] = useState(false);
   const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
+  const [appointmentDetailsOpen, setAppointmentDetailsOpen] = useState(false);
+  const [patientSearch, setPatientSearch] = useState('');
+  const [selectedPatientId, setSelectedPatientId] = useState('');
+  const [lastConfirmation, setLastConfirmation] = useState('');
   const [viewportWidth, setViewportWidth] = useState(() => window.innerWidth);
 
   const isAdmin = currentUser?.role === 'admin';
@@ -436,10 +440,22 @@ export default function AdminPanel() {
   const flashNotice = (type, message) => setNotice({ type, message });
   const updateDraft = (path, value) => setDraft((previous) => setAtPath(previous, path, value));
   const availableTimeSlots = draft.admin.availableTimeSlots || {};
-  const removeArrayItem = (path, index) => setDraft((previous) => {
-    const target = path.reduce((accumulator, key) => accumulator[key], previous);
-    return setAtPath(previous, path, target.filter((_, itemIndex) => itemIndex !== index));
-  });
+
+  const saveScheduleOptimistically = async (nextSchedule, successMessage, rollbackSchedule = draft.admin, busy = 'schedule') => {
+    setDraft((previous) => ({ ...previous, admin: nextSchedule }));
+    setBusyKey(busy);
+    try {
+      await saveSchedule(nextSchedule);
+      if (successMessage) flashNotice('success', successMessage);
+      return true;
+    } catch (error) {
+      setDraft((previous) => ({ ...previous, admin: rollbackSchedule }));
+      flashNotice('error', error.message);
+      return false;
+    } finally {
+      setBusyKey('');
+    }
+  };
 
   const toggleAvailableDate = async (dateString) => {
     if (!isAdmin || busyKey) return;
@@ -462,46 +478,60 @@ export default function AdminPanel() {
     }
   };
 
-  const updateAppointment = (id, field, value) => {
+  const updateAppointment = async (id, field, value) => {
     const appointmentIndex = draft.admin.appointments.findIndex((item) => item.id === id);
     if (appointmentIndex < 0) return;
-    updateDraft(['admin', 'appointments', appointmentIndex, field], value);
+    const nextAppointments = draft.admin.appointments.map((item) => (
+      item.id === id ? { ...item, [field]: value, updatedAt: new Date().toISOString() } : item
+    ));
+    await saveScheduleOptimistically(
+      { ...draft.admin, appointments: nextAppointments },
+      'Agendamento atualizado automaticamente.',
+      draft.admin,
+      `appointment-${id}`
+    );
   };
 
-  const removeAppointment = (id) => {
-    const appointmentIndex = draft.admin.appointments.findIndex((item) => item.id === id);
-    if (appointmentIndex < 0) return;
-    removeArrayItem(['admin', 'appointments'], appointmentIndex);
+  const cancelAppointment = async (id) => {
+    const appointment = draft.admin.appointments.find((item) => item.id === id);
+    if (!appointment) return;
+    const nextAppointments = draft.admin.appointments.map((item) => (
+      item.id === id ? { ...item, status: 'cancelado', updatedAt: new Date().toISOString() } : item
+    ));
+    const saved = await saveScheduleOptimistically(
+      { ...draft.admin, appointments: nextAppointments },
+      'Atendimento cancelado e horário liberado automaticamente.',
+      draft.admin,
+      `appointment-${id}`
+    );
+    if (saved && selectedPatientId === id) setSelectedPatientId('');
   };
 
-  const addTimeSlotToDate = (dateString, timeValue) => {
+  const addTimeSlotToDate = async (dateString, timeValue) => {
     const normalizedTime = normalizeTime(timeValue);
     if (!dateString || !normalizedTime) {
       flashNotice('error', 'Selecione uma data e informe um horário válido.');
       return;
     }
 
-    setDraft((previous) => {
-      const nextSlots = sortTimes([...(previous.admin.availableTimeSlots?.[dateString] || []), normalizedTime]);
-      const nextDates = previous.admin.availableDates.includes(dateString)
-        ? previous.admin.availableDates
-        : sortDates([...previous.admin.availableDates, dateString]);
-      return {
-        ...previous,
-        admin: {
-          ...previous.admin,
-          availableDates: nextDates,
-          availableTimeSlots: {
-            ...(previous.admin.availableTimeSlots || {}),
-            [dateString]: nextSlots,
-          },
-        },
-      };
-    });
-    setSlotEditor((previous) => ({ ...previous, time: '' }));
+    const nextSlots = sortTimes([...(draft.admin.availableTimeSlots?.[dateString] || []), normalizedTime]);
+    const nextDates = draft.admin.availableDates.includes(dateString)
+      ? draft.admin.availableDates
+      : sortDates([...draft.admin.availableDates, dateString]);
+    const nextSchedule = {
+      ...draft.admin,
+      availableDates: nextDates,
+      availableTimeSlots: {
+        ...(draft.admin.availableTimeSlots || {}),
+        [dateString]: nextSlots,
+      },
+    };
+
+    const saved = await saveScheduleOptimistically(nextSchedule, 'Horário salvo automaticamente para a recepção.', draft.admin);
+    if (saved) setSlotEditor((previous) => ({ ...previous, time: '' }));
   };
 
-  const removeTimeSlotFromDate = (dateString, timeValue) => {
+  const removeTimeSlotFromDate = async (dateString, timeValue) => {
     const hasAppointment = draft.admin.appointments.some(
       (item) => item.date === dateString && item.time === timeValue && item.status !== 'cancelado'
     );
@@ -510,26 +540,26 @@ export default function AdminPanel() {
       return;
     }
 
-    setDraft((previous) => ({
-      ...previous,
-      admin: {
-        ...previous.admin,
-        availableTimeSlots: {
-          ...(previous.admin.availableTimeSlots || {}),
-          [dateString]: (previous.admin.availableTimeSlots?.[dateString] || []).filter((item) => item !== timeValue),
-        },
+    const nextSchedule = {
+      ...draft.admin,
+      availableTimeSlots: {
+        ...(draft.admin.availableTimeSlots || {}),
+        [dateString]: (draft.admin.availableTimeSlots?.[dateString] || []).filter((item) => item !== timeValue),
       },
-    }));
+    };
 
-    setAppointmentForm((previous) => (
-      previous.date === dateString && previous.time === timeValue
-        ? { ...previous, time: '' }
-        : previous
-    ));
+    const saved = await saveScheduleOptimistically(nextSchedule, 'Horário removido automaticamente.', draft.admin);
+    if (saved) {
+      setAppointmentForm((previous) => (
+        previous.date === dateString && previous.time === timeValue
+          ? { ...previous, time: '' }
+          : previous
+      ));
+    }
   };
-
   const closeAppointmentModal = () => {
     setAppointmentModalOpen(false);
+    setAppointmentDetailsOpen(false);
     setAppointmentForm({ fullName: '', address: '', cpf: '', date: '', time: '', procedureName: '', notes: '' });
   };
 
@@ -542,6 +572,7 @@ export default function AdminPanel() {
       date: dateString,
       time: timeValue || freeTimes[0] || '',
     }));
+    setAppointmentDetailsOpen(false);
     setAppointmentModalOpen(true);
   };
 
@@ -602,6 +633,8 @@ export default function AdminPanel() {
 
     try {
       await saveSchedule(nextSchedule);
+      const confirmation = `Olá, ${newAppointment.fullName}. Seu atendimento com a Dra. Williane Holanda foi agendado para ${formatDateLabel(newAppointment.date)} às ${newAppointment.time}.`;
+      setLastConfirmation(confirmation);
       flashNotice('success', 'Agendamento salvo e agenda atualizada para todos os painéis.');
       closeAppointmentModal();
     } catch (error) {
@@ -624,6 +657,16 @@ export default function AdminPanel() {
     handleAddAppointment();
   };
 
+  const copyLastConfirmation = async () => {
+    if (!lastConfirmation) return;
+    try {
+      await navigator.clipboard.writeText(lastConfirmation);
+      flashNotice('success', 'Confirmação copiada.');
+    } catch (_error) {
+      flashNotice('error', 'Não foi possível copiar automaticamente.');
+    }
+  };
+
   const appointmentsByDate = useMemo(() => [...draft.admin.appointments].sort((a, b) => {
     const dateComparison = a.date.localeCompare(b.date);
     if (dateComparison !== 0) return dateComparison;
@@ -631,6 +674,10 @@ export default function AdminPanel() {
     if (timeComparison !== 0) return timeComparison;
     return a.fullName.localeCompare(b.fullName);
   }), [draft.admin.appointments]);
+  const selectedPatient = useMemo(
+    () => draft.admin.appointments.find((item) => item.id === selectedPatientId) || null,
+    [draft.admin.appointments, selectedPatientId]
+  );
 
   const monthGrid = useMemo(() => monthDays(calendarMonth), [calendarMonth]);
   const occupiedSlotsByDate = useMemo(
@@ -691,6 +738,23 @@ export default function AdminPanel() {
     () => appointmentsByDate.filter((item) => item.date === todayDate && item.status !== 'cancelado'),
     [appointmentsByDate, todayDate]
   );
+  const filteredAppointments = useMemo(() => {
+    const query = patientSearch.trim().toLowerCase();
+    if (!query) return appointmentsByDate;
+    const digits = normalizeCpf(query);
+    return appointmentsByDate.filter((item) => {
+      const haystack = [
+        item.fullName,
+        item.cpf,
+        item.address,
+        item.date,
+        item.time,
+        item.procedureName,
+        item.status,
+      ].join(' ').toLowerCase();
+      return haystack.includes(query) || (digits && normalizeCpf(item.cpf).includes(digits));
+    });
+  }, [appointmentsByDate, patientSearch]);
   const quickSlotPresets = DEFAULT_TIME_SLOTS;
   const quickActionDate = selectedCalendarDate || nextAvailableDate || todayDate;
 
@@ -701,28 +765,23 @@ export default function AdminPanel() {
     setSelectedCalendarDate(dateString);
   };
 
-  const applyPresetSlotsToDate = (dateString) => {
+  const applyPresetSlotsToDate = async (dateString) => {
     if (!isAdmin || !dateString) return;
-    setDraft((previous) => {
-      const nextSlots = sortTimes([...(previous.admin.availableTimeSlots?.[dateString] || []), ...quickSlotPresets]);
-      const nextDates = previous.admin.availableDates.includes(dateString)
-        ? previous.admin.availableDates
-        : sortDates([...previous.admin.availableDates, dateString]);
+    const nextSlots = sortTimes([...(draft.admin.availableTimeSlots?.[dateString] || []), ...quickSlotPresets]);
+    const nextDates = draft.admin.availableDates.includes(dateString)
+      ? draft.admin.availableDates
+      : sortDates([...draft.admin.availableDates, dateString]);
+    const nextSchedule = {
+      ...draft.admin,
+      availableDates: nextDates,
+      availableTimeSlots: {
+        ...(draft.admin.availableTimeSlots || {}),
+        [dateString]: nextSlots,
+      },
+    };
 
-      return {
-        ...previous,
-        admin: {
-          ...previous.admin,
-          availableDates: nextDates,
-          availableTimeSlots: {
-            ...(previous.admin.availableTimeSlots || {}),
-            [dateString]: nextSlots,
-          },
-        },
-      };
-    });
+    await saveScheduleOptimistically(nextSchedule, `Horários padrão salvos em ${formatDateLabel(dateString)}.`, draft.admin);
     jumpToDate(dateString);
-    flashNotice('success', `Horários padrão aplicados em ${formatDateLabel(dateString)}.`);
   };
 
   const prepareQuickAppointment = (dateString) => {
@@ -1290,8 +1349,31 @@ export default function AdminPanel() {
 
           {!adminScheduleOnly ? (
             <div>
-              <strong style={{ display: 'block', marginBottom: '14px', fontSize: '18px' }}>Pacientes cadastrados</strong>
-              {appointmentsByDate.length === 0 ? <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Nenhum agendamento cadastrado ainda.</p> : <div style={{ display: 'grid', gap: '14px' }}>{appointmentsByDate.map((appointment) => <div key={appointment.id} style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '20px', padding: '18px', border: '1px solid rgba(255,255,255,0.05)' }}><div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '14px' }}><div><strong style={{ display: 'block', fontSize: '18px' }}>{appointment.fullName}</strong><span style={{ color: '#C9A96E', fontSize: '13px' }}>{formatDateLabel(appointment.date)}{appointment.time ? ` as ${appointment.time}` : ''}</span></div><div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}><SourcePill source={appointment.source} /><select value={appointment.status} onChange={(event) => updateAppointment(appointment.id, 'status', event.target.value)} style={{ ...baseInputStyle(), width: 'auto', padding: '10px 12px' }}><option value="agendado">Agendado</option><option value="confirmado">Confirmado</option><option value="concluido">Concluído</option><option value="cancelado">Cancelado</option></select><ActionButton variant="danger" onClick={() => removeAppointment(appointment.id)}>Excluir</ActionButton></div></div><div style={{ display: 'grid', gap: '8px', color: 'rgba(245,240,232,0.76)', lineHeight: 1.7 }}><div><strong>Horário:</strong> {appointment.time || '-'}</div><div><strong>CPF:</strong> {appointment.cpf}</div><div><strong>Endereço:</strong> {appointment.address}</div><div><strong>Procedimento:</strong> {appointment.procedureName || '-'}</div><div><strong>Observações:</strong> {appointment.notes || '-'}</div><div><strong>Criado em:</strong> {appointment.createdAt ? new Date(appointment.createdAt).toLocaleString('pt-BR') : '-'}</div></div></div>)}</div>}
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '14px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '14px' }}>
+                <strong style={{ display: 'block', fontSize: '18px' }}>Pacientes</strong>
+                {lastConfirmation ? <ActionButton onClick={copyLastConfirmation}>Copiar confirmação</ActionButton> : null}
+              </div>
+              <Field label="Buscar paciente" value={patientSearch} onChange={setPatientSearch} placeholder="Nome, CPF, data ou status" />
+              <div style={{ height: '14px' }} />
+              {filteredAppointments.length === 0 ? (
+                <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
+                  {appointmentsByDate.length === 0 ? 'Nenhum agendamento cadastrado ainda.' : 'Nenhum paciente encontrado nessa busca.'}
+                </p>
+              ) : (
+                <div style={{ display: 'grid', gap: '10px' }}>
+                  {filteredAppointments.map((appointment) => (
+                    <button key={appointment.id} type="button" onClick={() => setSelectedPatientId(appointment.id)} style={{ textAlign: 'left', background: appointment.status === 'cancelado' ? 'rgba(231,177,177,0.08)' : 'rgba(23,23,23,0.92)', borderRadius: '8px', padding: '14px', border: appointment.status === 'cancelado' ? '1px solid rgba(231,177,177,0.18)' : '1px solid rgba(255,255,255,0.05)', color: '#F5F0E8', cursor: 'pointer' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+                        <div>
+                          <strong style={{ display: 'block', fontSize: '16px' }}>{appointment.fullName}</strong>
+                          <span style={{ color: '#C9A96E', fontSize: '13px' }}>{formatDateLabel(appointment.date)}{appointment.time ? ` às ${appointment.time}` : ''}</span>
+                        </div>
+                        <span style={{ borderRadius: '8px', padding: '7px 10px', background: appointment.status === 'cancelado' ? 'rgba(231,177,177,0.14)' : 'rgba(91,196,142,0.12)', color: appointment.status === 'cancelado' ? '#E7B1B1' : '#9BE6BA', fontSize: '12px' }}>{appointment.status}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           ) : null}
         </SectionCard>
@@ -1314,6 +1396,67 @@ export default function AdminPanel() {
         ) : null}
         </div>
       </div>
+
+      {selectedPatient ? (
+        <div
+          onClick={() => setSelectedPatientId('')}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.72)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: isMobile ? '12px' : '24px',
+            zIndex: 9998,
+          }}
+        >
+          <div
+            onClick={(event) => event.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: '620px',
+              background: 'linear-gradient(180deg, rgba(20,20,20,0.98) 0%, rgba(11,11,11,0.98) 100%)',
+              border: '1px solid rgba(201,169,110,0.24)',
+              borderRadius: '28px',
+              padding: isMobile ? '20px' : '28px',
+              boxShadow: '0 28px 70px rgba(0,0,0,0.34)',
+              color: '#F5F0E8',
+              display: 'grid',
+              gap: '16px',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '14px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+              <div>
+                <div style={{ color: '#C9A96E', textTransform: 'uppercase', letterSpacing: '0.18em', fontSize: '11px', marginBottom: '10px' }}>
+                  Atendimento
+                </div>
+                <h2 style={{ margin: '0 0 8px', fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontSize: isMobile ? '32px' : '40px' }}>
+                  {selectedPatient.fullName}
+                </h2>
+                <p style={{ margin: 0, color: 'rgba(245,240,232,0.68)', lineHeight: 1.7 }}>
+                  {formatDateLabel(selectedPatient.date)}{selectedPatient.time ? ` às ${selectedPatient.time}` : ''}
+                </p>
+              </div>
+              <ActionButton onClick={() => setSelectedPatientId('')}>Fechar</ActionButton>
+            </div>
+
+            <div style={{ display: 'grid', gap: '8px', color: 'rgba(245,240,232,0.78)', lineHeight: 1.7 }}>
+              <div><strong>Status:</strong> {selectedPatient.status}</div>
+              <div><strong>CPF:</strong> {selectedPatient.cpf}</div>
+              <div><strong>Endereço:</strong> {selectedPatient.address}</div>
+              <div><strong>Procedimento:</strong> {selectedPatient.procedureName || '-'}</div>
+              <div><strong>Observações:</strong> {selectedPatient.notes || '-'}</div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <ActionButton onClick={() => updateAppointment(selectedPatient.id, 'confirmado')} variant="primary" disabled={busyKey === `appointment-${selectedPatient.id}`} stretch={isMobile}>Confirmar</ActionButton>
+              <ActionButton onClick={() => updateAppointment(selectedPatient.id, 'concluido')} disabled={busyKey === `appointment-${selectedPatient.id}`} stretch={isMobile}>Concluir</ActionButton>
+              <ActionButton onClick={() => cancelAppointment(selectedPatient.id)} variant="danger" disabled={busyKey === `appointment-${selectedPatient.id}` || selectedPatient.status === 'cancelado'} stretch={isMobile}>Cancelar atendimento</ActionButton>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {appointmentModalOpen && !isAdmin ? (
         <div
@@ -1400,11 +1543,17 @@ export default function AdminPanel() {
               <Field label="CPF" value={appointmentForm.cpf} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, cpf: formatCpf(value) }))} onKeyDown={handleAppointmentKeyDown} />
             </Row>
             <Field label="Endereço" value={appointmentForm.address} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, address: value }))} onKeyDown={handleAppointmentKeyDown} />
-            <Row minWidth={isMobile ? 180 : 260}>
-              <Field label="Procedimento (opcional)" value={appointmentForm.procedureName} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, procedureName: value }))} onKeyDown={handleAppointmentKeyDown} />
-              <SelectField label="Data" value={appointmentForm.date} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, date: value, time: (freeTimeSlotsByDate[value] || [])[0] || '' }))} options={[{ value: '', label: 'Selecione uma data' }, ...receptionistAvailableDates.map((date) => ({ value: date, label: formatDateLabel(date) }))]} />
-            </Row>
-            <Field label="Observações internas" value={appointmentForm.notes} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, notes: value }))} multiline />
+            {appointmentDetailsOpen ? (
+              <>
+                <Row minWidth={isMobile ? 180 : 260}>
+                  <Field label="Procedimento (opcional)" value={appointmentForm.procedureName} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, procedureName: value }))} onKeyDown={handleAppointmentKeyDown} />
+                  <SelectField label="Data" value={appointmentForm.date} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, date: value, time: (freeTimeSlotsByDate[value] || [])[0] || '' }))} options={[{ value: '', label: 'Selecione uma data' }, ...receptionistAvailableDates.map((date) => ({ value: date, label: formatDateLabel(date) }))]} />
+                </Row>
+                <Field label="Observações internas" value={appointmentForm.notes} onChange={(value) => setAppointmentForm((previous) => ({ ...previous, notes: value }))} multiline />
+              </>
+            ) : (
+              <ActionButton onClick={() => setAppointmentDetailsOpen(true)} stretch={isMobile}>Adicionar detalhes</ActionButton>
+            )}
 
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
               <ActionButton onClick={handleAddAppointment} variant="primary" disabled={busyKey === 'appointment' || appointmentTimeOptions.length === 0} stretch={isMobile}>
