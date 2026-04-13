@@ -106,13 +106,34 @@ Dentro do modal do paciente:
 
 Esses status ajudam a equipe a acompanhar o andamento dos pacientes.
 
-## 9. Atualizacao automatica de data e mes
+## 9. Resumo de desempenho
+
+O painel possui um resumo automatico por periodo:
+
+- **Semana**: mostra os dados da semana atual.
+- **Quinzena**: mostra a primeira ou segunda quinzena do mes atual.
+- **Mes**: mostra os dados do mes atual.
+
+Cada periodo mostra:
+
+- total de agendamentos
+- atendimentos realizados
+- atendimentos confirmados
+- agendamentos cancelados
+- pacientes unicos
+- vagas liberadas
+- ocupacao da agenda
+- agendamentos vindos pelo WhatsApp
+
+Esses numeros ajudam a acompanhar o movimento da clinica sem precisar contar pacientes manualmente.
+
+## 10. Atualizacao automatica de data e mes
 
 O painel atualiza a data do sistema automaticamente. A lista de proximos pacientes e o destaque de **Hoje** acompanham a data atual.
 
 O calendario tambem acompanha o mes atual quando a equipe esta usando a visualizacao do dia. Se a pessoa navegar manualmente para outro mes, o painel respeita essa escolha.
 
-## 10. Liberar dias e horarios
+## 11. Liberar dias e horarios
 
 Disponivel para a administracao.
 
@@ -124,7 +145,7 @@ Disponivel para a administracao.
 
 Para bloquear um dia, selecione a data e clique em **Bloquear dia**. O sistema protege horarios que ja possuem paciente ativo.
 
-## 11. Conteudo do site
+## 12. Conteudo do site
 
 Disponivel para a administracao.
 
@@ -132,7 +153,7 @@ O painel permite alterar conteudos do site sem mexer no codigo. Depois de editar
 
 Antes de alterar textos importantes, revise com calma. O site publico usa essas informacoes diretamente.
 
-## 12. Usuarios e seguranca
+## 13. Usuarios e seguranca
 
 Disponivel para a administracao.
 
@@ -144,7 +165,7 @@ Boas praticas:
 - Nunca envie senhas junto com prints do painel.
 - Use a troca de senha sempre que houver duvida sobre compartilhamento indevido.
 
-## 13. Backup e diagnostico
+## 14. Backup e diagnostico
 
 O painel possui recursos de apoio:
 
@@ -154,11 +175,11 @@ O painel possui recursos de apoio:
 
 Use esses recursos antes de mudancas grandes ou quando algo parecer fora do normal.
 
-## 14. WhatsApp
+## 15. WhatsApp
 
 Quando configurado, o WhatsApp pode receber comandos de agendamento, cancelamento e consulta. A recepcao deve continuar conferindo a agenda pelo painel, porque ele mostra a visao mais organizada dos horarios e pacientes.
 
-## 15. Suporte
+## 16. Suporte
 
 Ao relatar um problema, envie:
 

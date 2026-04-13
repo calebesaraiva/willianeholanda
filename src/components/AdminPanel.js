@@ -57,6 +57,69 @@ function formatDateLabel(dateString) {
   });
 }
 
+function parseDateKey(dateString) {
+  return new Date(`${dateString}T12:00:00`);
+}
+
+function addDays(date, amount) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + amount);
+  return next;
+}
+
+function formatDateRange(startDate, endDate) {
+  return `${startDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} a ${endDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}`;
+}
+
+function buildPeriodSummary(label, startDate, endDate, appointments, availableTimeSlots) {
+  const startKey = formatDateKey(startDate);
+  const endKey = formatDateKey(endDate);
+  const periodAppointments = appointments.filter((item) => item.date >= startKey && item.date <= endKey);
+  const activeAppointments = periodAppointments.filter((item) => item.status !== 'cancelado');
+  const availableSlots = Object.entries(availableTimeSlots || {}).reduce((total, [date, slots]) => {
+    if (date < startKey || date > endKey) return total;
+    return total + (Array.isArray(slots) ? slots.length : 0);
+  }, 0);
+  const uniquePatients = new Set(periodAppointments.map((item) => normalizeCpf(item.cpf)).filter(Boolean)).size;
+  const countStatus = (status) => periodAppointments.filter((item) => item.status === status).length;
+
+  return {
+    label,
+    range: formatDateRange(startDate, endDate),
+    total: periodAppointments.length,
+    active: activeAppointments.length,
+    completed: countStatus('concluido'),
+    confirmed: countStatus('confirmado'),
+    scheduled: countStatus('agendado'),
+    canceled: countStatus('cancelado'),
+    uniquePatients,
+    availableSlots,
+    occupancy: availableSlots > 0 ? Math.round((activeAppointments.length / availableSlots) * 100) : 0,
+    whatsapp: periodAppointments.filter((item) => item.source === 'whatsapp').length,
+  };
+}
+
+function buildPerformanceSummaries(appointments, availableTimeSlots, todayDate) {
+  const today = parseDateKey(todayDate);
+  const weekDay = today.getDay();
+  const weekStart = addDays(today, weekDay === 0 ? -6 : 1 - weekDay);
+  const weekEnd = addDays(weekStart, 6);
+  const monthStartDate = new Date(today.getFullYear(), today.getMonth(), 1, 12);
+  const monthEndDate = new Date(today.getFullYear(), today.getMonth() + 1, 0, 12);
+  const fortnightStart = today.getDate() <= 15
+    ? monthStartDate
+    : new Date(today.getFullYear(), today.getMonth(), 16, 12);
+  const fortnightEnd = today.getDate() <= 15
+    ? new Date(today.getFullYear(), today.getMonth(), 15, 12)
+    : monthEndDate;
+
+  return [
+    buildPeriodSummary('Semana', weekStart, weekEnd, appointments, availableTimeSlots),
+    buildPeriodSummary('Quinzena', fortnightStart, fortnightEnd, appointments, availableTimeSlots),
+    buildPeriodSummary('Mês', monthStartDate, monthEndDate, appointments, availableTimeSlots),
+  ];
+}
+
 function monthStart(date) {
   return new Date(date.getFullYear(), date.getMonth(), 1);
 }
@@ -357,6 +420,35 @@ function StatCard({ label, value, tone = 'gold' }) {
       <strong style={{ color: palette.color, fontSize: '32px', fontFamily: "'Cormorant Garamond', serif", fontWeight: 500 }}>
         {value}
       </strong>
+    </div>
+  );
+}
+
+function PeriodSummaryCard({ period }) {
+  return (
+    <div style={{ background: 'rgba(23,23,23,0.92)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '18px', display: 'grid', gap: '14px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+        <div>
+          <strong style={{ display: 'block', fontSize: '18px', marginBottom: '4px' }}>{period.label}</strong>
+          <span style={{ color: 'rgba(245,240,232,0.62)', fontSize: '13px' }}>{period.range}</span>
+        </div>
+        <span style={{ borderRadius: '8px', padding: '8px 10px', background: 'rgba(201,169,110,0.14)', color: '#F1DEC0', fontSize: '12px' }}>
+          {period.occupancy}% ocupação
+        </span>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '10px' }}>
+        <div><strong style={{ color: '#F1DEC0', fontSize: '24px' }}>{period.total}</strong><div style={{ color: 'rgba(245,240,232,0.58)', fontSize: '12px' }}>agendamentos</div></div>
+        <div><strong style={{ color: '#9BE6BA', fontSize: '24px' }}>{period.completed}</strong><div style={{ color: 'rgba(245,240,232,0.58)', fontSize: '12px' }}>realizados</div></div>
+        <div><strong style={{ color: '#F5F0E8', fontSize: '20px' }}>{period.confirmed}</strong><div style={{ color: 'rgba(245,240,232,0.58)', fontSize: '12px' }}>confirmados</div></div>
+        <div><strong style={{ color: '#E7B1B1', fontSize: '20px' }}>{period.canceled}</strong><div style={{ color: 'rgba(245,240,232,0.58)', fontSize: '12px' }}>cancelados</div></div>
+      </div>
+
+      <div style={{ display: 'grid', gap: '6px', color: 'rgba(245,240,232,0.72)', fontSize: '13px', lineHeight: 1.6 }}>
+        <div><strong>Pacientes únicos:</strong> {period.uniquePatients}</div>
+        <div><strong>Vagas liberadas:</strong> {period.availableSlots}</div>
+        <div><strong>Via WhatsApp:</strong> {period.whatsapp}</div>
+      </div>
     </div>
   );
 }
@@ -847,6 +939,10 @@ export default function AdminPanel() {
   const auditLogs = dashboard?.auditLogs || [];
   const whatsAppEvents = whatsAppStatus?.recentEvents || [];
   const todayDate = useMemo(() => formatDateKey(systemDate), [systemDate]);
+  const performanceSummaries = useMemo(
+    () => buildPerformanceSummaries(appointmentsByDate, availableTimeSlots, todayDate),
+    [appointmentsByDate, availableTimeSlots, todayDate]
+  );
   const todayAppointments = useMemo(
     () => appointmentsByDate.filter((item) => item.date === todayDate && item.status !== 'cancelado'),
     [appointmentsByDate, todayDate]
@@ -1289,6 +1385,20 @@ export default function AdminPanel() {
               <StatCard label="Pacientes únicos" value={summary.uniquePatients ?? 0} tone="white" />
               <StatCard label="Conversas Whats" value={whatsAppStatus?.activeConversations ?? 0} tone="white" />
             </Row>
+
+            <div style={{ display: 'grid', gap: '14px' }}>
+              <div>
+                <strong style={{ display: 'block', marginBottom: '6px', fontSize: '18px' }}>Resumo de desempenho</strong>
+                <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
+                  Acompanhe semana, quinzena e mês atual com base nos agendamentos da agenda.
+                </p>
+              </div>
+              <Row minWidth={isMobile ? 220 : 260}>
+                {performanceSummaries.map((period) => (
+                  <PeriodSummaryCard key={period.label} period={period} />
+                ))}
+              </Row>
+            </div>
 
             <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '20px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
               <strong style={{ display: 'block', marginBottom: '12px', fontSize: '18px' }}>
