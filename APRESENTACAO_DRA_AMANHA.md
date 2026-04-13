@@ -1,17 +1,12 @@
 # Apresentacao para a Dra
 
-## Acessos finais
+## Acesso ao painel
 
 - Painel admin:
   `/?admin=1`
-- Usuario da Dra:
-  `dra`
-- Senha da Dra:
-  `DraWilliane#2026!`
-- Usuario da equipe:
-  `secretaria`
-- Senha da equipe:
-  `EquipeWH#2026!`
+- Cada pessoa deve entrar com o proprio usuario individual.
+- Nao envie senhas em documentos, prints ou mensagens de grupo.
+- Se alguem esquecer a senha, a administracao pode criar uma nova no painel.
 
 ## Roteiro de 2 minutos
 

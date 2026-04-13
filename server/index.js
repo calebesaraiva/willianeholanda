@@ -37,11 +37,10 @@ const app = express();
 const PORT = Number(process.env.PORT || 4000);
 const JWT_SECRET = process.env.JWT_SECRET || 'dra-williane-secret-local';
 const CURRENT_ADMIN_USERNAME = 'williane';
-const CURRENT_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Acesso@2025';
+const CURRENT_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 const CURRENT_STAFF_USERNAME = 'secretaria';
-const CURRENT_STAFF_PASSWORD = process.env.STAFF_PASSWORD || 'secretaria123';
+const CURRENT_STAFF_PASSWORD = process.env.STAFF_PASSWORD || '';
 const LEGACY_ADMIN_USERNAME = 'dra';
-const LEGACY_ADMIN_PASSWORD = 'admin123';
 const PUBLIC_BASE_URL = String(process.env.PUBLIC_BASE_URL || '').trim().replace(/\/$/, '');
 const WHATSAPP_GRAPH_VERSION = process.env.WHATSAPP_GRAPH_VERSION || 'v23.0';
 const WHATSAPP_VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || '';
@@ -782,6 +781,10 @@ function ensureSeedData() {
   const hasUsers = db.prepare('SELECT COUNT(*) AS count FROM users').get().count > 0;
   if (hasUsers) return;
 
+  if (!CURRENT_ADMIN_PASSWORD || !CURRENT_STAFF_PASSWORD) {
+    throw new Error('Defina ADMIN_PASSWORD e STAFF_PASSWORD no ambiente antes de iniciar uma base nova.');
+  }
+
   const now = nowIso();
   const insertUser = db.prepare(`
     INSERT INTO users (id, username, password_hash, role, display_name, active, created_at, updated_at)
@@ -856,17 +859,17 @@ ensureSeedData();
 migrateLegacyJsonIfNeeded();
 
 function migrateDefaultAdminCredentialsIfNeeded() {
+  if (!CURRENT_ADMIN_PASSWORD) return;
   const adminUser = db.prepare('SELECT * FROM users WHERE id = ?').get('user-dra');
   if (!adminUser || adminUser.role !== 'admin') return;
 
   const hasLegacyUsername = adminUser.username === LEGACY_ADMIN_USERNAME;
-  const hasLegacyPassword = bcrypt.compareSync(LEGACY_ADMIN_PASSWORD, adminUser.password_hash);
   const hasCurrentUsername = adminUser.username === CURRENT_ADMIN_USERNAME;
   const hasCurrentPassword = bcrypt.compareSync(CURRENT_ADMIN_PASSWORD, adminUser.password_hash);
 
   if (hasCurrentUsername && hasCurrentPassword) return;
 
-  if ((hasLegacyUsername && hasLegacyPassword) || (hasCurrentUsername && hasLegacyPassword)) {
+  if (hasLegacyUsername || hasCurrentUsername) {
     db.prepare('UPDATE users SET username = ?, password_hash = ?, updated_at = ? WHERE id = ?').run(
       CURRENT_ADMIN_USERNAME,
       bcrypt.hashSync(CURRENT_ADMIN_PASSWORD, 10),
@@ -879,6 +882,7 @@ function migrateDefaultAdminCredentialsIfNeeded() {
 migrateDefaultAdminCredentialsIfNeeded();
 
 function migrateDefaultStaffCredentialsIfNeeded() {
+  if (!CURRENT_STAFF_PASSWORD) return;
   const staffUser = db.prepare('SELECT * FROM users WHERE id = ?').get('user-secretaria');
   if (!staffUser || staffUser.role !== 'staff') return;
 
