@@ -77,7 +77,7 @@ function sortDates(values) {
   return [...new Set(values)].sort((a, b) => a.localeCompare(b));
 }
 
-const DEFAULT_TIME_SLOTS = ['08:00', '09:00', '10:00', '14:00', '15:00', '16:00'];
+const DEFAULT_TIME_SLOTS = ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'];
 
 function toggleDateInSchedule(schedule, dateString) {
   const exists = schedule.availableDates.includes(dateString);
@@ -1313,7 +1313,7 @@ export default function AdminPanel() {
                           <ActionButton onClick={() => toggleAvailableDate(selectedCalendarDate)} variant={draft.admin.availableDates.includes(selectedCalendarDate) ? 'danger' : 'primary'} disabled={busyKey === 'schedule'} stretch={isMobile} style={compactButtonStyle}>
                             {busyKey === 'schedule' ? 'Salvando...' : draft.admin.availableDates.includes(selectedCalendarDate) ? 'Bloquear dia' : 'Liberar dia'}
                           </ActionButton>
-                          {['08:00', '09:00', '10:00', '14:00', '15:00', '16:00'].map((time) => (
+                          {DEFAULT_TIME_SLOTS.map((time) => (
                             <ActionButton key={time} onClick={() => addTimeSlotToDate(selectedCalendarDate, time)}>{time}</ActionButton>
                           ))}
                         </div>

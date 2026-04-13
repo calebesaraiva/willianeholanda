@@ -50,7 +50,7 @@ const WHATSAPP_PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID || '';
 const DATA_DIR = path.join(__dirname, 'data');
 const SQLITE_PATH = path.join(DATA_DIR, 'database.sqlite');
 const LEGACY_JSON_PATH = path.join(DATA_DIR, 'database.json');
-const DEFAULT_TIME_SLOTS = ['08:00', '09:00', '10:00', '14:00', '15:00', '16:00'];
+const DEFAULT_TIME_SLOTS = ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'];
 
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));
