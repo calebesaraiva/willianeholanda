@@ -738,6 +738,12 @@ export default function AdminPanel() {
     () => appointmentsByDate.filter((item) => item.date === todayDate && item.status !== 'cancelado'),
     [appointmentsByDate, todayDate]
   );
+  const upcomingAppointments = useMemo(
+    () => appointmentsByDate
+      .filter((item) => item.status !== 'cancelado' && item.date >= todayDate)
+      .slice(0, 5),
+    [appointmentsByDate, todayDate]
+  );
   const filteredAppointments = useMemo(() => {
     const query = patientSearch.trim().toLowerCase();
     if (!query) return appointmentsByDate;
@@ -1072,6 +1078,54 @@ export default function AdminPanel() {
               {!isAdmin ? <ActionButton onClick={logout} stretch={isMobile} style={compactButtonStyle}>Sair do painel</ActionButton> : null}
             </QuickActionCard> : null}
           </Row>
+          {!adminScheduleOnly ? (
+            <div style={{ marginTop: '18px', background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '14px' }}>
+                <div>
+                  <strong style={{ display: 'block', marginBottom: '6px', fontSize: '18px' }}>Próximos pacientes</strong>
+                  <span style={{ color: 'rgba(245,240,232,0.62)', fontSize: '14px', lineHeight: 1.7 }}>
+                    Resumo rápido para a recepção saber quem vem a seguir.
+                  </span>
+                </div>
+                {upcomingAppointments[0] ? (
+                  <ActionButton onClick={() => openAppointmentModal(upcomingAppointments[0].date, upcomingAppointments[0].time)} variant="primary" stretch={isMobile} style={compactButtonStyle}>
+                    Abrir próxima vaga
+                  </ActionButton>
+                ) : null}
+              </div>
+              {upcomingAppointments.length === 0 ? (
+                <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>
+                  Ainda não existem pacientes agendados para os próximos dias.
+                </p>
+              ) : (
+                <div style={{ display: 'grid', gap: '10px' }}>
+                  {upcomingAppointments.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => openAppointmentDetails(item.id)}
+                      style={{ textAlign: 'left', padding: '14px 16px', borderRadius: '18px', background: item.date === todayDate ? 'rgba(91,196,142,0.12)' : 'rgba(255,255,255,0.04)', border: item.date === todayDate ? '1px solid rgba(91,196,142,0.24)' : '1px solid rgba(255,255,255,0.05)', color: '#F5F0E8', cursor: 'pointer' }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+                        <div>
+                          <strong style={{ display: 'block', marginBottom: '4px' }}>{item.fullName}</strong>
+                          <span style={{ color: 'rgba(245,240,232,0.62)', fontSize: '13px' }}>
+                            {item.procedureName || 'Procedimento a definir'}
+                          </span>
+                        </div>
+                        <div style={{ display: 'grid', justifyItems: isMobile ? 'flex-start' : 'end', gap: '4px' }}>
+                          <span style={{ color: item.date === todayDate ? '#9BE6BA' : '#C9A96E', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                            {item.date === todayDate ? 'Hoje' : formatDateLabel(item.date)}
+                          </span>
+                          <strong style={{ fontSize: '15px' }}>{item.time || 'Sem horário'}</strong>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : null}
         </SectionCard>
 
         {!adminScheduleOnly && systemCheckReport ? (
