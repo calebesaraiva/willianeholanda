@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { defaultSiteContent } from '../content/defaultSiteContent';
 import { useSiteContent } from '../content/SiteContentContext';
 
@@ -34,6 +34,12 @@ function normalizeCpf(value) {
 
 function normalizeTime(value) {
   return /^\d{2}:\d{2}$/.test(String(value || '').trim()) ? String(value).trim() : '';
+}
+
+function formatDateKey(date = new Date()) {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
 }
 
 function sortTimes(values) {
@@ -395,7 +401,9 @@ export default function AdminPanel() {
     text: 'Mensagem de teste enviada pelo painel.',
   });
   const [userEdits, setUserEdits] = useState({});
-  const [calendarMonth, setCalendarMonth] = useState(() => new Date());
+  const [systemDate, setSystemDate] = useState(() => new Date());
+  const [calendarMonth, setCalendarMonth] = useState(() => monthStart(new Date()));
+  const autoFollowSystemMonth = useRef(true);
   const [selectedCalendarDate, setSelectedCalendarDate] = useState('');
   const [notice, setNotice] = useState(null);
   const [busyKey, setBusyKey] = useState('');
@@ -429,6 +437,20 @@ export default function AdminPanel() {
     const handleResize = () => setViewportWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    const refreshSystemDate = () => {
+      const nextDate = new Date();
+      setSystemDate(nextDate);
+      if (autoFollowSystemMonth.current) {
+        setCalendarMonth(monthStart(nextDate));
+      }
+    };
+
+    refreshSystemDate();
+    const interval = window.setInterval(refreshSystemDate, 60000);
+    return () => window.clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -528,6 +550,15 @@ export default function AdminPanel() {
   const closeAppointmentEditor = () => {
     setAppointmentEditOpen(false);
     setAppointmentEditForm({ date: '', time: '' });
+  };
+
+  const openAppointmentDetails = (id) => {
+    const appointment = draft.admin.appointments.find((item) => item.id === id);
+    if (!appointment) return;
+    setSelectedPatientId(id);
+    setAppointmentEditOpen(false);
+    setAppointmentEditForm({ date: appointment.date, time: appointment.time || '' });
+    jumpToDate(appointment.date);
   };
 
   const handleRescheduleAppointment = async () => {
@@ -815,7 +846,7 @@ export default function AdminPanel() {
   }, [appointmentForm.date, appointmentForm.time, freeTimeSlotsByDate]);
   const auditLogs = dashboard?.auditLogs || [];
   const whatsAppEvents = whatsAppStatus?.recentEvents || [];
-  const todayDate = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const todayDate = useMemo(() => formatDateKey(systemDate), [systemDate]);
   const todayAppointments = useMemo(
     () => appointmentsByDate.filter((item) => item.date === todayDate && item.status !== 'cancelado'),
     [appointmentsByDate, todayDate]
@@ -849,6 +880,7 @@ export default function AdminPanel() {
   const jumpToDate = (dateString) => {
     if (!dateString) return;
     const targetDate = new Date(`${dateString}T12:00:00`);
+    autoFollowSystemMonth.current = dateString === todayDate;
     setCalendarMonth(new Date(targetDate.getFullYear(), targetDate.getMonth(), 1));
     setSelectedCalendarDate(dateString);
   };
@@ -1169,8 +1201,8 @@ export default function AdminPanel() {
                     Resumo rápido para a recepção saber quem vem a seguir.
                   </span>
                 </div>
-                {upcomingAppointments[0] ? (
-                  <ActionButton onClick={() => openAppointmentModal(upcomingAppointments[0].date, upcomingAppointments[0].time)} variant="primary" stretch={isMobile} style={compactButtonStyle}>
+                {nextAvailableDate ? (
+                  <ActionButton onClick={() => prepareQuickAppointment(nextAvailableDate)} variant="primary" stretch={isMobile} style={compactButtonStyle}>
                     Abrir próxima vaga
                   </ActionButton>
                 ) : null}
@@ -1290,9 +1322,15 @@ export default function AdminPanel() {
           <div style={{ display: 'grid', gridTemplateColumns: isTablet ? '1fr' : 'minmax(340px, 1.25fr) minmax(320px, 0.95fr)', gap: '20px' }}>
             <div style={{ background: 'rgba(23,23,23,0.92)', borderRadius: '22px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '12px', flexWrap: 'wrap' }}>
-                <ActionButton onClick={() => setCalendarMonth((previous) => new Date(previous.getFullYear(), previous.getMonth() - 1, 1))} stretch={isMobile}>Mês anterior</ActionButton>
+                <ActionButton onClick={() => {
+                  autoFollowSystemMonth.current = false;
+                  setCalendarMonth((previous) => new Date(previous.getFullYear(), previous.getMonth() - 1, 1));
+                }} stretch={isMobile}>Mês anterior</ActionButton>
                 <strong style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: isMobile ? '26px' : '30px', fontWeight: 400, textTransform: 'capitalize', textAlign: 'center', flex: 1 }}>{calendarMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</strong>
-                <ActionButton onClick={() => setCalendarMonth((previous) => new Date(previous.getFullYear(), previous.getMonth() + 1, 1))} stretch={isMobile}>Próximo mês</ActionButton>
+                <ActionButton onClick={() => {
+                  autoFollowSystemMonth.current = false;
+                  setCalendarMonth((previous) => new Date(previous.getFullYear(), previous.getMonth() + 1, 1));
+                }} stretch={isMobile}>Próximo mês</ActionButton>
               </div>
 
               {isAdmin ? (
@@ -1498,7 +1536,7 @@ export default function AdminPanel() {
               ) : (
                 <div style={{ display: 'grid', gap: '10px' }}>
                   {filteredAppointments.map((appointment) => (
-                    <button key={appointment.id} type="button" onClick={() => setSelectedPatientId(appointment.id)} style={{ textAlign: 'left', background: appointment.status === 'cancelado' ? 'rgba(231,177,177,0.08)' : 'rgba(23,23,23,0.92)', borderRadius: '8px', padding: '14px', border: appointment.status === 'cancelado' ? '1px solid rgba(231,177,177,0.18)' : '1px solid rgba(255,255,255,0.05)', color: '#F5F0E8', cursor: 'pointer' }}>
+                    <button key={appointment.id} type="button" onClick={() => openAppointmentDetails(appointment.id)} style={{ textAlign: 'left', background: appointment.status === 'cancelado' ? 'rgba(231,177,177,0.08)' : 'rgba(23,23,23,0.92)', borderRadius: '8px', padding: '14px', border: appointment.status === 'cancelado' ? '1px solid rgba(231,177,177,0.18)' : '1px solid rgba(255,255,255,0.05)', color: '#F5F0E8', cursor: 'pointer' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
                         <div>
                           <strong style={{ display: 'block', fontSize: '16px' }}>{appointment.fullName}</strong>
@@ -1554,7 +1592,7 @@ export default function AdminPanel() {
             onClick={(event) => event.stopPropagation()}
             style={{
               width: '100%',
-              maxWidth: '620px',
+              maxWidth: '760px',
               maxHeight: '92vh',
               overflowY: 'auto',
               background: 'linear-gradient(180deg, rgba(20,20,20,0.98) 0%, rgba(11,11,11,0.98) 100%)',
@@ -1593,11 +1631,25 @@ export default function AdminPanel() {
                 </div>
                 <span style={{ borderRadius: '8px', padding: '8px 10px', background: selectedPatient.status === 'cancelado' ? 'rgba(231,177,177,0.14)' : 'rgba(91,196,142,0.12)', color: selectedPatient.status === 'cancelado' ? '#E7B1B1' : '#9BE6BA', fontSize: '12px' }}>{selectedPatient.status}</span>
               </div>
-              <div style={{ display: 'grid', gap: '8px', color: 'rgba(245,240,232,0.78)', lineHeight: 1.7 }}>
-                <div><strong>CPF:</strong> {selectedPatient.cpf}</div>
-                <div><strong>Endereço:</strong> {selectedPatient.address}</div>
-                <div><strong>Procedimento:</strong> {selectedPatient.procedureName || '-'}</div>
-                <div><strong>Observações:</strong> {selectedPatient.notes || '-'}</div>
+              <Row minWidth={isMobile ? 180 : 260}>
+                <div style={{ display: 'grid', gap: '8px', padding: '14px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: 'rgba(245,240,232,0.78)', lineHeight: 1.7 }}>
+                  <strong style={{ color: '#F5F0E8' }}>Dados do paciente</strong>
+                  <div><strong>Nome:</strong> {selectedPatient.fullName}</div>
+                  <div><strong>CPF:</strong> {selectedPatient.cpf}</div>
+                  <div><strong>Endereço:</strong> {selectedPatient.address}</div>
+                  {selectedPatient.contactPhone ? <div><strong>Telefone:</strong> {selectedPatient.contactPhone}</div> : null}
+                </div>
+                <div style={{ display: 'grid', gap: '8px', padding: '14px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: 'rgba(245,240,232,0.78)', lineHeight: 1.7 }}>
+                  <strong style={{ color: '#F5F0E8' }}>Dados do agendamento</strong>
+                  <div><strong>Data:</strong> {formatDateLabel(selectedPatient.date)}</div>
+                  <div><strong>Horário:</strong> {selectedPatient.time || 'Sem horário'}</div>
+                  <div><strong>Procedimento:</strong> {selectedPatient.procedureName || 'Procedimento a definir'}</div>
+                  <div><strong>Origem:</strong> {selectedPatient.source === 'whatsapp' ? 'WhatsApp' : 'Painel'}</div>
+                </div>
+              </Row>
+              <div style={{ display: 'grid', gap: '8px', padding: '14px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: 'rgba(245,240,232,0.78)', lineHeight: 1.7 }}>
+                <strong style={{ color: '#F5F0E8' }}>Observações internas</strong>
+                <div>{selectedPatient.notes || 'Sem observações registradas.'}</div>
               </div>
             </div>
 
@@ -1649,6 +1701,9 @@ export default function AdminPanel() {
               </div>
             ) : null}
 
+            <div style={{ color: '#C9A96E', textTransform: 'uppercase', letterSpacing: '0.18em', fontSize: '11px' }}>
+              Ações do agendamento
+            </div>
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
               <ActionButton onClick={() => openAppointmentEditor(selectedPatient)} variant="primary" disabled={busyKey === `appointment-${selectedPatient.id}` || selectedPatient.status === 'cancelado'} stretch={isMobile}>Remarcar paciente</ActionButton>
               <ActionButton onClick={() => updateAppointment(selectedPatient.id, 'confirmado')} variant="primary" disabled={busyKey === `appointment-${selectedPatient.id}`} stretch={isMobile}>Confirmar</ActionButton>
