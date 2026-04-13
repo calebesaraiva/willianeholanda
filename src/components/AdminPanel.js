@@ -77,6 +77,12 @@ function sortDates(values) {
   return [...new Set(values)].sort((a, b) => a.localeCompare(b));
 }
 
+function getEditableTimeOptions(dateString, appointment, freeTimeSlotsByDate) {
+  if (!dateString) return [];
+  const currentTime = appointment?.date === dateString && appointment?.time ? [appointment.time] : [];
+  return sortTimes([...(freeTimeSlotsByDate[dateString] || []), ...currentTime]);
+}
+
 const DEFAULT_TIME_SLOTS = ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'];
 
 function toggleDateInSchedule(schedule, dateString) {
@@ -399,6 +405,8 @@ export default function AdminPanel() {
   const [appointmentDetailsOpen, setAppointmentDetailsOpen] = useState(false);
   const [patientSearch, setPatientSearch] = useState('');
   const [selectedPatientId, setSelectedPatientId] = useState('');
+  const [appointmentEditOpen, setAppointmentEditOpen] = useState(false);
+  const [appointmentEditForm, setAppointmentEditForm] = useState({ date: '', time: '' });
   const [lastConfirmation, setLastConfirmation] = useState('');
   const [viewportWidth, setViewportWidth] = useState(() => window.innerWidth);
 
@@ -436,6 +444,10 @@ export default function AdminPanel() {
       return accumulator;
     }, {}));
   }, [users]);
+
+  useEffect(() => {
+    closeAppointmentEditor();
+  }, [selectedPatientId]);
 
   const flashNotice = (type, message) => setNotice({ type, message });
   const updateDraft = (path, value) => setDraft((previous) => setAtPath(previous, path, value));
@@ -500,11 +512,70 @@ export default function AdminPanel() {
     ));
     const saved = await saveScheduleOptimistically(
       { ...draft.admin, appointments: nextAppointments },
-      'Atendimento cancelado e horário liberado automaticamente.',
+      'Agendamento cancelado e horário liberado automaticamente.',
       draft.admin,
       `appointment-${id}`
     );
     if (saved && selectedPatientId === id) setSelectedPatientId('');
+  };
+
+  const openAppointmentEditor = (appointment) => {
+    if (!appointment) return;
+    setAppointmentEditForm({ date: appointment.date, time: appointment.time || '' });
+    setAppointmentEditOpen(true);
+  };
+
+  const closeAppointmentEditor = () => {
+    setAppointmentEditOpen(false);
+    setAppointmentEditForm({ date: '', time: '' });
+  };
+
+  const handleRescheduleAppointment = async () => {
+    if (!selectedPatient || busyKey === `appointment-${selectedPatient.id}`) return;
+
+    const nextDate = appointmentEditForm.date;
+    const nextTime = normalizeTime(appointmentEditForm.time);
+
+    if (!nextDate || !nextTime) {
+      flashNotice('error', 'Selecione a nova data e o novo horário.');
+      return;
+    }
+    if (!draft.admin.availableDates.includes(nextDate)) {
+      flashNotice('error', 'A data escolhida não foi liberada pela Dra.');
+      return;
+    }
+    if (!(draft.admin.availableTimeSlots?.[nextDate] || []).includes(nextTime)) {
+      flashNotice('error', 'O horário escolhido não está liberado pela Dra.');
+      return;
+    }
+
+    const duplicate = draft.admin.appointments.some((item) => (
+      item.id !== selectedPatient.id &&
+      item.date === nextDate &&
+      item.time === nextTime &&
+      item.status !== 'cancelado'
+    ));
+    if (duplicate) {
+      flashNotice('error', 'Já existe outro paciente nesse horário.');
+      return;
+    }
+
+    const nextAppointments = draft.admin.appointments.map((item) => (
+      item.id === selectedPatient.id
+        ? { ...item, date: nextDate, time: nextTime, updatedAt: new Date().toISOString() }
+        : item
+    ));
+    const saved = await saveScheduleOptimistically(
+      { ...draft.admin, appointments: nextAppointments },
+      'Horário do paciente alterado com sucesso.',
+      draft.admin,
+      `appointment-${selectedPatient.id}`
+    );
+
+    if (saved) {
+      setAppointmentEditOpen(false);
+      jumpToDate(nextDate);
+    }
   };
 
   const addTimeSlotToDate = async (dateString, timeValue) => {
@@ -718,6 +789,17 @@ export default function AdminPanel() {
   const selectedDateIsFull = selectedDateIsAvailable && selectedDateSlots.length > 0 && selectedDateFreeSlots.length === 0;
   const datesWithoutSlots = draft.admin.availableDates.filter((date) => (availableTimeSlots[date] || []).length === 0);
   const appointmentTimeOptions = appointmentForm.date ? (freeTimeSlotsByDate[appointmentForm.date] || []) : [];
+  const appointmentEditDateOptions = useMemo(() => {
+    if (!selectedPatient) return [];
+    return sortDates([
+      ...draft.admin.availableDates.filter((date) => (freeTimeSlotsByDate[date] || []).length > 0),
+      selectedPatient.date,
+    ]).map((date) => ({ value: date, label: formatDateLabel(date) }));
+  }, [draft.admin.availableDates, freeTimeSlotsByDate, selectedPatient]);
+  const appointmentEditTimeOptions = useMemo(
+    () => getEditableTimeOptions(appointmentEditForm.date, selectedPatient, freeTimeSlotsByDate),
+    [appointmentEditForm.date, freeTimeSlotsByDate, selectedPatient]
+  );
   const summary = dashboard?.summary || {};
   useEffect(() => {
     if (appointmentForm.date && !(freeTimeSlotsByDate[appointmentForm.date] || []).includes(appointmentForm.time)) {
@@ -1453,7 +1535,10 @@ export default function AdminPanel() {
 
       {selectedPatient ? (
         <div
-          onClick={() => setSelectedPatientId('')}
+          onClick={() => {
+            setSelectedPatientId('');
+            closeAppointmentEditor();
+          }}
           style={{
             position: 'fixed',
             inset: 0,
@@ -1470,6 +1555,8 @@ export default function AdminPanel() {
             style={{
               width: '100%',
               maxWidth: '620px',
+              maxHeight: '92vh',
+              overflowY: 'auto',
               background: 'linear-gradient(180deg, rgba(20,20,20,0.98) 0%, rgba(11,11,11,0.98) 100%)',
               border: '1px solid rgba(201,169,110,0.24)',
               borderRadius: '28px',
@@ -1492,21 +1579,81 @@ export default function AdminPanel() {
                   {formatDateLabel(selectedPatient.date)}{selectedPatient.time ? ` às ${selectedPatient.time}` : ''}
                 </p>
               </div>
-              <ActionButton onClick={() => setSelectedPatientId('')}>Fechar</ActionButton>
+              <ActionButton onClick={() => {
+                setSelectedPatientId('');
+                closeAppointmentEditor();
+              }}>Fechar</ActionButton>
             </div>
 
-            <div style={{ display: 'grid', gap: '8px', color: 'rgba(245,240,232,0.78)', lineHeight: 1.7 }}>
-              <div><strong>Status:</strong> {selectedPatient.status}</div>
-              <div><strong>CPF:</strong> {selectedPatient.cpf}</div>
-              <div><strong>Endereço:</strong> {selectedPatient.address}</div>
-              <div><strong>Procedimento:</strong> {selectedPatient.procedureName || '-'}</div>
-              <div><strong>Observações:</strong> {selectedPatient.notes || '-'}</div>
+            <div style={{ display: 'grid', gap: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', flexWrap: 'wrap', padding: '14px', borderRadius: '8px', background: selectedPatient.status === 'cancelado' ? 'rgba(231,177,177,0.08)' : 'rgba(91,196,142,0.08)', border: selectedPatient.status === 'cancelado' ? '1px solid rgba(231,177,177,0.18)' : '1px solid rgba(91,196,142,0.18)' }}>
+                <div>
+                  <strong style={{ display: 'block', marginBottom: '4px' }}>Agendamento atual</strong>
+                  <span style={{ color: 'rgba(245,240,232,0.72)' }}>{formatDateLabel(selectedPatient.date)}{selectedPatient.time ? ` às ${selectedPatient.time}` : ''}</span>
+                </div>
+                <span style={{ borderRadius: '8px', padding: '8px 10px', background: selectedPatient.status === 'cancelado' ? 'rgba(231,177,177,0.14)' : 'rgba(91,196,142,0.12)', color: selectedPatient.status === 'cancelado' ? '#E7B1B1' : '#9BE6BA', fontSize: '12px' }}>{selectedPatient.status}</span>
+              </div>
+              <div style={{ display: 'grid', gap: '8px', color: 'rgba(245,240,232,0.78)', lineHeight: 1.7 }}>
+                <div><strong>CPF:</strong> {selectedPatient.cpf}</div>
+                <div><strong>Endereço:</strong> {selectedPatient.address}</div>
+                <div><strong>Procedimento:</strong> {selectedPatient.procedureName || '-'}</div>
+                <div><strong>Observações:</strong> {selectedPatient.notes || '-'}</div>
+              </div>
             </div>
+
+            {appointmentEditOpen ? (
+              <div style={{ display: 'grid', gap: '12px', padding: '14px', borderRadius: '8px', background: 'rgba(201,169,110,0.08)', border: '1px solid rgba(201,169,110,0.18)' }}>
+                <div>
+                  <strong style={{ display: 'block', fontSize: '16px', marginBottom: '4px' }}>Remarcar paciente</strong>
+                  <span style={{ color: 'rgba(245,240,232,0.66)', lineHeight: 1.7, fontSize: '13px' }}>Escolha uma data e um horário livre. O sistema já bloqueia horários ocupados.</span>
+                </div>
+                <Row minWidth={isMobile ? 180 : 220}>
+                  <SelectField
+                    label="Nova data"
+                    value={appointmentEditForm.date}
+                    onChange={(value) => {
+                      const timeOptions = getEditableTimeOptions(value, selectedPatient, freeTimeSlotsByDate);
+                      setAppointmentEditForm({ date: value, time: timeOptions[0] || '' });
+                    }}
+                    options={appointmentEditDateOptions}
+                    disabled={busyKey === `appointment-${selectedPatient.id}` || selectedPatient.status === 'cancelado'}
+                  />
+                  <SelectField
+                    label="Novo horário"
+                    value={appointmentEditForm.time}
+                    onChange={(value) => setAppointmentEditForm((previous) => ({ ...previous, time: value }))}
+                    options={appointmentEditTimeOptions.length > 0 ? appointmentEditTimeOptions.map((time) => ({ value: time, label: time })) : [{ value: '', label: 'Sem horário livre' }]}
+                    disabled={busyKey === `appointment-${selectedPatient.id}` || selectedPatient.status === 'cancelado' || appointmentEditTimeOptions.length === 0}
+                  />
+                </Row>
+                {appointmentEditForm.date && appointmentEditForm.time ? (
+                  <div style={{ padding: '12px', borderRadius: '8px', background: 'rgba(0,0,0,0.20)', border: '1px solid rgba(255,255,255,0.06)', color: '#F1DEC0', lineHeight: 1.7 }}>
+                    Vai mudar para <strong>{formatDateLabel(appointmentEditForm.date)} às {appointmentEditForm.time}</strong>.
+                  </div>
+                ) : null}
+                <p style={{ margin: 0, color: 'rgba(245,240,232,0.66)', lineHeight: 1.7, fontSize: '13px' }}>
+                  O horário antigo volta a ficar livre assim que a alteração for salva.
+                </p>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <ActionButton onClick={handleRescheduleAppointment} variant="primary" disabled={busyKey === `appointment-${selectedPatient.id}` || selectedPatient.status === 'cancelado' || appointmentEditTimeOptions.length === 0} stretch={isMobile}>
+                    {busyKey === `appointment-${selectedPatient.id}` ? 'Salvando...' : 'Salvar novo horário'}
+                  </ActionButton>
+                  <ActionButton onClick={closeAppointmentEditor} disabled={busyKey === `appointment-${selectedPatient.id}`} stretch={isMobile}>Voltar</ActionButton>
+                </div>
+              </div>
+            ) : null}
+
+            {!appointmentEditOpen ? (
+              <div style={{ padding: '14px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: 'rgba(245,240,232,0.68)', lineHeight: 1.7 }}>
+                Para mudar o dia ou horário, use <strong style={{ color: '#F5F0E8' }}>Remarcar paciente</strong>. Para liberar o horário sem escolher outro, use <strong style={{ color: '#F5F0E8' }}>Cancelar agendamento</strong>.
+              </div>
+            ) : null}
 
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <ActionButton onClick={() => openAppointmentEditor(selectedPatient)} variant="primary" disabled={busyKey === `appointment-${selectedPatient.id}` || selectedPatient.status === 'cancelado'} stretch={isMobile}>Remarcar paciente</ActionButton>
               <ActionButton onClick={() => updateAppointment(selectedPatient.id, 'confirmado')} variant="primary" disabled={busyKey === `appointment-${selectedPatient.id}`} stretch={isMobile}>Confirmar</ActionButton>
               <ActionButton onClick={() => updateAppointment(selectedPatient.id, 'concluido')} disabled={busyKey === `appointment-${selectedPatient.id}`} stretch={isMobile}>Concluir</ActionButton>
-              <ActionButton onClick={() => cancelAppointment(selectedPatient.id)} variant="danger" disabled={busyKey === `appointment-${selectedPatient.id}` || selectedPatient.status === 'cancelado'} stretch={isMobile}>Cancelar atendimento</ActionButton>
+              <ActionButton onClick={() => cancelAppointment(selectedPatient.id)} variant="danger" disabled={busyKey === `appointment-${selectedPatient.id}` || selectedPatient.status === 'cancelado'} stretch={isMobile}>Cancelar agendamento</ActionButton>
             </div>
           </div>
         </div>
