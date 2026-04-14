@@ -57,6 +57,19 @@ function formatDateLabel(dateString) {
   });
 }
 
+function formatDateTimeLabel(dateString) {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  return Number.isNaN(date.getTime()) ? '-' : date.toLocaleString('pt-BR');
+}
+
+function formatFileSize(bytes) {
+  const size = Number(bytes || 0);
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 function parseDateKey(dateString) {
   return new Date(`${dateString}T12:00:00`);
 }
@@ -170,7 +183,7 @@ const DEFAULT_TIME_SLOTS = [
 function toggleDateInSchedule(schedule, dateString) {
   const exists = schedule.availableDates.includes(dateString);
   const nextDates = exists ? schedule.availableDates.filter((item) => item !== dateString) : sortDates([...schedule.availableDates, dateString]);
-  const nextAppointments = schedule.appointments.filter((item) => item.status === 'cancelado' || nextDates.includes(item.date));
+  const nextAppointments = schedule.appointments.filter((item) => item.archivedAt || item.status === 'cancelado' || nextDates.includes(item.date));
   const nextAvailableTimeSlots = { ...(schedule.availableTimeSlots || {}) };
 
   if (exists) {
@@ -476,6 +489,7 @@ export default function AdminPanel() {
     users,
     dashboard,
     whatsAppStatus,
+    patientHistory,
     saveContent,
     resetContent,
     saveSchedule,
@@ -486,6 +500,9 @@ export default function AdminPanel() {
     simulateWhatsAppInbound,
     sendWhatsAppTestMessage,
     runSystemCheck,
+    refreshPatientHistory,
+    runRetentionMaintenance,
+    downloadArchiveFile,
     refreshAll,
     refreshSchedule,
   } = useSiteContent();
@@ -517,6 +534,8 @@ export default function AdminPanel() {
   const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
   const [appointmentDetailsOpen, setAppointmentDetailsOpen] = useState(false);
   const [patientSearch, setPatientSearch] = useState('');
+  const [historySearch, setHistorySearch] = useState('');
+  const [historyFilter, setHistoryFilter] = useState('all');
   const [selectedPatientId, setSelectedPatientId] = useState('');
   const [appointmentEditOpen, setAppointmentEditOpen] = useState(false);
   const [appointmentEditForm, setAppointmentEditForm] = useState({ date: '', time: '' });
@@ -937,6 +956,9 @@ export default function AdminPanel() {
     [appointmentEditForm.date, freeTimeSlotsByDate, selectedPatient]
   );
   const summary = dashboard?.summary || {};
+  const retention = patientHistory?.retention || {};
+  const historyRecords = patientHistory?.records || [];
+  const archiveFiles = patientHistory?.archiveFiles || [];
   useEffect(() => {
     if (appointmentForm.date && !(freeTimeSlotsByDate[appointmentForm.date] || []).includes(appointmentForm.time)) {
       setAppointmentForm((previous) => ({ ...previous, time: '' }));
@@ -968,9 +990,10 @@ export default function AdminPanel() {
   );
   const filteredAppointments = useMemo(() => {
     const query = patientSearch.trim().toLowerCase();
-    if (!query) return appointmentsByDate;
+    const operationalAppointments = appointmentsByDate.filter((item) => !item.archivedAt);
+    if (!query) return operationalAppointments;
     const digits = normalizeCpf(query);
-    return appointmentsByDate.filter((item) => {
+    return operationalAppointments.filter((item) => {
       const haystack = [
         item.fullName,
         item.cpf,
@@ -1043,6 +1066,19 @@ export default function AdminPanel() {
       document.removeEventListener('visibilitychange', refreshVisibleSchedule);
     };
   }, [currentUser, isAdmin, refreshSchedule]);
+
+  useEffect(() => {
+    if (!currentUser) return undefined;
+    const timeout = window.setTimeout(() => {
+      refreshPatientHistory({
+        query: historySearch,
+        archived: historyFilter,
+        limit: 250,
+      }).catch(() => {});
+    }, 350);
+
+    return () => window.clearTimeout(timeout);
+  }, [currentUser, historySearch, historyFilter]);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -1170,6 +1206,31 @@ export default function AdminPanel() {
     try {
       await downloadBackup();
       flashNotice('success', 'Backup exportado com sucesso.');
+    } catch (error) {
+      flashNotice('error', error.message);
+    } finally {
+      setBusyKey('');
+    }
+  };
+
+  const handleRunRetentionMaintenance = async () => {
+    if (!isAdmin) return;
+    setBusyKey('retention');
+    try {
+      const result = await runRetentionMaintenance();
+      flashNotice('success', `Manutenção concluída: ${result.archivedAppointments} registro(s) compactado(s) e ${result.deletedArchiveFiles} arquivo(s) temporário(s) removido(s).`);
+    } catch (error) {
+      flashNotice('error', error.message);
+    } finally {
+      setBusyKey('');
+    }
+  };
+
+  const handleDownloadArchiveFile = async (fileId) => {
+    setBusyKey(`archive-${fileId}`);
+    try {
+      await downloadArchiveFile(fileId);
+      flashNotice('success', 'Arquivo compactado baixado com sucesso.');
     } catch (error) {
       flashNotice('error', error.message);
     } finally {
@@ -1673,6 +1734,92 @@ export default function AdminPanel() {
             </div>
           ) : null}
         </SectionCard>
+
+        {currentUser ? (
+          <SectionCard eyebrow="Histórico" title="Histórico de pacientes" description="Os atendimentos recentes ficam em uso normal. Após 30 dias, o sistema compacta o histórico em arquivo seguro e mantém o registro principal arquivado para retenção legal." style={{ padding: sectionPadding }}>
+            <Row minWidth={isMobile ? 180 : 220}>
+              <StatCard label="Histórico recente" value={summary.recentHistory ?? 0} tone="white" />
+              <StatCard label="Registros arquivados" value={retention.archivedAppointmentCount ?? summary.archivedHistory ?? 0} />
+              <StatCard label="Arquivos compactados" value={retention.activeArchiveFileCount ?? summary.archiveFiles ?? 0} tone="green" />
+              <StatCard label="A compactar" value={retention.pendingArchiveCount ?? 0} tone="white" />
+            </Row>
+
+            <div style={{ padding: '16px 18px', borderRadius: '8px', background: 'rgba(201,169,110,0.08)', border: '1px solid rgba(201,169,110,0.18)', color: 'rgba(245,240,232,0.78)', lineHeight: 1.8 }}>
+              <strong style={{ color: '#F1DEC0' }}>Política ativa:</strong> histórico visível por {retention.archiveAfterDays ?? 30} dias, arquivo compactado mantido por {retention.archiveFileRetentionDays ?? 90} dias e registro clínico preservado por {retention.medicalRecordRetentionYears ?? 20} anos. A rotina automática roda ao iniciar o servidor e uma vez por dia.
+            </div>
+
+            <Row minWidth={isMobile ? 180 : 240}>
+              <Field label="Buscar no histórico" value={historySearch} onChange={setHistorySearch} placeholder="Nome, CPF, data, procedimento ou observação" />
+              <SelectField
+                label="Filtro"
+                value={historyFilter}
+                onChange={setHistoryFilter}
+                options={[
+                  { value: 'all', label: 'Todos os registros' },
+                  { value: 'recent', label: 'Somente recentes' },
+                  { value: 'archived', label: 'Somente arquivados' },
+                ]}
+              />
+            </Row>
+
+            {isAdmin ? (
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <ActionButton onClick={handleRunRetentionMaintenance} variant="primary" disabled={busyKey === 'retention'} stretch={isMobile}>
+                  {busyKey === 'retention' ? 'Executando manutenção...' : 'Executar manutenção agora'}
+                </ActionButton>
+                <ActionButton onClick={handleBackupDownload} disabled={busyKey === 'backup'} stretch={isMobile}>
+                  {busyKey === 'backup' ? 'Gerando backup...' : 'Baixar backup completo'}
+                </ActionButton>
+              </div>
+            ) : null}
+
+            <div style={{ display: 'grid', gap: '10px' }}>
+              <strong style={{ fontSize: '18px' }}>Registros encontrados</strong>
+              {historyRecords.length === 0 ? (
+                <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Nenhum registro encontrado para essa busca.</p>
+              ) : (
+                historyRecords.slice(0, 80).map((item) => (
+                  <button key={item.id} type="button" onClick={() => openAppointmentDetails(item.id)} style={{ textAlign: 'left', padding: '14px', borderRadius: '8px', background: item.archivedAt ? 'rgba(201,169,110,0.08)' : 'rgba(23,23,23,0.92)', border: item.archivedAt ? '1px solid rgba(201,169,110,0.18)' : '1px solid rgba(255,255,255,0.05)', color: '#F5F0E8', cursor: 'pointer' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+                      <div>
+                        <strong style={{ display: 'block', marginBottom: '4px' }}>{item.fullName}</strong>
+                        <span style={{ color: '#C9A96E', fontSize: '13px' }}>{formatDateLabel(item.date)}{item.time ? ` às ${item.time}` : ''}</span>
+                      </div>
+                      <span style={{ borderRadius: '8px', padding: '7px 10px', background: item.archivedAt ? 'rgba(201,169,110,0.14)' : 'rgba(91,196,142,0.12)', color: item.archivedAt ? '#F1DEC0' : '#9BE6BA', fontSize: '12px' }}>
+                        {item.archivedAt ? 'Arquivado' : 'Recente'}
+                      </span>
+                    </div>
+                    <div style={{ marginTop: '8px', color: 'rgba(245,240,232,0.64)', fontSize: '13px', lineHeight: 1.6 }}>
+                      CPF {item.cpf} - {item.procedureName || 'Procedimento a definir'} - status {item.status}
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+
+            {isAdmin ? (
+              <div style={{ display: 'grid', gap: '10px' }}>
+                <strong style={{ fontSize: '18px' }}>Arquivos compactados</strong>
+                {archiveFiles.length === 0 ? (
+                  <p style={{ margin: 0, color: 'rgba(245,240,232,0.62)', lineHeight: 1.7 }}>Ainda não existe arquivo compactado. A rotina cria o primeiro quando houver registros com mais de 30 dias.</p>
+                ) : (
+                  archiveFiles.map((file) => (
+                    <div key={file.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', alignItems: 'center', padding: '14px', borderRadius: '8px', background: 'rgba(23,23,23,0.92)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      <div style={{ color: 'rgba(245,240,232,0.76)', lineHeight: 1.7 }}>
+                        <strong style={{ display: 'block', color: '#F5F0E8' }}>{file.fileName}</strong>
+                        <span>{file.recordsCount} registro(s) - {formatFileSize(file.fileSizeBytes)} - {file.periodStart || '-'} a {file.periodEnd || '-'}</span>
+                        <div style={{ fontSize: '12px', color: 'rgba(245,240,232,0.54)' }}>Criado em {formatDateTimeLabel(file.createdAt)}</div>
+                      </div>
+                      <ActionButton onClick={() => handleDownloadArchiveFile(file.id)} disabled={busyKey === `archive-${file.id}`}>
+                        {busyKey === `archive-${file.id}` ? 'Baixando...' : 'Baixar'}
+                      </ActionButton>
+                    </div>
+                  ))
+                )}
+              </div>
+            ) : null}
+          </SectionCard>
+        ) : null}
 
         {!adminScheduleOnly ? (
           <>

@@ -2,6 +2,8 @@
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const zlib = require('zlib');
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { DatabaseSync } = require('node:sqlite');
@@ -47,8 +49,12 @@ const WHATSAPP_VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || '';
 const WHATSAPP_ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN || '';
 const WHATSAPP_PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID || '';
 const DATA_DIR = path.join(__dirname, 'data');
+const ARCHIVE_DIR = path.join(DATA_DIR, 'patient-archives');
 const SQLITE_PATH = path.join(DATA_DIR, 'database.sqlite');
 const LEGACY_JSON_PATH = path.join(DATA_DIR, 'database.json');
+const HISTORY_ARCHIVE_AFTER_DAYS = Number(process.env.HISTORY_ARCHIVE_AFTER_DAYS || 30);
+const ARCHIVE_FILE_RETENTION_DAYS = Number(process.env.ARCHIVE_FILE_RETENTION_DAYS || 90);
+const MEDICAL_RECORD_RETENTION_YEARS = Number(process.env.MEDICAL_RECORD_RETENTION_YEARS || 20);
 const DEFAULT_TIME_SLOTS = [
   '07:00', '07:30',
   '08:00', '08:30',
@@ -68,6 +74,7 @@ app.use(cors());
 app.use(express.json({ limit: '20mb' }));
 
 fs.mkdirSync(DATA_DIR, { recursive: true });
+fs.mkdirSync(ARCHIVE_DIR, { recursive: true });
 
 const db = new DatabaseSync(SQLITE_PATH);
 db.exec(`
@@ -119,6 +126,20 @@ db.exec(`
     FOREIGN KEY(created_by_user_id) REFERENCES users(id)
   );
 
+  CREATE TABLE IF NOT EXISTS patient_archive_files (
+    id TEXT PRIMARY KEY,
+    file_name TEXT NOT NULL,
+    file_path TEXT NOT NULL,
+    file_size_bytes INTEGER NOT NULL DEFAULT 0,
+    sha256 TEXT NOT NULL DEFAULT '',
+    records_count INTEGER NOT NULL DEFAULT 0,
+    period_start TEXT NOT NULL DEFAULT '',
+    period_end TEXT NOT NULL DEFAULT '',
+    created_at TEXT NOT NULL,
+    deleted_at TEXT DEFAULT '',
+    deleted_reason TEXT DEFAULT ''
+  );
+
   CREATE TABLE IF NOT EXISTS audit_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     actor_user_id TEXT,
@@ -166,6 +187,8 @@ function ensureSchemaMigrations() {
   ensureColumn('appointments', 'appointment_time', `TEXT DEFAULT ''`);
   ensureColumn('appointments', 'source', `TEXT NOT NULL DEFAULT 'panel'`);
   ensureColumn('appointments', 'contact_phone', `TEXT DEFAULT ''`);
+  ensureColumn('appointments', 'archived_at', `TEXT DEFAULT ''`);
+  ensureColumn('appointments', 'archive_file_id', `TEXT DEFAULT ''`);
 }
 
 ensureSchemaMigrations();
@@ -264,6 +287,8 @@ function mapAppointmentRow(row) {
     createdByUserId: row.created_by_user_id || '',
     source: row.source || 'panel',
     contactPhone: row.contact_phone || '',
+    archivedAt: row.archived_at || '',
+    archiveFileId: row.archive_file_id || '',
   };
 }
 
@@ -279,7 +304,7 @@ function getSchedule() {
     return accumulator;
   }, {});
   const appointments = db.prepare(`
-    SELECT id, full_name, address, cpf, appointment_date, appointment_time, status, procedure_name, notes, created_at, updated_at, created_by_user_id, source, contact_phone
+    SELECT id, full_name, address, cpf, appointment_date, appointment_time, status, procedure_name, notes, created_at, updated_at, created_by_user_id, source, contact_phone, archived_at, archive_file_id
     FROM appointments
     ORDER BY appointment_date ASC, full_name ASC
   `).all().map(mapAppointmentRow);
@@ -356,7 +381,7 @@ function getActiveWhatsAppSessionCount() {
 
 function getAppointmentById(id) {
   const row = db.prepare(`
-    SELECT id, full_name, address, cpf, appointment_date, appointment_time, status, procedure_name, notes, created_at, updated_at, created_by_user_id, source, contact_phone
+    SELECT id, full_name, address, cpf, appointment_date, appointment_time, status, procedure_name, notes, created_at, updated_at, created_by_user_id, source, contact_phone, archived_at, archive_file_id
     FROM appointments
     WHERE id = ?
   `).get(id);
@@ -454,8 +479,8 @@ function createAppointment(input, actor) {
 
   db.prepare(`
     INSERT INTO appointments (
-      id, full_name, address, cpf, appointment_date, appointment_time, status, procedure_name, notes, created_at, updated_at, created_by_user_id, source, contact_phone
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      id, full_name, address, cpf, appointment_date, appointment_time, status, procedure_name, notes, created_at, updated_at, created_by_user_id, source, contact_phone, archived_at, archive_file_id
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     appointment.id,
     appointment.fullName,
@@ -470,7 +495,9 @@ function createAppointment(input, actor) {
     appointment.updatedAt,
     creatorUserId,
     appointment.source,
-    appointment.contactPhone
+    appointment.contactPhone,
+    '',
+    ''
   );
 
   return getAppointmentById(appointment.id);
@@ -522,8 +549,8 @@ function persistSchedule(input, actor) {
     db.prepare('DELETE FROM appointments').run();
     const insertAppointment = db.prepare(`
       INSERT INTO appointments (
-        id, full_name, address, cpf, appointment_date, appointment_time, status, procedure_name, notes, created_at, updated_at, created_by_user_id, source, contact_phone
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        id, full_name, address, cpf, appointment_date, appointment_time, status, procedure_name, notes, created_at, updated_at, created_by_user_id, source, contact_phone, archived_at, archive_file_id
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     sanitizedAppointments.forEach((item) => {
@@ -542,7 +569,9 @@ function persistSchedule(input, actor) {
         nowIso(),
         existing?.createdByUserId || actor.id,
         existing?.source || item.source || 'panel',
-        existing?.contactPhone || item.contactPhone || ''
+        existing?.contactPhone || item.contactPhone || '',
+        existing?.archivedAt || item.archivedAt || '',
+        existing?.archiveFileId || item.archiveFileId || ''
       );
     });
 
@@ -671,11 +700,210 @@ function getDashboardSummary() {
     totalAppointments: appointments.length,
     activeAppointments: activeAppointments.length,
     uniquePatients,
+    recentHistory: appointments.filter((item) => !item.archivedAt).length,
+    archivedHistory: appointments.filter((item) => item.archivedAt).length,
+    archiveFiles: db.prepare("SELECT COUNT(*) AS count FROM patient_archive_files WHERE COALESCE(deleted_at, '') = ''").get().count,
     byStatus,
     bySource: appointments.reduce((accumulator, item) => {
       accumulator[item.source || 'panel'] = (accumulator[item.source || 'panel'] || 0) + 1;
       return accumulator;
     }, {}),
+  };
+}
+
+function dateKeyFromDate(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function addDaysToDate(date, amount) {
+  const next = new Date(date);
+  next.setUTCDate(next.getUTCDate() + amount);
+  return next;
+}
+
+function getArchiveFileRows(includeDeleted = false) {
+  const where = includeDeleted ? '' : "WHERE COALESCE(deleted_at, '') = ''";
+  return db.prepare(`
+    SELECT id, file_name, file_path, file_size_bytes, sha256, records_count, period_start, period_end, created_at, deleted_at, deleted_reason
+    FROM patient_archive_files
+    ${where}
+    ORDER BY created_at DESC
+  `).all().map((row) => ({
+    id: row.id,
+    fileName: row.file_name,
+    fileSizeBytes: row.file_size_bytes,
+    sha256: row.sha256,
+    recordsCount: row.records_count,
+    periodStart: row.period_start,
+    periodEnd: row.period_end,
+    createdAt: row.created_at,
+    deletedAt: row.deleted_at || '',
+    deletedReason: row.deleted_reason || '',
+  }));
+}
+
+function getRetentionStatus() {
+  const today = new Date();
+  const archiveCutoff = dateKeyFromDate(addDaysToDate(today, -HISTORY_ARCHIVE_AFTER_DAYS));
+  const fileCutoffIso = addDaysToDate(today, -ARCHIVE_FILE_RETENTION_DAYS).toISOString();
+
+  return {
+    archiveAfterDays: HISTORY_ARCHIVE_AFTER_DAYS,
+    archiveFileRetentionDays: ARCHIVE_FILE_RETENTION_DAYS,
+    medicalRecordRetentionYears: MEDICAL_RECORD_RETENTION_YEARS,
+    archiveCutoffDate: archiveCutoff,
+    fileRetentionCutoffAt: fileCutoffIso,
+    pendingArchiveCount: db.prepare(`
+      SELECT COUNT(*) AS count
+      FROM appointments
+      WHERE appointment_date <= ?
+        AND COALESCE(archived_at, '') = ''
+    `).get(archiveCutoff).count,
+    archivedAppointmentCount: db.prepare(`
+      SELECT COUNT(*) AS count
+      FROM appointments
+      WHERE COALESCE(archived_at, '') <> ''
+    `).get().count,
+    activeArchiveFileCount: db.prepare(`
+      SELECT COUNT(*) AS count
+      FROM patient_archive_files
+      WHERE COALESCE(deleted_at, '') = ''
+    `).get().count,
+    expiredArchiveFileCount: db.prepare(`
+      SELECT COUNT(*) AS count
+      FROM patient_archive_files
+      WHERE COALESCE(deleted_at, '') = ''
+        AND created_at <= ?
+    `).get(fileCutoffIso).count,
+  };
+}
+
+function getPatientHistory({ query = '', archived = 'all', limit = 250 } = {}) {
+  const rows = getSchedule().appointments;
+  const normalizedQuery = String(query || '').trim().toLowerCase();
+  const digits = normalizeCpf(normalizedQuery);
+
+  return rows
+    .filter((item) => {
+      if (archived === 'recent' && item.archivedAt) return false;
+      if (archived === 'archived' && !item.archivedAt) return false;
+      if (!normalizedQuery) return true;
+
+      const haystack = [
+        item.fullName,
+        item.cpf,
+        item.address,
+        item.contactPhone,
+        item.date,
+        item.time,
+        item.status,
+        item.procedureName,
+        item.notes,
+      ].join(' ').toLowerCase();
+      return haystack.includes(normalizedQuery) || (digits && normalizeCpf(item.cpf).includes(digits));
+    })
+    .sort((a, b) => {
+      const dateComparison = b.date.localeCompare(a.date);
+      if (dateComparison !== 0) return dateComparison;
+      return (b.time || '').localeCompare(a.time || '');
+    })
+    .slice(0, Number(limit) || 250);
+}
+
+function createPatientArchiveFile(appointments, actor, reason = 'automatic_30_day_archive') {
+  if (!appointments.length) return null;
+  fs.mkdirSync(ARCHIVE_DIR, { recursive: true });
+
+  const createdAt = nowIso();
+  const id = `archive-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const safeTimestamp = createdAt.replace(/[:.]/g, '-');
+  const fileName = `patient-history-${safeTimestamp}.json.gz`;
+  const filePath = path.join(ARCHIVE_DIR, fileName);
+  const periodStart = appointments.reduce((oldest, item) => (!oldest || item.date < oldest ? item.date : oldest), '');
+  const periodEnd = appointments.reduce((latest, item) => (!latest || item.date > latest ? item.date : latest), '');
+  const payload = {
+    exportedAt: createdAt,
+    reason,
+    retentionPolicy: {
+      visibleRecentDays: HISTORY_ARCHIVE_AFTER_DAYS,
+      backupFileRetentionDays: ARCHIVE_FILE_RETENTION_DAYS,
+      medicalRecordRetentionYears: MEDICAL_RECORD_RETENTION_YEARS,
+      note: 'Este arquivo compacta o histórico para recuperação. O registro principal permanece no banco para retenção legal.',
+    },
+    records: appointments,
+  };
+  const compressed = zlib.gzipSync(Buffer.from(JSON.stringify(payload, null, 2), 'utf8'));
+  fs.writeFileSync(filePath, compressed);
+  const sha256 = crypto.createHash('sha256').update(compressed).digest('hex');
+
+  db.prepare(`
+    INSERT INTO patient_archive_files (id, file_name, file_path, file_size_bytes, sha256, records_count, period_start, period_end, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(id, fileName, filePath, compressed.length, sha256, appointments.length, periodStart, periodEnd, createdAt);
+
+  const updateAppointment = db.prepare('UPDATE appointments SET archived_at = ?, archive_file_id = ?, updated_at = ? WHERE id = ?');
+  appointments.forEach((appointment) => updateAppointment.run(createdAt, id, createdAt, appointment.id));
+
+  writeAuditLog(actor, 'archive_patient_history', 'patient_archive_file', id, {
+    recordsCount: appointments.length,
+    fileName,
+    periodStart,
+    periodEnd,
+    reason,
+  });
+
+  return getArchiveFileRows(true).find((item) => item.id === id) || null;
+}
+
+function runRetentionMaintenance(actor = { id: 'system', displayName: 'Sistema', role: 'system' }) {
+  const today = new Date();
+  const archiveCutoff = dateKeyFromDate(addDaysToDate(today, -HISTORY_ARCHIVE_AFTER_DAYS));
+  const fileCutoffIso = addDaysToDate(today, -ARCHIVE_FILE_RETENTION_DAYS).toISOString();
+  const pendingRows = db.prepare(`
+    SELECT id, full_name, address, cpf, appointment_date, appointment_time, status, procedure_name, notes, created_at, updated_at, created_by_user_id, source, contact_phone, archived_at, archive_file_id
+    FROM appointments
+    WHERE appointment_date <= ?
+      AND COALESCE(archived_at, '') = ''
+    ORDER BY appointment_date ASC, appointment_time ASC
+  `).all().map(mapAppointmentRow);
+
+  let createdArchive = null;
+  if (pendingRows.length > 0) {
+    createdArchive = createPatientArchiveFile(pendingRows, actor);
+  }
+
+  const expiredFiles = db.prepare(`
+    SELECT id, file_name, file_path
+    FROM patient_archive_files
+    WHERE COALESCE(deleted_at, '') = ''
+      AND created_at <= ?
+  `).all(fileCutoffIso);
+  const deletedAt = nowIso();
+  expiredFiles.forEach((file) => {
+    const resolvedPath = path.resolve(file.file_path);
+    const archiveRoot = path.resolve(ARCHIVE_DIR);
+    if (resolvedPath.startsWith(archiveRoot) && fs.existsSync(resolvedPath)) {
+      fs.unlinkSync(resolvedPath);
+    }
+    db.prepare(`
+      UPDATE patient_archive_files
+      SET deleted_at = ?, deleted_reason = ?
+      WHERE id = ?
+    `).run(deletedAt, `Retencao de ${ARCHIVE_FILE_RETENTION_DAYS} dias para arquivos compactados.`, file.id);
+    writeAuditLog(actor, 'delete_expired_archive_file', 'patient_archive_file', file.id, {
+      fileName: file.file_name,
+      retentionDays: ARCHIVE_FILE_RETENTION_DAYS,
+    });
+  });
+
+  return {
+    ok: true,
+    ranAt: nowIso(),
+    archivedAppointments: pendingRows.length,
+    createdArchive,
+    deletedArchiveFiles: expiredFiles.length,
+    status: getRetentionStatus(),
+    archiveFiles: getArchiveFileRows(),
   };
 }
 
@@ -758,6 +986,18 @@ function buildSystemCheckReport(auth) {
         activeUsers: users?.active ?? 0,
       };
     });
+
+    pushCheck('retention', 'Histórico, compactação e backups', () => {
+      const status = getRetentionStatus();
+      return {
+        arquivarAposDias: status.archiveAfterDays,
+        apagarArquivosAposDias: status.archiveFileRetentionDays,
+        prontuarioAnos: status.medicalRecordRetentionYears,
+        pendentesParaArquivar: status.pendingArchiveCount,
+        arquivosAtivos: status.activeArchiveFileCount,
+        arquivosVencidos: status.expiredArchiveFileCount,
+      };
+    });
   }
 
   const failures = checks.filter((item) => !item.ok);
@@ -783,6 +1023,10 @@ function buildBackupSnapshot() {
     `).all(),
     siteContent: getSiteContent(),
     schedule: getSchedule(),
+    retention: {
+      status: getRetentionStatus(),
+      archiveFiles: getArchiveFileRows(true),
+    },
     auditLogs: getAuditLogs(500),
     whatsapp: {
       events: getRecentWhatsAppEvents(500),
@@ -914,6 +1158,20 @@ function migrateDefaultStaffCredentialsIfNeeded() {
 }
 
 migrateDefaultStaffCredentialsIfNeeded();
+
+try {
+  runRetentionMaintenance({ id: 'system', displayName: 'Sistema', role: 'system' });
+} catch (error) {
+  console.warn(`Retention maintenance skipped: ${error.message}`);
+}
+
+setInterval(() => {
+  try {
+    runRetentionMaintenance({ id: 'system', displayName: 'Sistema', role: 'system' });
+  } catch (error) {
+    console.warn(`Retention maintenance failed: ${error.message}`);
+  }
+}, 24 * 60 * 60 * 1000);
 
 function buildExternalBaseUrl(req) {
   if (PUBLIC_BASE_URL) return PUBLIC_BASE_URL;
@@ -1587,6 +1845,57 @@ app.get('/api/admin/backup', authRequired, adminRequired, (_req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Content-Disposition', `attachment; filename="backup-dra-williane-${Date.now()}.json"`);
   res.send(JSON.stringify(snapshot, null, 2));
+});
+
+app.get('/api/admin/patient-history', authRequired, (req, res) => {
+  res.json({
+    retention: getRetentionStatus(),
+    archiveFiles: req.auth.role === 'admin' ? getArchiveFileRows() : [],
+    records: getPatientHistory({
+      query: req.query.q,
+      archived: req.query.archived,
+      limit: req.query.limit,
+    }),
+  });
+});
+
+app.post('/api/admin/retention/run', authRequired, adminRequired, (req, res) => {
+  try {
+    const result = runRetentionMaintenance(req.auth);
+    return res.json(result);
+  } catch (error) {
+    return res.status(500).json({ error: error.message || 'Falha ao executar manutenção do histórico.' });
+  }
+});
+
+app.get('/api/admin/archive-files', authRequired, adminRequired, (_req, res) => {
+  res.json({
+    retention: getRetentionStatus(),
+    archiveFiles: getArchiveFileRows(),
+  });
+});
+
+app.get('/api/admin/archive-files/:id/download', authRequired, adminRequired, (req, res) => {
+  const file = db.prepare(`
+    SELECT id, file_name, file_path
+    FROM patient_archive_files
+    WHERE id = ?
+      AND COALESCE(deleted_at, '') = ''
+  `).get(req.params.id);
+
+  if (!file) {
+    return res.status(404).json({ error: 'Arquivo de histórico não encontrado.' });
+  }
+
+  const resolvedPath = path.resolve(file.file_path);
+  const archiveRoot = path.resolve(ARCHIVE_DIR);
+  if (!resolvedPath.startsWith(archiveRoot) || !fs.existsSync(resolvedPath)) {
+    return res.status(404).json({ error: 'Arquivo físico não está disponível no servidor.' });
+  }
+
+  res.setHeader('Content-Type', 'application/gzip');
+  res.setHeader('Content-Disposition', `attachment; filename="${file.file_name}"`);
+  return res.sendFile(resolvedPath);
 });
 
 app.get('/api/whatsapp/webhook', (req, res) => {

@@ -43,6 +43,11 @@ export function SiteContentProvider({ children }) {
     auditLogs: [],
   });
   const [whatsAppStatus, setWhatsAppStatus] = useState(null);
+  const [patientHistory, setPatientHistory] = useState({
+    retention: null,
+    archiveFiles: [],
+    records: [],
+  });
   const [loading, setLoading] = useState(true);
 
   const authHeaders = useMemo(
@@ -94,6 +99,23 @@ export function SiteContentProvider({ children }) {
     });
   };
 
+  const loadPatientHistory = async (headers = authHeaders, params = {}) => {
+    if (!headers.Authorization) {
+      setPatientHistory({ retention: null, archiveFiles: [], records: [] });
+      return;
+    }
+    const searchParams = new URLSearchParams();
+    if (params.query) searchParams.set('q', params.query);
+    if (params.archived) searchParams.set('archived', params.archived);
+    searchParams.set('limit', String(params.limit || 250));
+    const result = await apiFetch(`/api/admin/patient-history?${searchParams.toString()}`, { headers });
+    setPatientHistory({
+      retention: result.retention || null,
+      archiveFiles: result.archiveFiles || [],
+      records: result.records || [],
+    });
+  };
+
   const loadWhatsAppStatus = async (headers = authHeaders, user = currentUser) => {
     if (!headers.Authorization || user?.role !== 'admin') {
       setWhatsAppStatus(null);
@@ -110,6 +132,7 @@ export function SiteContentProvider({ children }) {
       setSchedule(defaultSiteContent.admin);
       setDashboard({ summary: null, auditLogs: [] });
       setWhatsAppStatus(null);
+      setPatientHistory({ retention: null, archiveFiles: [], records: [] });
       return;
     }
 
@@ -119,6 +142,7 @@ export function SiteContentProvider({ children }) {
       loadUsers(headers),
       loadSchedule(headers),
       loadDashboard(headers),
+      loadPatientHistory(headers),
       loadWhatsAppStatus(headers, me.user),
     ]);
   };
@@ -141,6 +165,7 @@ export function SiteContentProvider({ children }) {
           setSchedule(defaultSiteContent.admin);
           setDashboard({ summary: null, auditLogs: [] });
           setWhatsAppStatus(null);
+          setPatientHistory({ retention: null, archiveFiles: [], records: [] });
         }
       } finally {
         if (mounted) setLoading(false);
@@ -161,6 +186,7 @@ export function SiteContentProvider({ children }) {
       users,
       dashboard,
       whatsAppStatus,
+      patientHistory,
       loading,
       async refreshAll() {
         await loadSiteContent();
@@ -189,6 +215,7 @@ export function SiteContentProvider({ children }) {
           loadUsers(nextHeaders),
           loadSchedule(nextHeaders),
           loadDashboard(nextHeaders),
+          loadPatientHistory(nextHeaders),
           loadWhatsAppStatus(nextHeaders, result.user),
         ]);
         return result.user;
@@ -201,6 +228,7 @@ export function SiteContentProvider({ children }) {
         setSchedule(defaultSiteContent.admin);
         setDashboard({ summary: null, auditLogs: [] });
         setWhatsAppStatus(null);
+        setPatientHistory({ retention: null, archiveFiles: [], records: [] });
       },
       async saveContent(nextContent) {
         await apiFetch('/api/admin/site-content', {
@@ -238,12 +266,13 @@ export function SiteContentProvider({ children }) {
           body: JSON.stringify(nextSchedule),
         });
         setSchedule(deepMerge(defaultSiteContent.admin, result.schedule || {}));
-        await Promise.all([loadDashboard(authHeaders), loadWhatsAppStatus(authHeaders)]);
+        await Promise.all([loadDashboard(authHeaders), loadPatientHistory(authHeaders), loadWhatsAppStatus(authHeaders)]);
       },
       async refreshSchedule() {
         await Promise.all([
           loadSchedule(authHeaders),
           loadDashboard(authHeaders),
+          loadPatientHistory(authHeaders),
           loadWhatsAppStatus(authHeaders),
         ]);
       },
@@ -292,7 +321,7 @@ export function SiteContentProvider({ children }) {
           body: JSON.stringify(payload),
         });
         setWhatsAppStatus(result.status || null);
-        await Promise.all([loadSchedule(authHeaders), loadDashboard(authHeaders)]);
+        await Promise.all([loadSchedule(authHeaders), loadDashboard(authHeaders), loadPatientHistory(authHeaders)]);
         return result.result;
       },
       async sendWhatsAppTestMessage(payload) {
@@ -313,6 +342,40 @@ export function SiteContentProvider({ children }) {
             ...authHeaders,
           },
         });
+      },
+      async refreshPatientHistory(params = {}) {
+        await loadPatientHistory(authHeaders, params);
+      },
+      async runRetentionMaintenance() {
+        const result = await apiFetch('/api/admin/retention/run', {
+          method: 'POST',
+          headers: {
+            ...authHeaders,
+          },
+        });
+        await Promise.all([loadSchedule(authHeaders), loadDashboard(authHeaders), loadPatientHistory(authHeaders)]);
+        return result;
+      },
+      async downloadArchiveFile(fileId) {
+        const response = await fetch(`/api/admin/archive-files/${fileId}/download`, {
+          headers: {
+            ...authHeaders,
+          },
+        });
+        if (!response.ok) {
+          const payload = await response.text();
+          throw new Error(payload || 'Falha ao baixar arquivo compactado.');
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `historico-pacientes-${fileId}.json.gz`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
       },
       async downloadBackup() {
         const response = await fetch('/api/admin/backup', {
@@ -336,7 +399,7 @@ export function SiteContentProvider({ children }) {
         window.URL.revokeObjectURL(url);
       },
     }),
-    [siteContent, token, currentUser, users, dashboard, whatsAppStatus, loading, authHeaders]
+    [siteContent, token, currentUser, users, dashboard, whatsAppStatus, patientHistory, loading, authHeaders]
   );
 
   return <SiteContentContext.Provider value={value}>{children}</SiteContentContext.Provider>;
